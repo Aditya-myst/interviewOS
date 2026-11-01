@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -13,6 +14,9 @@ interface IosButtonProps
   size?: ButtonSize;
   arrow?: boolean;
   loading?: boolean;
+  /** When set, renders a Next.js <Link> with identical styling — never nest
+   *  a <button> inside an <a>, that is what this prop exists to avoid. */
+  href?: string;
   children: React.ReactNode;
 }
 
@@ -76,53 +80,67 @@ export default function IosButton({
   loading = false,
   disabled,
   className,
+  href,
   children,
   ...props
 }: IosButtonProps) {
   const isDisabled = disabled || loading;
 
+  const classes = cn(
+    "inline-flex items-center justify-center shrink-0 whitespace-nowrap select-none",
+    "font-[family-name:var(--font-sans)]",
+    "min-h-[44px] min-w-[44px]",
+    "transition-all duration-[150ms] ease-out",
+    "disabled:pointer-events-none disabled:bg-[var(--surface-3)] disabled:text-[var(--text-dim)] disabled:border disabled:border-[var(--border)]",
+    VARIANT_STYLES[variant],
+    SIZE_STYLES[size],
+    arrow && "pr-1.5",
+    className
+  );
+
+  const content = loading ? (
+    <span className="flex items-center gap-2">
+      <span
+        aria-hidden
+        className="size-4 rounded-full border-2 border-current border-t-transparent animate-spin"
+      />
+      <span>{children}</span>
+    </span>
+  ) : (
+    <>
+      <span>{children}</span>
+      {arrow && (
+        <span
+          aria-hidden
+          className={cn(
+            "flex items-center justify-center rounded-full",
+            ARROW_CHIP[variant],
+            size === "sm" ? "size-6" : size === "md" ? "size-7" : "size-8"
+          )}
+        >
+          <ArrowRight size={ARROW_SIZE[size]} strokeWidth={2.5} />
+        </span>
+      )}
+    </>
+  );
+
+  if (href && !isDisabled) {
+    return (
+      <Link href={href} data-variant={variant} className={classes}>
+        {content}
+      </Link>
+    );
+  }
+
   return (
     <button
+      type={props.type ?? "button"}
       data-variant={variant}
       disabled={isDisabled}
-      className={cn(
-        "inline-flex items-center justify-center shrink-0 whitespace-nowrap select-none",
-        "font-[family-name:var(--font-sans)]",
-        "min-h-[44px] min-w-[44px]",
-        "transition-all duration-[150ms] ease-out",
-        "disabled:opacity-50 disabled:pointer-events-none",
-        VARIANT_STYLES[variant],
-        SIZE_STYLES[size],
-        arrow && "pr-1.5",
-        className
-      )}
+      className={classes}
       {...props}
     >
-      {loading ? (
-        <span className="flex items-center gap-2">
-          <span
-            aria-hidden
-            className="size-4 rounded-full border-2 border-current border-t-transparent animate-spin"
-          />
-          <span>{children}</span>
-        </span>
-      ) : (
-        <>
-          <span>{children}</span>
-          {arrow && (
-            <span
-              aria-hidden
-              className={cn(
-                "flex items-center justify-center rounded-full",
-                ARROW_CHIP[variant],
-                size === "sm" ? "size-6" : size === "md" ? "size-7" : "size-8"
-              )}
-            >
-              <ArrowRight size={ARROW_SIZE[size]} strokeWidth={2.5} />
-            </span>
-          )}
-        </>
-      )}
+      {content}
     </button>
   );
 }

@@ -29,13 +29,13 @@ export default function StatRow({
       )}
     >
       {/* Label */}
-      <span className="text-small text-[var(--text-dim)] leading-snug">
+      <span className="type-small text-[var(--text-dim)] leading-snug">
         {label}
       </span>
 
       {/* Value + delta */}
       <div className="flex items-center gap-2 shrink-0">
-        <span className="text-mono-value text-sm font-medium text-[var(--text)]">
+        <span className="type-mono-value text-sm font-medium text-[var(--text)]">
           {value}
           {unit && (
             <span className="text-[var(--text-dim)] ml-0.5 text-xs">
@@ -47,7 +47,7 @@ export default function StatRow({
         {hasDelta && (
           <span
             className={cn(
-              "inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-[999px] text-xs font-medium text-mono-value",
+              "inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-[999px] text-xs font-medium type-mono-value",
               isUp
                 ? "bg-[var(--brand)]/15 text-[var(--brand-strong)]"
                 : "bg-[var(--weak)]/15 text-[var(--weak)]"

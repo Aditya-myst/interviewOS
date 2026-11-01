@@ -14,11 +14,11 @@ export default function MarketingFooter() {
           />
         </div>
 
-        <p className="text-micro text-[var(--text-dim)] m-0 text-center">
+        <p className="type-micro text-[var(--text-dim)] m-0 text-center">
           Built with Next.js, FastAPI, Postgres and open models
         </p>
 
-        <nav aria-label="Legal" className="flex items-center gap-6 text-small">
+        <nav aria-label="Legal" className="flex items-center gap-6 type-small">
           <a
             href="/privacy"
             className="text-[var(--text-dim)] hover:text-[var(--text)] transition-colors"
@@ -35,7 +35,7 @@ export default function MarketingFooter() {
       </div>
 
       <div className="max-w-5xl mx-auto px-6 lg:px-12 mt-8">
-        <p className="text-micro text-[var(--text-dim)] m-0">
+        <p className="type-micro text-[var(--text-dim)] m-0">
           © {YEAR} InterviewOS. All rights reserved.
         </p>
       </div>

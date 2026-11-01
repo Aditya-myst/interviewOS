@@ -1,10 +1,12 @@
+"use client";
+
+import { useState } from "react";
+import { ChevronDown } from "lucide-react";
+import Section from "./Section";
+import SectionHeading from "./SectionHeading";
+import Reveal from "./Reveal";
 import IosButton from "@/components/primitives/IosButton";
 
-/**
- * Copy rule: every answer here must be literally true of the product.
- * No "we never store your resume" (we do, privately), no pricing tiers
- * that do not exist, no model names we do not run.
- */
 const FAQS = [
   {
     q: "Is InterviewOS free?",
@@ -29,34 +31,68 @@ const FAQS = [
 ];
 
 export default function FAQ() {
+  const [open, setOpen] = useState<number | null>(0);
+
   return (
-    <section className="bg-[var(--canvas)] py-24" id="faq">
-      <div className="max-w-3xl mx-auto px-6 lg:px-12">
-        <p className="text-micro text-[var(--text-dim)] mb-4">FAQ</p>
-        <h2 className="text-display-2 text-[var(--text)] mb-10">
-          Common questions
-        </h2>
-
-        <dl className="m-0">
-          {FAQS.map(({ q, a }) => (
-            <div
-              key={q}
-              className="border-t border-[var(--border)] py-6 last:border-b"
-            >
-              <dt className="text-h3 text-[var(--text)] mb-2">{q}</dt>
-              <dd className="text-small text-[var(--text-dim)] m-0 max-w-[62ch]">
-                {a}
-              </dd>
-            </div>
-          ))}
-        </dl>
-
-        <div className="mt-10">
+    <Section id="faq" tone="surface">
+      <div className="grid grid-cols-1 lg:grid-cols-[0.85fr_1.15fr] gap-10 lg:gap-16">
+        <div className="lg:sticky lg:top-24 self-start">
+          <SectionHeading
+            eyebrow="FAQ"
+            title="Common questions"
+            lead="Short answers, and the honest limits behind them."
+            className="mb-8"
+          />
           <IosButton variant="secondary" size="md" arrow>
             Ask something else
           </IosButton>
         </div>
+
+        <div className="border-t border-[var(--border)]">
+          {FAQS.map((item, i) => {
+            const isOpen = open === i;
+            return (
+              <Reveal key={item.q} delay={i * 40}>
+                <div className="border-b border-[var(--border)]">
+                  <h3 className="m-0">
+                    <button
+                      type="button"
+                      onClick={() => setOpen(isOpen ? null : i)}
+                      aria-expanded={isOpen}
+                      aria-controls={`faq-panel-${i}`}
+                      id={`faq-trigger-${i}`}
+                      className="w-full flex items-center justify-between gap-4 py-5 text-left type-h4 text-[var(--text)] hover:text-[var(--brand-strong)] transition-colors"
+                    >
+                      {item.q}
+                      <ChevronDown
+                        size={18}
+                        aria-hidden
+                        className={`shrink-0 text-[var(--text-dim)] transition-transform duration-300 ${
+                          isOpen ? "rotate-180" : ""
+                        }`}
+                      />
+                    </button>
+                  </h3>
+                  <div
+                    id={`faq-panel-${i}`}
+                    role="region"
+                    aria-labelledby={`faq-trigger-${i}`}
+                    className={`grid transition-all duration-300 ease-out ${
+                      isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+                    }`}
+                  >
+                    <div className="overflow-hidden">
+                      <p className="type-small text-[var(--text-dim)] m-0 pb-5 max-w-[58ch]">
+                        {item.a}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </Reveal>
+            );
+          })}
+        </div>
       </div>
-    </section>
+    </Section>
   );
 }

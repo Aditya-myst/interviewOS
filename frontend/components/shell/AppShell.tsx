@@ -43,9 +43,7 @@ function NavLink({
   const pathname = usePathname();
   // Dashboard is also active on /shell-demo (design system demo route)
   const active =
-    pathname === item.href ||
-    pathname.startsWith(item.href + "/") ||
-    (item.href === "/dashboard" && pathname === "/shell-demo");
+    pathname === item.href || pathname.startsWith(item.href + "/");
   const Icon = item.icon;
 
   const content = (

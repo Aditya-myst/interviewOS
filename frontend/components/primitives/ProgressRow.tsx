@@ -19,8 +19,8 @@ export default function ProgressRow({
   return (
     <div className={cn("flex flex-col gap-2 py-3 border-b border-[var(--line)] last:border-b-0", className)}>
       <div className="flex items-center justify-between gap-4">
-        <span className="text-small text-[var(--text)] leading-snug">{title}</span>
-        <span className="text-mono-value text-xs text-[var(--text-dim)] shrink-0">
+        <span className="type-small text-[var(--text)] leading-snug">{title}</span>
+        <span className="type-mono-value text-xs text-[var(--text-dim)] shrink-0">
           {current}
           <span className="text-[var(--line-strong)] mx-0.5">/</span>
           {total}

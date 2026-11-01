@@ -62,7 +62,7 @@ export default function BandCard({
       {/* Count */}
       <span
         className={cn(
-          "text-mono-value text-3xl font-black leading-none shrink-0 tabular-nums",
+          "type-mono-value text-3xl font-black leading-none shrink-0 tabular-nums",
           cfg.accentColor
         )}
         aria-label={`${count} ${band} priority items`}
@@ -74,7 +74,7 @@ export default function BandCard({
         <p className="text-sm font-semibold text-[var(--text)] leading-snug">
           {title}
         </p>
-        <p className={cn("text-micro mt-0.5", cfg.accentColor)}>{cfg.label}</p>
+        <p className={cn("type-micro mt-0.5", cfg.accentColor)}>{cfg.label}</p>
         {description && (
           <p className="text-xs text-[var(--text-dim)] mt-1 leading-snug">
             {description}

@@ -246,48 +246,68 @@
   }
 }
 
-/* ─── Typography + surface utilities ────────────────────────── */
+/* ─── Motion ─────────────────────────────────────────────────── */
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ─── Typography + surface utilities ─────────────────────────────
+   NOTE: type-* is deliberately NOT text-* — `cn()` (tailwind-merge)
+   treats `text-display-2` and `text-[var(--text)]` as the same class
+   group and silently drops the font size. Keep the two namespaces apart.
+   ──────────────────────────────────────────────────────────────── */
 @layer utilities {
-  .text-display-1 {
+  .type-display-1 {
     font-family: var(--font-display);
     font-size: clamp(2.75rem, 7vw, 5.5rem);
     line-height: 0.88;
     letter-spacing: -0.03em;
   }
   /* Hero headline: sized so the three lines never reflow at 1280-1600px */
-  .text-hero {
+  .type-hero {
     font-family: var(--font-display);
     font-size: clamp(2.25rem, 3.9vw, 56px);
     line-height: 0.94;
     letter-spacing: -0.03em;
   }
-  .text-display-2 {
+  .type-display-2 {
     font-family: var(--font-display);
     font-size: clamp(2rem, 4.5vw, 3.5rem);
     line-height: 0.92;
     letter-spacing: -0.03em;
   }
-  .text-display-3 {
+  .type-display-3 {
     font-family: var(--font-display);
     font-size: clamp(1.75rem, 3vw, 2.5rem);
     line-height: 0.94;
     letter-spacing: -0.02em;
   }
-  .text-h3 {
+  .type-h3 {
     font-family: var(--font-sans);
     font-size: 20px;
     font-weight: 600;
     line-height: 1.3;
   }
-  .text-body {
+  .type-h4 {
+    font-family: var(--font-sans);
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+  .type-body {
     font-size: 16px;
     line-height: 1.6;
   }
-  .text-small {
+  .type-small {
     font-size: 14px;
     line-height: 1.5;
   }
-  .text-micro {
+  .type-micro {
     font-family: var(--font-sans);
     font-size: 12px;
     font-weight: 500;
@@ -295,7 +315,13 @@
     text-transform: uppercase;
     line-height: 1.4;
   }
-  .text-mono-value {
+  .animate-rise {
+    animation: riseIn 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  }
+  .animate-fade {
+    animation: fadeIn 0.8s ease-out both;
+  }
+  .type-mono-value {
     font-family: var(--font-mono);
     font-variant-numeric: tabular-nums;
   }

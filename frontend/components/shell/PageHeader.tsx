@@ -24,13 +24,13 @@ export default function PageHeader({
       <div className="flex-1 min-w-0">
         {eyebrow && (
           <p
-            className="text-micro text-[var(--text-dim)] mb-2"
+            className="type-micro text-[var(--text-dim)] mb-2"
             aria-label={`Section: ${eyebrow}`}
           >
             {eyebrow}
           </p>
         )}
-        <h1 className="text-display-3 text-[var(--text)] leading-[0.9]">
+        <h1 className="type-display-3 text-[var(--text)] leading-[0.9]">
           {title}
         </h1>
       </div>
