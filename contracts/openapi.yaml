@@ -700,6 +700,15 @@ components:
               verified: { type: number }
               developing: { type: number }
               unverified: { type: number }
+        # last 14 days, oldest first; the dashboard draws it as a sparkline.
+        # Omitted by clients should be treated as "no trend", not zero.
+        readiness_history:
+          type: array
+          items:
+            type: object
+            properties:
+              date: { type: string, format: date }
+              readiness: { type: number }
         priority_skills:
           type: array
           items: { $ref: "#/components/schemas/CandidateSkill" }

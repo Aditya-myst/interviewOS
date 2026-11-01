@@ -3,6 +3,7 @@ import { ArrowRight } from "lucide-react";
 import PageHeader from "@/components/shell/PageHeader";
 import IosButton from "@/components/primitives/IosButton";
 import GapMapTable from "@/components/app/GapMapTable";
+import SkillMatrix from "@/components/charts/SkillMatrix";
 import StateNotice from "@/components/app/StateNotice";
 import { skillProfileFixture } from "@/lib/fixtures";
 
@@ -33,7 +34,10 @@ export default function GapMapPage() {
         </div>
       )}
 
-      <GapMapTable skills={p.skills} />
+      <div className="space-y-5">
+        <SkillMatrix skills={p.skills} />
+        <GapMapTable skills={p.skills} />
+      </div>
 
       <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 type-small text-[var(--text-dim)]">
         <span>

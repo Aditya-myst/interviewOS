@@ -300,6 +300,8 @@ export interface Dashboard {
     topics_done: number; topics_total: number; avg_interview_score?: number | null;
   };
   coverage: CoverageRow[];
+  /** Last 14 days, oldest first. Absent means "no trend", never zero. */
+  readiness_history?: Array<{ date: string; readiness: number }>;
   priority_skills: CandidateSkill[];
   interviews: Array<{
     session_id: string; mode: string; channel: string;

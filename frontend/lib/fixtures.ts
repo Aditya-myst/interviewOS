@@ -43,6 +43,13 @@ export const dashboardFixture = loadFixture<Dashboard>("dashboard.json");
 export const skillProfileFixture = loadFixture<SkillProfile>("skill_profile.json");
 export const roadmapFixture = loadFixture<Roadmap>("roadmap.json");
 
+/**
+ * The clock every fixture is written against. Relative labels ("assessed 3d
+ * ago") must be computed from this, not from the wall clock, or the demo will
+ * claim a 2026 fixture was assessed 300 days ago.
+ */
+export const FIXTURE_TODAY = "2026-11-01T00:00:00Z";
+
 /** The `?state=` variants the UI must survive. */
 export type DemoState = "populated" | "empty" | "degraded" | "loading";
 

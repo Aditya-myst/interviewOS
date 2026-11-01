@@ -3,25 +3,31 @@ import Link from "next/link";
 import { ArrowRight, Sparkles } from "lucide-react";
 import PageHeader from "@/components/shell/PageHeader";
 import IosButton from "@/components/primitives/IosButton";
-import ReadinessDial from "@/components/app/ReadinessDial";
-import StatTiles, { type Stat } from "@/components/app/StatTiles";
+import RadialScore from "@/components/charts/RadialScore";
+import Sparkline from "@/components/charts/Sparkline";
+import DeltaPill from "@/components/charts/DeltaPill";
+import PriorityScatter from "@/components/charts/PriorityScatter";
 import CoverageStack from "@/components/app/CoverageStack";
-import PriorityRow from "@/components/app/PriorityRow";
 import InterviewTable from "@/components/app/InterviewTable";
 import StateNotice from "@/components/app/StateNotice";
 import Skeleton from "@/components/app/Skeleton";
 import {
   dashboardFixture,
+  roadmapFixture,
+  skillProfileFixture,
   parseState,
   type DemoState,
 } from "@/lib/fixtures";
+import type { CandidateSkill } from "../../../../contracts/types";
 
 export const metadata = { title: "Dashboard — InterviewOS" };
 
+type Move = { action: string; meta: string; minutes: number; href: string };
+
 /**
- * The header is static; everything that depends on `?state=` lives behind a
- * Suspense boundary so Cache Components can prerender the shell and stream the
- * body. The fallback IS the loading state — one skeleton, two ways to reach it.
+ * The header, the state banner and the trend strip are static; anything that
+ * depends on `?state=` sits behind Suspense, which is the shape Cache Components
+ * asks for. The fallback IS the loading state.
  */
 export default function DashboardPage({
   searchParams,
@@ -31,7 +37,7 @@ export default function DashboardPage({
   const d = dashboardFixture;
 
   return (
-    <div className="max-w-[1180px] mx-auto">
+    <div className="max-w-[1240px] mx-auto">
       <PageHeader
         eyebrow={`Dashboard · ${d.target_role ?? "target role"}`}
         title="Where you stand today"
@@ -47,11 +53,25 @@ export default function DashboardPage({
         }
       />
 
+      <p className="m-0 -mt-4 mb-6 type-small text-[var(--text-dim)]">
+        {d.stats.verified_skills} of {d.stats.skills_total} skills verified
+        <Sep />
+        avg interview score {d.stats.avg_interview_score ?? "—"}
+        <Sep />
+        {d.stats.topics_done} of {d.stats.topics_total} topics done
+        <Sep />
+        {d.stats.mock_interviews} mock interviews
+      </p>
+
       <Suspense fallback={<LoadingState />}>
         <DashboardBody searchParams={searchParams} />
       </Suspense>
     </div>
   );
+}
+
+function Sep() {
+  return <span className="mx-2 text-[var(--border-strong)]" aria-hidden>·</span>;
 }
 
 async function DashboardBody({
@@ -60,6 +80,9 @@ async function DashboardBody({
   searchParams: Promise<{ state?: string }>;
 }) {
   const state: DemoState = parseState((await searchParams).state);
+
+  if (state === "loading") return <LoadingState />;
+  if (state === "empty") return <EmptyState />;
 
   return (
     <>
@@ -73,131 +96,168 @@ async function DashboardBody({
         </div>
       )}
 
-      {state === "loading" ? (
-        <LoadingState />
-      ) : state === "empty" ? (
-        <EmptyState />
-      ) : (
-        <Populated />
-      )}
+      <div className="space-y-5">
+        <TopRow />
+        <NextMoves />
+        <section className="card-surface p-5">
+          <div className="flex items-center justify-between gap-4 mb-3">
+            <h2 className="type-h4 m-0">Recent mock interviews</h2>
+            <span className="type-small text-[var(--text-dim)]">
+              score is transcript-based
+            </span>
+          </div>
+          <InterviewTable interviews={dashboardFixture.interviews} />
+        </section>
+      </div>
 
-      <p className="mt-8 type-small text-[var(--text-dim)]">
-        {state === "empty"
-          ? "Nothing to show yet — that is the honest state of a new account."
-          : "Data source: contracts/fixtures/dashboard.json · phase 3 renders fixtures, phase 4 swaps in the API."}
+      <p className="mt-6 type-small text-[var(--text-dim)]">
+        Data source: contracts/fixtures/dashboard.json · phase 3 renders
+        fixtures, phase 4 swaps in the API.
       </p>
     </>
   );
 }
 
-/* ─── populated ─────────────────────────────────────────────── */
-function Populated() {
+/* ─── readiness · priority map · coverage ───────────────────── */
+function TopRow() {
   const d = dashboardFixture;
-  const top = d.priority_skills[0];
-  const stats: Stat[] = [
-    {
-      label: "Verified",
-      value: `${d.stats.verified_skills}/${d.stats.skills_total}`,
-      tone: d.stats.verified_skills > 0 ? "good" : "default",
-    },
-    { label: "Interviews", value: String(d.stats.mock_interviews) },
-    {
-      label: "Topics done",
-      value: `${d.stats.topics_done}/${d.stats.topics_total}`,
-    },
-    {
-      label: "Avg score",
-      value: d.stats.avg_interview_score ? String(d.stats.avg_interview_score) : "—",
-      tone:
-        (d.stats.avg_interview_score ?? 0) >= 70
-          ? "good"
-          : (d.stats.avg_interview_score ?? 0) >= 50
-            ? "warn"
-            : "default",
-    },
-  ];
+  const history = d.readiness_history ?? [];
+  const values = history.map((h) => h.readiness);
+  const delta = values.length > 1 ? values[values.length - 1] - values[0] : 0;
 
   return (
-    <div className="space-y-5">
-      {/* Row 1 */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        <section className="card-surface p-6 flex flex-col">
-          <p className="type-micro text-[var(--text-dim)] mb-4 m-0">Readiness</p>
-          <ReadinessDial
-            value={d.readiness}
-            label={d.readiness_label}
-            provisional={d.provisional}
-            className="my-auto"
-          />
-        </section>
+    <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr_300px] gap-5">
+      <section className="card-surface p-5 flex flex-col">
+        <div className="flex items-start justify-between gap-3">
+          <p className="type-micro text-[var(--text-dim)] m-0">Readiness</p>
+          {values.length > 1 && <DeltaPill value={delta} suffix=" pts" label="7d" />}
+        </div>
 
-        <section className="card-surface p-6">
-          <p className="type-micro text-[var(--text-dim)] mb-4 m-0">This far</p>
-          <StatTiles stats={stats} />
-        </section>
-
-        {top && (
-          <section className="slab-ink p-6 flex flex-col">
-            <p className="type-micro text-[var(--on-ink-dim)] m-0 mb-3">
-              Start here
-            </p>
-            <h2 className="type-display-3 text-[var(--on-ink)] m-0 mb-2">
-              {top.name}
-            </h2>
-            <p className="type-small text-[var(--on-ink-dim)] m-0 mb-5">
-              {top.explanation}
-            </p>
-            <div className="mt-auto flex items-center gap-3">
-              <IosButton href="/roadmap" variant="primary" size="md" arrow>
-                Start this topic
-              </IosButton>
-              <Link
-                href="/gap-map"
-                className="type-small text-[var(--on-ink-dim)] hover:text-[var(--on-ink)] underline-offset-4 hover:underline"
-              >
-                See why
-              </Link>
-            </div>
-          </section>
-        )}
-      </div>
-
-      {/* Row 2 */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        <section className="lg:col-span-2 card-surface overflow-hidden">
-          <div className="flex items-center justify-between gap-4 px-5 py-4 border-b border-[var(--border)]">
-            <h2 className="type-h4 m-0">Priority skills</h2>
-            <Link
-              href="/gap-map"
-              className="inline-flex items-center gap-1.5 type-small font-medium text-[var(--brand-strong)] hover:underline underline-offset-4"
-            >
-              All {d.stats.skills_total} skills
-              <ArrowRight size={14} aria-hidden />
-            </Link>
+        <div className="flex flex-col items-center justify-center flex-1 py-2 gap-3">
+          <div className="flex justify-center w-full">
+            <RadialScore
+              value={d.readiness}
+              label={d.readiness_label.replace("_", " ")}
+              size={148}
+            />
           </div>
-          {d.priority_skills.map((s) => (
-            <PriorityRow key={s.skill_id} skill={s} />
-          ))}
-        </section>
 
-        <section className="card-surface p-5">
-          <h2 className="type-h4 m-0 mb-4">Coverage by category</h2>
-          <CoverageStack rows={d.coverage} />
-        </section>
-      </div>
+          {values.length > 1 && (
+            <div className="flex justify-center w-full">
+              <Sparkline
+                values={values}
+                width={184}
+                height={38}
+                label={`Readiness over the last ${values.length} days`}
+              />
+            </div>
+          )}
+        </div>
 
-      {/* Row 3 */}
+        <p className="m-0 type-small text-[var(--text-dim)] text-center">
+          {d.provisional
+            ? "Provisional — partial evidence only"
+            : "Based on assessed evidence"}
+        </p>
+      </section>
+
       <section className="card-surface p-5">
-        <div className="flex items-center justify-between gap-4 mb-3">
-          <h2 className="type-h4 m-0">Recent mock interviews</h2>
+        <div className="flex items-baseline justify-between gap-4 mb-3">
+          <h2 className="type-h4 m-0">Priority map</h2>
           <span className="type-small text-[var(--text-dim)]">
-            Score is transcript-based
+            importance × gap
           </span>
         </div>
-        <InterviewTable interviews={d.interviews} />
+        {/* every assessed skill, not just the top three — the shape is the point */}
+        <PriorityScatter skills={skillProfileFixture.skills} />
+      </section>
+
+      <section className="card-surface p-5">
+        <h2 className="type-h4 m-0 mb-4">Coverage</h2>
+        <CoverageStack rows={d.coverage} />
       </section>
     </div>
   );
+}
+
+/* ─── next three moves, derived, not authored ───────────────── */
+function NextMoves() {
+  const d = dashboardFixture;
+  const skills = [...d.priority_skills].sort((a, b) => b.priority - a.priority);
+  const firstRead = roadmapFixture.topics.find(
+    (t) => t.status !== "done" && t.resources.some((r) => r.role === "concept")
+  );
+  const concept = firstRead?.resources.find((r) => r.role === "concept");
+
+  const moves: Move[] = [];
+
+  if (skills[0]) moves.push(assessMove(skills[0]));
+  if (firstRead && concept) {
+    moves.push({
+      action: `Read: ${concept.title}`,
+      meta: `${firstRead.title} · concept${concept.provider ? ` · ${concept.provider}` : ""}`,
+      minutes: concept.duration_minutes ?? 30,
+      href: "/roadmap",
+    });
+  }
+  if (skills[1]) moves.push(assessMove(skills[1]));
+
+  return (
+    <section className="card-surface overflow-hidden">
+      <div className="flex items-center justify-between gap-4 px-5 py-3 border-b border-[var(--border)]">
+        <h2 className="type-h4 m-0">Next three moves</h2>
+        <Link
+          href="/roadmap"
+          className="inline-flex items-center gap-1.5 type-small font-medium text-[var(--brand-strong)] hover:underline underline-offset-4"
+        >
+          Full roadmap
+          <ArrowRight size={14} aria-hidden />
+        </Link>
+      </div>
+
+      <ol className="list-none m-0 p-0">
+        {moves.map((m, i) => (
+          <li key={m.action}>
+            <Link
+              href={m.href}
+              className="flex items-center gap-4 px-5 py-3.5 border-b border-[var(--border)] last:border-0 hover:bg-[var(--surface)] transition-colors"
+            >
+              <span className="font-mono text-[11px] text-[var(--text-dim)] tabular-nums">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block type-small font-medium text-[var(--text)] truncate">
+                  {m.action}
+                </span>
+                <span className="block type-micro text-[var(--text-dim)] mt-0.5 truncate">
+                  {m.meta}
+                </span>
+              </span>
+              <span className="shrink-0 type-small text-[var(--text-dim)] tabular-nums">
+                {m.minutes} min
+              </span>
+              <ArrowRight
+                size={15}
+                className="shrink-0 text-[var(--text-dim)]"
+                aria-hidden
+              />
+            </Link>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
+function assessMove(skill: CandidateSkill): Move {
+  return {
+    action: `Assess ${skill.name}`,
+    meta: `${skill.priority_band} · ${skill.evidence.length} quote${
+      skill.evidence.length === 1 ? "" : "s"
+    } on file`,
+    minutes: 12,
+    href: "/gap-map",
+  };
 }
 
 /* ─── empty ─────────────────────────────────────────────────── */
@@ -233,44 +293,27 @@ function LoadingState() {
   return (
     <div className="space-y-5" aria-busy="true" aria-live="polite">
       <span className="sr-only">Loading your dashboard</span>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        <div className="card-surface p-6 flex flex-col items-center">
-          <Skeleton className="h-3 w-20 self-start mb-6" />
-          <Skeleton className="size-[168px] rounded-full" />
-          <Skeleton className="h-4 w-28 mt-5" />
-          <Skeleton className="h-3 w-40 mt-2" />
+      <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr_300px] gap-5">
+        <div className="card-surface p-5 flex flex-col items-center">
+          <Skeleton className="h-3 w-20 self-start mb-5" />
+          <Skeleton className="size-[148px] rounded-full" />
+          <Skeleton className="h-3 w-40 mt-4" />
         </div>
-        <div className="card-surface p-6">
-          <Skeleton className="h-3 w-16 mb-6" />
-          <div className="grid grid-cols-2 gap-3">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <Skeleton key={i} className="h-[76px]" />
-            ))}
-          </div>
-        </div>
-        <div className="card-surface p-6">
-          <Skeleton className="h-3 w-24 mb-5" />
-          <Skeleton className="h-8 w-40 mb-3" />
-          <Skeleton className="h-3 w-full mb-2" />
-          <Skeleton className="h-3 w-4/5 mb-6" />
-          <Skeleton className="h-11 w-36" />
-        </div>
-      </div>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        <div className="lg:col-span-2 card-surface p-5 space-y-4">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="space-y-2">
-              <Skeleton className="h-4 w-40" />
-              <Skeleton className="h-3 w-full" />
-              <Skeleton className="h-3 w-3/4" />
-            </div>
-          ))}
+        <div className="card-surface p-5">
+          <Skeleton className="h-4 w-32 mb-4" />
+          <Skeleton className="h-[230px]" />
         </div>
         <div className="card-surface p-5 space-y-4">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={i} className="h-6" />
+          <Skeleton className="h-4 w-24" />
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-5" />
           ))}
         </div>
+      </div>
+      <div className="card-surface p-5 space-y-3">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <Skeleton key={i} className="h-10" />
+        ))}
       </div>
     </div>
   );

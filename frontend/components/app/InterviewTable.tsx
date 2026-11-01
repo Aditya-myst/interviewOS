@@ -25,14 +25,16 @@ export default function InterviewTable({
 
   return (
     <div className="-mx-5 sm:mx-0 overflow-x-auto">
-      <table className="w-full min-w-[460px] border-collapse text-left">
+      <table className="w-full sm:min-w-[460px] border-collapse text-left">
         <thead>
           <tr className="border-b border-[var(--border)]">
             {["Mode", "Channel", "Score", "Length", "Date"].map((h) => (
               <th
                 key={h}
                 scope="col"
-                className="type-micro text-[var(--text-dim)] py-2 pr-4 font-medium"
+                className={`type-micro text-[var(--text-dim)] py-2 pr-4 font-medium ${
+                  h === "Length" ? "hidden sm:table-cell" : ""
+                }`}
               >
                 {h}
               </th>
@@ -59,7 +61,7 @@ export default function InterviewTable({
                   {s.score ?? "—"}
                 </span>
               </td>
-              <td className="py-3 pr-4 type-small text-[var(--text-dim)] tabular-nums">
+              <td className="py-3 pr-4 type-small text-[var(--text-dim)] tabular-nums hidden sm:table-cell">
                 {s.duration_minutes ? `${s.duration_minutes} min` : "—"}
               </td>
               <td className="py-3 type-small text-[var(--text-dim)] tabular-nums">

@@ -3,6 +3,36 @@
  "readiness_label": "early",
  "provisional": true,
  "target_role": "AI Engineer",
+ "readiness_history": [
+  {
+   "date": "2026-10-26",
+   "readiness": 26
+  },
+  {
+   "date": "2026-10-27",
+   "readiness": 29
+  },
+  {
+   "date": "2026-10-28",
+   "readiness": 33
+  },
+  {
+   "date": "2026-10-29",
+   "readiness": 42
+  },
+  {
+   "date": "2026-10-30",
+   "readiness": 38
+  },
+  {
+   "date": "2026-10-31",
+   "readiness": 40
+  },
+  {
+   "date": "2026-11-01",
+   "readiness": 42
+  }
+ ],
  "stats": {
   "verified_skills": 2,
   "skills_total": 9,

@@ -106,10 +106,16 @@ export default function GapMapTable({ skills }: { skills: CandidateSkill[] }) {
                 const hasEvidence = s.evidence.length > 0;
                 return (
                   <Fragment key={s.skill_id}>
-                    <tr className="border-t border-[var(--border)] align-top">
+                    <tr
+                      id={`skill-${s.skill_id}`}
+                      className="border-t border-[var(--border)] align-top scroll-mt-24 target:bg-[var(--brand-soft)]/50"
+                    >
                       <td className="px-4 py-3.5">
                         <span className="font-medium">{s.name}</span>
-                        <span className="block type-small text-[var(--text-dim)] mt-0.5 max-w-[46ch]">
+                        <span
+                          title={s.explanation}
+                          className="block type-small text-[var(--text-dim)] mt-0.5 max-w-[46ch] line-clamp-2"
+                        >
                           {s.explanation}
                         </span>
                       </td>
@@ -191,7 +197,11 @@ export default function GapMapTable({ skills }: { skills: CandidateSkill[] }) {
         {rows.map((s) => {
           const isOpen = open === s.skill_id;
           return (
-            <li key={s.skill_id} className="card-surface p-4">
+            <li
+              key={s.skill_id}
+              id={`skill-${s.skill_id}`}
+              className="card-surface p-4 scroll-mt-24 target:bg-[var(--brand-soft)]/50"
+            >
               <div className="flex items-start justify-between gap-3 mb-1.5">
                 <h3 className="type-h4 m-0">{s.name}</h3>
                 <span
