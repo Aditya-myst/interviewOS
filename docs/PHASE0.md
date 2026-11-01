@@ -39,7 +39,7 @@ uv run python scripts/verify_env.py
 1. `prompts/01-design-system-and-shell.md` → Antigravity → screenshot `/shell-demo` back to me.
 2. `prompts/02-landing.md`
 3. `prompts/03-dashboard.md`
-4. Backend Day 1 (with me): app skeleton, models + migration, `llm_cache`, LLM gateway, `/health`, `/ready`.
+4. Backend Day 1: app skeleton, SQLAlchemy models mirroring `docs/sql/001_init.sql` (the schema already exists in Supabase — models reflect it, they do not create it), `llm_cache`, LLM gateway, `/health`, `/ready`.
 
 ## Standing rules
 - One Antigravity pack per sitting; its free quota refreshes ~ every 5 hours.

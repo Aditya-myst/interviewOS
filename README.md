@@ -36,7 +36,7 @@ Everything runs on free tiers. No paid search API, no local GPU, no Ollama.
 ```
 contracts/   openapi.yaml, types.ts, ENUMS.md, fixtures/   ← single source of truth
 data/        taxonomy.yaml (31 skills / 100 subtopics), curated.yaml (resource seeds)
-docs/        architecture.md, PHASE0.md
+docs/        architecture.md, PHASE0.md, sql/ ← the database handover
 scripts/     verify_env.py — environment doctor
 frontend/    Next.js app
 backend/     FastAPI service
@@ -52,10 +52,14 @@ backend/     FastAPI service
 cp .env.example .env         # fill in Supabase, Gemini, Groq keys
 uv run python scripts/verify_env.py
 
-# 2. frontend
+# 2. database — 18 tables, RLS, 31 skills, 100 subtopics, 39 curated resources
+#    paste docs/sql/001_init.sql, then 002_seed.sql, then 003_storage.sql
+#    into the Supabase SQL editor. Full walkthrough: docs/sql/README.md
+
+# 3. frontend
 cd frontend && pnpm install && pnpm dev     # http://localhost:3000
 
-# 3. backend (once implemented)
+# 4. backend (once implemented)
 cd backend && uv run uvicorn app.main:app --reload
 ```
 
