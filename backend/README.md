@@ -33,7 +33,14 @@ curl.exe http://localhost:8000/health
 curl.exe http://localhost:8000/ready
 curl.exe -i http://localhost:8000/v1/analytics/dashboard   # note X-Data-Source: fixture
 curl.exe http://localhost:8000/dev/db                          # expected vs actual, no psql
-curl.exe -X POST http://localhost:8000/dev/llm -H "content-type: application/json" -d "{\"prompt\":\"hello\"}"
+# PowerShell note: single quotes around the JSON body. Backslash is NOT an escape
+# character in PowerShell, so \" breaks the argument and curl ends up with a
+# fragment like `tFormat` and asks for a host password. Nothing is wrong with the API.
+curl.exe -X POST http://localhost:8000/dev/llm -H "content-type: application/json" -d '{"prompt":"hello"}'
+
+# Or let PowerShell build the JSON, which cannot be mangled by quoting:
+$body = @{ prompt = 'reply with only the word ok'; json_mode = $true } | ConvertTo-Json
+Invoke-RestMethod http://localhost:8000/dev/llm -Method Post -ContentType 'application/json' -Body $body
 ```
 
 Expected with nothing configured:
@@ -145,7 +152,7 @@ app/models.py       18 SQLAlchemy models reflecting docs/sql/001_init.sql
 app/fixtures.py     cached loader over contracts/fixtures, raises FixtureMissing
 app/schemas.py      response models mirroring contracts/types.ts
 app/llm/            base protocol · providers · cache · gateway
-app/api/system.py   /health · /ready · /dev/llm
+app/api/system.py   /health · /ready · /dev/db · /dev/llm
 app/api/prep.py     the five /v1 data routes
 app/main.py         create_app, CORS, lifespan, error mapping
 ```
