@@ -30,3 +30,13 @@ def test_llm_probe_says_why_nothing_answered():
     assert body["ok"] is False
     assert body["error"]["code"] == "llm_unavailable"
     assert body["configured"] == []
+
+
+def test_db_probe_is_honest_without_a_database():
+    """No DATABASE_URL ⇒ the probe explains itself instead of returning zeros
+    that look like an empty-but-healthy database."""
+    r = client.get("/dev/db")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["ok"] is False
+    assert body["error"]["code"] == "db_unconfigured"

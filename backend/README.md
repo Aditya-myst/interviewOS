@@ -32,6 +32,7 @@ No `.env` needed to boot. With no `DATABASE_URL` and no LLM keys the service sta
 curl.exe http://localhost:8000/health
 curl.exe http://localhost:8000/ready
 curl.exe -i http://localhost:8000/v1/analytics/dashboard   # note X-Data-Source: fixture
+curl.exe http://localhost:8000/dev/db                          # expected vs actual, no psql
 curl.exe -X POST http://localhost:8000/dev/llm -H "content-type: application/json" -d "{\"prompt\":\"hello\"}"
 ```
 
@@ -58,7 +59,17 @@ table that disagrees with `docs/sql/`.
 DATABASE_URL=postgresql+psycopg://postgres.<ref>:<pw>@aws-0-ap-south-1.pooler.supabase.com:6543/postgres
 ```
 
-Restart, then `GET /ready` flips from
+Restart, then prove it landed without opening psql:
+
+```powershell
+curl.exe http://localhost:8000/dev/db
+```
+
+Every check comes back with `expected` and `actual` side by side — `tables 18`,
+`rls_tables 18`, `enums 22`, `extensions 3`, `skills 31`, `subtopics 100`,
+`resources 39`. A wrong Supabase project shows up as a named failure, not a shrug.
+
+`GET /ready` flips from
 
 ```
 "database": {"ok": false, "state": "unconfigured"}
@@ -103,6 +114,7 @@ prompt ──▶ cache ──hit──▶ return (no network, no quota spent)
 |---|---|---|
 | GET | `/health` | in-process |
 | GET | `/ready` | live: DB connect attempt, fixture presence, LLM keys |
+| GET | `/dev/db` | live: JSON twin of `docs/sql/004_verify.sql` — expected vs actual per check |
 | POST | `/dev/llm` | live: gateway probe |
 | GET | `/v1/analytics/dashboard` | fixture → Phase 5: aggregated from `sessions`, `skill_evidence` |
 | GET | `/v1/skills/profile` | fixture → Phase 5: `skills` join `user_skills` |
@@ -114,7 +126,7 @@ prompt ──▶ cache ──hit──▶ return (no network, no quota spent)
 
 ```powershell
 cd backend
-uv run pytest            # 14 tests, no network, no database
+uv run pytest            # 15 tests, no network, no database
 uv run ruff check .
 ```
 

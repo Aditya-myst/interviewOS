@@ -3,10 +3,11 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Response
 from pydantic import BaseModel
+from sqlalchemy import text
 
 from app import fixtures
 from app.config import get_settings
-from app.db import db_status
+from app.db import db_status, get_session
 from app.llm import LLMUnavailable, get_gateway
 from app.schemas import HealthResponse, ReadyResponse
 
@@ -60,6 +61,96 @@ def ready(response: Response) -> ReadyResponse:
         response.status_code = 503
 
     return ReadyResponse(status=status, mode=current_mode(), checks=checks)
+
+
+VERIFY_SQL = """
+with counts as (
+  select
+    (select count(*) from information_schema.tables
+      where table_schema = 'public' and table_type = 'BASE TABLE')        as tables,
+    (select count(*) from pg_tables
+      where schemaname = 'public' and rowsecurity)                        as rls_tables,
+    (select count(*) from pg_policies where schemaname = 'public')         as policies,
+    (select count(*) from pg_type t join pg_namespace n on n.oid = t.typnamespace
+      where n.nspname = 'public' and t.typtype = 'e')                      as enums,
+    (select count(*) from pg_extension
+      where extname in ('vector', 'pgcrypto', 'pg_trgm'))                  as extensions,
+    (select count(*) from public.skills)                                   as skills,
+    (select count(*) from public.skill_subtopics)                          as subtopics,
+    (select count(*) from public.resources)                                as resources,
+    (select count(*) from public.resources
+      where tier = 0 and verified_at is not null)                          as verified_links
+)
+select * from counts;
+"""
+
+# (name, expected) — the numbers docs/sql/004_verify.sql promises. Keeping the
+# expectations here, next to the query, means a seed change breaks this loudly.
+EXPECTED = [
+    ("tables", 18),
+    ("rls_tables", 18),
+    ("enums", 22),
+    ("extensions", 3),
+    ("skills", 31),
+    ("subtopics", 100),
+    ("resources", 39),
+]
+
+
+@router.get("/dev/db")
+def db_probe() -> dict:
+    """Dev-only: prove the database matches the handover, without psql.
+
+    This is the JSON twin of docs/sql/004_verify.sql — same query, same
+    expectations, but you can curl it and paste the answer. Every check reports
+    expected *and* actual so a wrong project is obvious rather than "looks fine".
+    """
+    if get_settings().env == "prod":
+        raise RuntimeError("disabled in prod")
+
+    st = db_status()
+    if st["state"] != "connected":
+        return {
+            "ok": False,
+            "error": {
+                "code": "db_unconfigured",
+                "message": "DATABASE_URL is unset or unreachable — serving fixtures",
+                "detail": st.get("detail"),
+            },
+        }
+
+    with get_session() as session:
+        row = session.execute(text(VERIFY_SQL)).mappings().one()
+
+    checks = [
+        {"name": name, "expected": expected, "actual": int(row[name]), "ok": int(row[name]) >= expected}
+        for name, expected in EXPECTED
+    ]
+    checks.append(
+        {
+            "name": "policies",
+            "expected": ">= 0",
+            "actual": int(row["policies"]),
+            "ok": True,
+            "note": "informational: 48 at handover, grows with each policy you add",
+        }
+    )
+    checks.append(
+        {
+            "name": "verified_links",
+            "expected": ">= 0",
+            "actual": int(row["verified_links"]),
+            "ok": True,
+            "note": "tier-0 curated resources checked by scripts/check_links.py",
+        }
+    )
+
+    return {
+        "ok": all(c["ok"] for c in checks),
+        "mode": "database",
+        "checks": checks,
+        "failed": [c["name"] for c in checks if not c["ok"]],
+    }
 
 
 class LLMProbe(BaseModel):

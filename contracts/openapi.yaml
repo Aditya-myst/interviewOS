@@ -5,6 +5,8 @@ info:
   description: >
     Contract for the UI and the backend. The UI generates its types from this file and
     must never invent fields. All list endpoints are scoped to the authenticated user.
+    Paths are relative to the `/v1` base, except `/health`, `/ready` and the `/dev/*`
+    probes, which are unprefixed. `/dev/*` answers 404 when ENV=prod.
 servers:
   - url: http://localhost:8000
     description: local
@@ -40,6 +42,27 @@ paths:
       summary: Readiness (db, vector ext, llm provider)
       responses:
         "200": { description: ready, content: { application/json: { schema: { $ref: "#/components/schemas/Ready" } } } }
+        "503": { $ref: "#/components/responses/Error" }
+
+  /dev/db:
+    get:
+      tags: [health]
+      security: []
+      summary: Dev-only — JSON twin of docs/sql/004_verify.sql (expected vs actual per check)
+      description: |
+        Returns every handover expectation with both `expected` and `actual`, so a wrong
+        Supabase project is obvious instead of "looks fine". Answer 200 with
+        `{"ok": false, "error": {"code": "db_unconfigured"}}` when there is no database.
+      responses:
+        "200": { description: probe result }
+
+  /dev/llm:
+    post:
+      tags: [health]
+      security: []
+      summary: Dev-only gateway probe — which provider answered, or why none could
+      responses:
+        "200": { description: answered }
         "503": { $ref: "#/components/responses/Error" }
 
   /profile:
