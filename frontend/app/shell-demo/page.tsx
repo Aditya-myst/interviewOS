@@ -291,7 +291,7 @@ export default function ShellDemoPage() {
                 </div>
               </div>
               <p className="text-small text-[var(--text-on-cream)]/60 leading-snug">
-                You haven't demonstrated FastAPI under timed conditions yet.
+                You haven&apos;t demonstrated FastAPI under timed conditions yet.
                 Two more practice sessions will unlock a verified badge.
               </p>
             </div>

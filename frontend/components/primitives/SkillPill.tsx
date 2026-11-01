@@ -15,53 +15,50 @@ interface SkillPillProps {
   className?: string;
 }
 
+/**
+ * Contrast-corrected for the cream canvas.
+ * Rule: no colour below 4.5:1 is used for text. `--green-400` is a
+ * decorative tone and is never used as a label colour here.
+ */
 const STATUS_CONFIG: Record<
   SkillStatus,
-  {
-    dotColor: string;
-    textColor: string;
-    bg: string;
-    border: string;
-    dotStyle?: string;
-    borderStyle?: string;
-  }
+  { dot: string; text: string; bg: string; border: string }
 > = {
   weak: {
-    dotColor: "bg-[var(--weak)]",
-    textColor: "text-[var(--weak)]",
+    dot: "bg-[var(--weak)]",
+    text: "text-[var(--weak)]",
     bg: "bg-[var(--weak)]/10",
-    border: "border-transparent",
+    border: "border-[var(--weak)]/25",
   },
   developing: {
-    dotColor: "bg-[var(--developing)]",
-    textColor: "text-[var(--developing)]",
+    dot: "bg-[var(--developing)]",
+    text: "text-[var(--developing)]",
     bg: "bg-[var(--developing)]/10",
-    border: "border-transparent",
+    border: "border-[var(--developing)]/25",
   },
   verified: {
-    dotColor: "bg-[var(--green-500)]",
-    textColor: "text-[var(--green-400)]",
-    bg: "bg-[var(--green-500)]/10",
-    border: "border-transparent",
+    dot: "bg-[var(--brand)]",
+    text: "text-[var(--brand-strong)]",
+    bg: "bg-[var(--brand)]/12",
+    border: "border-[var(--brand)]/30",
   },
   unverified: {
-    dotColor: "bg-[var(--text-dim)]",
-    textColor: "text-[var(--text-dim)]",
-    bg: "bg-[var(--ink-800)]",
-    border: "border-transparent",
+    dot: "bg-[var(--unverified)]",
+    text: "text-[var(--unverified)]",
+    bg: "bg-[var(--surface-2)]",
+    border: "border-[var(--border)]",
   },
   claimed: {
-    dotColor: "bg-[var(--text-dim)]",
-    textColor: "text-[var(--text-dim)]",
+    dot: "bg-[var(--unverified)]",
+    text: "text-[var(--text-dim)]",
     bg: "bg-transparent",
-    border: "border-[var(--line-strong)]",
+    border: "border-[var(--border-strong)]",
   },
   needs_revision: {
-    dotColor: "bg-transparent border-2 border-[var(--green-500)]",
-    textColor: "text-[var(--green-400)]",
-    bg: "bg-[var(--green-500)]/10",
-    border: "border-[var(--green-700)]",
-    borderStyle: "border-dashed",
+    dot: "bg-transparent border-2 border-[var(--brand-strong)]",
+    text: "text-[var(--brand-strong)]",
+    bg: "bg-[var(--brand)]/8",
+    border: "border-dashed border-[var(--brand-strong)]/45",
   },
 };
 
@@ -73,23 +70,20 @@ export default function SkillPill({ label, status, className }: SkillPillProps) 
       role="status"
       aria-label={`${label}: ${status.replace("_", " ")}`}
       className={cn(
-        "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[999px] border text-xs font-medium",
+        "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[999px] border text-xs font-medium",
         "transition-all duration-[150ms] ease-out",
         cfg.bg,
         cfg.border,
-        cfg.textColor,
-        cfg.borderStyle,
+        cfg.text,
         className
       )}
     >
-      {/* Status dot */}
       <span
         aria-hidden
         className={cn(
           "size-1.5 rounded-full shrink-0",
-          status === "needs_revision"
-            ? "size-2 rounded-full border-2 border-[var(--green-500)] bg-transparent"
-            : cfg.dotColor
+          status === "needs_revision" && "size-2",
+          cfg.dot
         )}
       />
       {label}

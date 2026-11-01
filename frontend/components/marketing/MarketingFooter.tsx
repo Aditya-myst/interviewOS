@@ -1,22 +1,43 @@
-import { cn } from "@/lib/utils";
-import IosButton from "@/components/primitives/IosButton";
-import { ArrowRight } from "lucide-react";
+const YEAR = 2026;
 
 export default function MarketingFooter() {
   return (
-    <footer className="bg-[var(--canvas)] py-12 border-t border-[var(--border)] text-[var(--text-dim)]">
+    <footer className="bg-[var(--canvas)] py-12 border-t border-[var(--border)]">
       <div className="max-w-5xl mx-auto px-6 lg:px-12 flex flex-col md:flex-row justify-between items-center gap-6">
-        <p className="text-micro uppercase tracking-[0.08em]">© {new Date().getFullYear()} InterviewOS. All rights reserved.</p>
-        <div className="flex gap-4">
-          <IosButton variant="ghost" size="sm" aria-disabled="true">
-            Terms
-            <ArrowRight size={12} className="ml-1" aria-hidden />
-          </IosButton>
-          <IosButton variant="ghost" size="sm" aria-disabled="true">
-            Privacy
-            <ArrowRight size={12} className="ml-1" aria-hidden />
-          </IosButton>
+        <div className="flex items-center gap-1.5">
+          <span className="font-[family-name:var(--font-display)] text-[16px] text-[var(--text)] tracking-[-0.02em]">
+            InterviewOS
+          </span>
+          <span
+            className="inline-block size-1.5 rounded-[2px] bg-[var(--brand)]"
+            aria-hidden
+          />
         </div>
+
+        <p className="text-micro text-[var(--text-dim)] m-0 text-center">
+          Built with Next.js, FastAPI, Postgres and open models
+        </p>
+
+        <nav aria-label="Legal" className="flex items-center gap-6 text-small">
+          <a
+            href="/privacy"
+            className="text-[var(--text-dim)] hover:text-[var(--text)] transition-colors"
+          >
+            Privacy
+          </a>
+          <a
+            href="/terms"
+            className="text-[var(--text-dim)] hover:text-[var(--text)] transition-colors"
+          >
+            Terms
+          </a>
+        </nav>
+      </div>
+
+      <div className="max-w-5xl mx-auto px-6 lg:px-12 mt-8">
+        <p className="text-micro text-[var(--text-dim)] m-0">
+          © {YEAR} InterviewOS. All rights reserved.
+        </p>
       </div>
     </footer>
   );

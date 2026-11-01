@@ -1,6 +1,4 @@
-import { cn } from "@/lib/utils";
 import IosButton from "@/components/primitives/IosButton";
-import { ArrowRight } from "lucide-react";
 
 export default function WhyNotChatGPT() {
   return (
@@ -17,9 +15,8 @@ export default function WhyNotChatGPT() {
           <p className="text-[var(--text-dim)] mb-6 max-w-[60ch]">
             ChatGPT gives generic answers, not evidence‑based skill assessments. InterviewOS gives you concrete proof of competence directly tied to job requirements.
           </p>
-          <IosButton variant="primary" size="lg">
+          <IosButton variant="primary" size="lg" arrow>
             Try InterviewOS now
-            <ArrowRight size={14} className="ml-1" />
           </IosButton>
         </div>
       </div>

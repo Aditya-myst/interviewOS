@@ -56,11 +56,11 @@ function NavLink({
       aria-current={active ? "page" : undefined}
       className={cn(
         "group relative flex items-center gap-3 rounded-[12px] px-3 py-2.5 text-sm font-medium transition-all duration-[150ms] ease-out",
-        "focus-visible:outline-2 focus-visible:outline-[var(--green-400)] focus-visible:outline-offset-2",
+        "focus-visible:outline-2 focus-visible:outline-[var(--brand-strong)] focus-visible:outline-offset-2",
         "min-h-[44px]",
         active
-          ? "bg-[var(--ink-700)] text-[var(--text)]"
-          : "text-[var(--text-dim)] hover:bg-[var(--ink-800)] hover:text-[var(--text)]"
+          ? "bg-[var(--surface-3)] text-[var(--text)]"
+          : "text-[var(--text-dim)] hover:bg-[var(--surface-2)] hover:text-[var(--text)]"
       )}
     >
       {/* Active indicator */}
@@ -76,7 +76,7 @@ function NavLink({
         strokeWidth={active ? 2.5 : 1.8}
         className={cn(
           "shrink-0 transition-colors",
-          active ? "text-[var(--green-400)]" : "text-current"
+          active ? "text-[var(--brand-strong)]" : "text-current"
         )}
       />
 
@@ -86,7 +86,7 @@ function NavLink({
         <ChevronRight
           size={14}
           strokeWidth={2}
-          className="ml-auto text-[var(--green-500)] shrink-0"
+          className="ml-auto text-[var(--brand-strong)] shrink-0"
         />
       )}
     </Link>
@@ -113,7 +113,7 @@ function SideRail({ iconOnly }: { iconOnly: boolean }) {
     <aside
       className={cn(
         "hidden lg:flex flex-col shrink-0 h-screen sticky top-0",
-        "bg-[var(--ink-900)] border-r border-[var(--line)]",
+        "bg-[var(--surface)] border-r border-[var(--border)]",
         "transition-[width] duration-[150ms] ease-out",
         iconOnly ? "w-[68px]" : "w-[240px]"
       )}
@@ -122,7 +122,7 @@ function SideRail({ iconOnly }: { iconOnly: boolean }) {
       {/* Logo / wordmark */}
       <div
         className={cn(
-          "flex items-center h-16 shrink-0 px-4 border-b border-[var(--line)]",
+          "flex items-center h-16 shrink-0 px-4 border-b border-[var(--border)]",
           iconOnly ? "justify-center" : "gap-2"
         )}
       >
@@ -149,20 +149,20 @@ function SideRail({ iconOnly }: { iconOnly: boolean }) {
       </nav>
 
       {/* Bottom user area */}
-      <div className="shrink-0 p-3 border-t border-[var(--line)]">
+      <div className="shrink-0 p-3 border-t border-[var(--border)]">
         <button
           className={cn(
             "w-full flex items-center gap-3 rounded-[12px] px-3 py-2.5 min-h-[44px]",
-            "text-[var(--text-dim)] hover:bg-[var(--ink-800)] hover:text-[var(--text)]",
+            "text-[var(--text-dim)] hover:bg-[var(--surface-2)] hover:text-[var(--text)]",
             "transition-all duration-[150ms] ease-out",
-            "focus-visible:outline-2 focus-visible:outline-[var(--green-400)] focus-visible:outline-offset-2",
+            "focus-visible:outline-2 focus-visible:outline-[var(--brand-strong)] focus-visible:outline-offset-2",
             iconOnly && "justify-center"
           )}
           aria-label="Open user menu"
         >
           <Avatar className="size-7 shrink-0">
             <AvatarImage src="" alt="User avatar" />
-            <AvatarFallback className="bg-[var(--ink-700)] text-[var(--text-dim)] text-xs">
+            <AvatarFallback className="bg-[var(--surface-3)] text-[var(--text-dim)] text-xs">
               AK
             </AvatarFallback>
           </Avatar>
@@ -182,7 +182,7 @@ function BottomTabBar() {
   return (
     <nav
       aria-label="Main navigation"
-      className="lg:hidden fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around h-16 border-t border-[var(--line)] bg-[var(--ink-900)]"
+      className="lg:hidden fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around h-16 border-t border-[var(--border)] bg-[var(--surface)]"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       {NAV_ITEMS.slice(0, 5).map((item) => {
@@ -198,8 +198,8 @@ function BottomTabBar() {
             className={cn(
               "flex flex-col items-center gap-1 px-3 py-2 rounded-[12px] min-h-[44px] min-w-[44px]",
               "text-[11px] font-medium transition-all duration-[150ms] ease-out",
-              "focus-visible:outline-2 focus-visible:outline-[var(--green-400)] focus-visible:outline-offset-2",
-              active ? "text-[var(--green-400)]" : "text-[var(--text-dim)]"
+              "focus-visible:outline-2 focus-visible:outline-[var(--brand-strong)] focus-visible:outline-offset-2",
+              active ? "text-[var(--brand-strong)]" : "text-[var(--text-dim)]"
             )}
           >
             <Icon size={20} strokeWidth={active ? 2.5 : 1.8} />
@@ -223,7 +223,7 @@ function TopBar({
   );
 
   return (
-    <header className="flex items-center justify-between h-16 px-4 md:px-6 border-b border-[var(--line)] bg-[var(--ink-900)] shrink-0">
+    <header className="flex items-center justify-between h-16 px-4 md:px-6 border-b border-[var(--border)] bg-[var(--surface)] shrink-0">
       <div className="flex items-center gap-3">
         {/* Mobile logo */}
         <span
@@ -252,11 +252,11 @@ function TopBar({
         {/* Avatar */}
         <button
           aria-label="Open user menu"
-          className="rounded-full focus-visible:outline-2 focus-visible:outline-[var(--green-400)] focus-visible:outline-offset-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
+          className="rounded-full focus-visible:outline-2 focus-visible:outline-[var(--brand-strong)] focus-visible:outline-offset-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
         >
           <Avatar className="size-8">
             <AvatarImage src="" alt="User avatar" />
-            <AvatarFallback className="bg-[var(--ink-700)] text-[var(--text-dim)] text-xs">
+            <AvatarFallback className="bg-[var(--surface-3)] text-[var(--text-dim)] text-xs">
               AK
             </AvatarFallback>
           </Avatar>

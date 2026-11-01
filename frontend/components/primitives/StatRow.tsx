@@ -49,7 +49,7 @@ export default function StatRow({
             className={cn(
               "inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-[999px] text-xs font-medium text-mono-value",
               isUp
-                ? "bg-[var(--green-500)]/15 text-[var(--green-400)]"
+                ? "bg-[var(--brand)]/15 text-[var(--brand-strong)]"
                 : "bg-[var(--weak)]/15 text-[var(--weak)]"
             )}
             aria-label={`${isUp ? "Up" : "Down"} ${Math.abs(delta!)}`}

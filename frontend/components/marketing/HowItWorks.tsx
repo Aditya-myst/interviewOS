@@ -1,6 +1,3 @@
-import { cn } from "@/lib/utils";
-import IosButton from "@/components/primitives/IosButton";
-import { ArrowRight } from "lucide-react";
 
 export default function HowItWorks() {
   const steps = [

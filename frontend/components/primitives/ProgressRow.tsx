@@ -29,7 +29,7 @@ export default function ProgressRow({
 
       {/* Track */}
       <div
-        className="h-[6px] w-full rounded-[999px] bg-[var(--ink-700)] overflow-hidden"
+        className="h-[6px] w-full rounded-[999px] bg-[var(--surface-3)] overflow-hidden"
         role="progressbar"
         aria-valuenow={pct}
         aria-valuemin={0}
@@ -37,7 +37,7 @@ export default function ProgressRow({
         aria-label={`${title}: ${current} of ${total}`}
       >
         <div
-          className="h-full rounded-[999px] bg-[var(--green-500)] transition-[width] duration-[150ms] ease-out"
+          className="h-full rounded-[999px] bg-[var(--brand)] transition-[width] duration-[150ms] ease-out"
           style={{ width: `${pct}%` }}
         />
       </div>

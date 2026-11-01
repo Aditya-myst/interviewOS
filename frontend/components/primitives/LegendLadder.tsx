@@ -36,19 +36,19 @@ const LADDER_ITEMS: { status: SkillStatus; label: string; description: string }[
 ];
 
 const DOT_STYLES: Record<SkillStatus, string> = {
-  verified: "bg-[var(--green-500)]",
+  verified: "bg-[var(--brand)]",
   claimed: "bg-transparent border-2 border-[var(--text-dim)]",
   developing: "bg-[var(--developing)]",
-  needs_revision: "bg-transparent border-2 border-[var(--green-500)]",
+  needs_revision: "bg-transparent border-2 border-[var(--brand-strong)]",
   weak: "bg-[var(--weak)]",
   unverified: "bg-[var(--text-dim)]",
 };
 
 const TEXT_STYLES: Record<SkillStatus, string> = {
-  verified: "text-[var(--green-400)]",
+  verified: "text-[var(--brand-strong)]",
   claimed: "text-[var(--text-dim)]",
   developing: "text-[var(--developing)]",
-  needs_revision: "text-[var(--green-400)]",
+  needs_revision: "text-[var(--brand-strong)]",
   weak: "text-[var(--weak)]",
   unverified: "text-[var(--text-dim)]",
 };

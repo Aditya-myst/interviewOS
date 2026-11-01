@@ -1,49 +1,52 @@
-"use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
 import IosButton from "@/components/primitives/IosButton";
-import { ArrowRight } from "lucide-react";
+
+const LINKS = [
+  { href: "/#how-it-works", label: "How it works" },
+  { href: "/#sample-report", label: "Sample report" },
+  { href: "/#faq", label: "FAQ" },
+];
 
 export default function MarketingNav() {
-  const pathname = usePathname();
-  const linkClasses = (active: boolean) =>
-    cn(
-      "text-[var(--text-dim)] hover:text-[var(--text)] transition-colors",
-      active && "text-[var(--text)]"
-    );
-
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between h-18 bg-[var(--canvas)] border-b border-[var(--border)] px-6 lg:px-12">
-      {/* Wordmark */}
-      <div className="flex items-center gap-1">
-        <span className="font-display text-[20px] text-[var(--text)] tracking-tight">
+    <header className="sticky top-0 z-30 h-[72px] flex items-center justify-between px-6 lg:px-12 bg-[var(--canvas)]/92 backdrop-blur-md border-b border-[var(--border)]">
+      <Link href="/" className="flex items-center gap-1.5 shrink-0">
+        <span className="font-[family-name:var(--font-display)] text-[20px] text-[var(--text)] tracking-[-0.02em]">
           InterviewOS
         </span>
-        <span className="inline-block w-2 h-2 bg-[var(--green-500)] rounded-sm" aria-hidden />
-      </div>
+        <span
+          className="inline-block size-2 rounded-[2px] bg-[var(--brand)]"
+          aria-hidden
+        />
+      </Link>
 
-      {/* Center links */}
-      <nav className="hidden md:flex gap-8 text-sm">
-        <Link href="#how-it-works" className={linkClasses(pathname.startsWith("/how-it-works"))}>
-          How it works
-        </Link>
-        <Link href="#sample-report" className={linkClasses(pathname.startsWith("/sample-report"))}>
-          Sample report
-        </Link>
-        <Link href="#faq" className={linkClasses(pathname.startsWith("/faq"))}>
-          FAQ
-        </Link>
+      <nav
+        aria-label="Sections"
+        className="hidden md:flex items-center gap-8 text-sm"
+      >
+        {LINKS.map(({ href, label }) => (
+          <a
+            key={href}
+            href={href}
+            className="relative py-1 text-[var(--text-dim)] hover:text-[var(--text)] transition-colors after:absolute after:left-0 after:-bottom-0.5 after:h-[2px] after:w-0 after:bg-[var(--brand)] after:transition-all after:duration-150 hover:after:w-full focus-visible:after:w-full"
+          >
+            {label}
+          </a>
+        ))}
       </nav>
 
-      {/* Right actions */}
-      <div className="flex items-center gap-3">
-        <IosButton variant="ghost" size="sm" aria-disabled="true">
+      <div className="flex items-center gap-2">
+        <Link
+          href="/login"
+          className="hidden sm:inline-flex items-center h-10 px-3 text-sm font-medium text-[var(--text-dim)] hover:text-[var(--text)] rounded-[12px]"
+        >
           Sign in
-        </IosButton>
-        <IosButton variant="primary" size="sm" arrow aria-disabled="true">
-          Start free
-        </IosButton>
+        </Link>
+        <Link href="/onboarding" aria-label="Start free — upload your resume">
+          <IosButton variant="primary" size="sm" arrow tabIndex={-1}>
+            Start free
+          </IosButton>
+        </Link>
       </div>
     </header>
   );

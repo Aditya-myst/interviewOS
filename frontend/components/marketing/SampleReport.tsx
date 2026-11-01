@@ -1,6 +1,4 @@
-import { cn } from "@/lib/utils";
 import IosButton from "@/components/primitives/IosButton";
-import { ArrowRight } from "lucide-react";
 
 export default function SampleReport() {
   return (
@@ -13,9 +11,8 @@ export default function SampleReport() {
           <p className="text-[var(--text-dim)] mb-6 max-w-[60ch]">
             A concise, evidence‑backed scorecard that tells you exactly where you stand and what to study next.
           </p>
-          <IosButton variant="primary" size="lg">
+          <IosButton variant="primary" size="lg" arrow>
             Try a demo report
-            <ArrowRight size={14} className="ml-1" />
           </IosButton>
         </div>
         {/* Image placeholder */}

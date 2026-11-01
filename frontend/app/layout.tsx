@@ -26,13 +26,20 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://interviewos.app"),
   title: {
-    default: "InterviewOS — AI Interview Preparation",
+    default: "InterviewOS — prove what you actually know",
     template: "%s | InterviewOS",
   },
   description:
-    "AI-powered interview preparation platform. Identify skill gaps, build a roadmap, and practice with an AI tutor.",
-  keywords: ["interview preparation", "AI", "skill gap analysis", "career"],
+    "InterviewOS tests what your resume claims against what the job requires, then builds a roadmap from the gaps that will actually be asked.",
+  keywords: ["interview preparation", "skill gap analysis", "AI interview practice", "career"],
+  openGraph: {
+    title: "InterviewOS — prove what you actually know",
+    description:
+      "Evidence-based interview preparation: claims, verification, gaps, roadmap.",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
@@ -46,7 +53,7 @@ export default function RootLayout({
       className={`${archivoBlack.variable} ${interTight.variable} ${jetbrainsMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-[var(--ink-950)] text-[var(--text)]">
+      <body className="min-h-full flex flex-col bg-[var(--canvas)] text-[var(--text)]">
         <TooltipProvider delay={300}>{children}</TooltipProvider>
       </body>
     </html>

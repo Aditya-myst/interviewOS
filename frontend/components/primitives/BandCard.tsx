@@ -28,14 +28,14 @@ const BAND_CONFIG: Record<
     label: "High",
   },
   medium: {
-    accentColor: "text-[var(--green-400)]",
-    bgColor: "bg-[var(--green-500)]/8",
+    accentColor: "text-[var(--brand-strong)]",
+    bgColor: "bg-[var(--brand)]/10",
     borderColor: "border-[var(--green-700)]/40",
     label: "Medium",
   },
   low: {
     accentColor: "text-[var(--text-dim)]",
-    bgColor: "bg-[var(--ink-800)]",
+    bgColor: "bg-[var(--surface-2)]",
     borderColor: "border-[var(--line)]",
     label: "Low",
   },
