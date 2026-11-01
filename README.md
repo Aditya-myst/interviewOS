@@ -6,7 +6,8 @@ InterviewOS takes three inputs — your resume, a target job description, and sh
 skill checks — and produces a preparation plan ordered by *interview impact*, not by what
 happens to be on your CV. Every priority it shows cites the evidence behind it.
 
-> **Status:** frontend foundation + marketing site in progress; backend starts next.
+> **Status:** frontend (dashboard, gap map, roadmap) + API service running in fixture mode;
+> resume/JD pipeline next. Backend: [backend/README.md](backend/README.md).
 > See [docs/architecture.md](docs/architecture.md) for the full design and
 > [docs/PHASE0.md](docs/PHASE0.md) for the environment checklist.
 
@@ -59,8 +60,9 @@ uv run python scripts/verify_env.py
 # 3. frontend
 cd frontend && pnpm install && pnpm dev     # http://localhost:3000
 
-# 4. backend (once implemented)
-cd backend && uv run uvicorn app.main:app --reload
+# 4. backend — boots with no .env; /ready honestly says "degraded, fixture mode"
+cd backend && uv sync; uv run uvicorn app.main:app --reload --port 8000
+#    http://localhost:8000/docs     full API map: backend/README.md
 ```
 
 ## Design system
@@ -73,9 +75,11 @@ contrast-corrected variants, not the decorative tones.
 
 - [x] Contract pack, taxonomy, curated resources, environment doctor
 - [x] Design system, marketing page
-- [ ] Dashboard, gap map, roadmap, interview room
+- [x] Dashboard, gap map, roadmap (roadmap is still card-based)
+- [x] API service: /health, /ready, honest degraded mode, LLM gateway with fallback + cache
+- [ ] Interview room, report screen
 - [ ] Resume + JD intelligence (deterministic-first parsing)
-- [ ] Skill verification engine (3-level ladder + rubric)
+- [ ] Skill verification engine (3-level ladder + rubric)  ← the pipeline that replaces fixtures
 - [ ] Resource resolver with URL verification
 - [ ] Voice interviews (Whisper STT + local TTS)
 
