@@ -8,6 +8,7 @@ Supabase project: about fifteen seconds.
 | `001_init.sql` | extensions, 22 enums, **18 tables**, indexes, evidence guard, RLS, new-user trigger | yes | yes, after the stub |
 | `002_seed.sql` | 31 skills, 100 subtopics, 39 curated resources (tier 0) | yes | yes |
 | `003_storage.sql` | private `resumes` bucket + per-user folder policies | yes | **no** (needs `storage` schema) |
+| `004_verify.sql` | one SELECT that returns a pass/fail row — the only file that shows you numbers | yes | yes |
 | `000_local_only_stub.sql` | fakes `auth.users` / `auth.uid()` for local testing | **never run** | yes |
 
 ---
