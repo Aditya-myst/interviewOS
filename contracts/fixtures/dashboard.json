@@ -1,33 +1,156 @@
 {
-  "readiness": 42,
-  "readiness_label": "early",
-  "provisional": true,
-  "target_role": "AI Engineer",
-  "stats": { "verified_skills": 2, "skills_total": 9, "mock_interviews": 2, "topics_done": 1, "topics_total": 5, "avg_interview_score": 58 },
-  "coverage": [
-    { "category": "AI", "verified": 1, "developing": 0, "unverified": 2 },
-    { "category": "Backend", "verified": 0, "developing": 1, "unverified": 1 },
-    { "category": "Data", "verified": 1, "developing": 1, "unverified": 0 },
-    { "category": "Infra", "verified": 0, "developing": 0, "unverified": 1 },
-    { "category": "Language", "verified": 1, "developing": 0, "unverified": 0 },
-    { "category": "Frontend", "verified": 0, "developing": 0, "unverified": 1 }
-  ],
-  "priority_skills": [
-    { "skill_id": "llm-rag", "name": "LLM & RAG", "category": "AI", "status": "developing", "claimed_level": "intermediate", "verified_level": "beginner", "expected_level": "expert",
-      "confidence": 0.61, "jd_importance": 0.95, "interview_relevance": 1.0, "gap": 0.7, "priority": 0.67, "priority_band": "critical",
-      "explanation": "Required in the JD at expert level; your evidence shows beginner-level work on one project, so the RAG evaluation gap dominates your prep.",
-      "in_resume": true, "in_jd": true, "last_assessed_at": "2026-10-29T18:02:00Z", "evidence": [] },
-    { "skill_id": "fastapi", "name": "FastAPI", "category": "Backend", "status": "weak", "claimed_level": "listed", "verified_level": "none", "expected_level": "advanced",
-      "confidence": 0.44, "jd_importance": 0.92, "interview_relevance": 0.95, "gap": 0.6, "priority": 0.52, "priority_band": "high",
-      "explanation": "Required at advanced level; your resume lists it but the assessment showed no practical evidence (dependency injection and testing both missed).",
-      "in_resume": true, "in_jd": true, "last_assessed_at": "2026-10-29T18:20:00Z", "evidence": [] },
-    { "skill_id": "system-design", "name": "System Design", "category": "AI", "status": "unverified", "claimed_level": null, "verified_level": null, "expected_level": "intermediate",
-      "confidence": 0.0, "jd_importance": 0.85, "interview_relevance": 0.95, "gap": 0.5, "priority": 0.4, "priority_band": "high",
-      "explanation": "Required in the JD and absent from your resume entirely; nothing has been assessed yet, so treat this as unknown rather than weak.",
-      "in_resume": false, "in_jd": true, "last_assessed_at": null, "evidence": [] }
-  ],
-  "interviews": [
-    { "session_id": "66666666-6666-4666-8666-666666666661", "mode": "full_mock", "channel": "text", "score": 58, "duration_minutes": 24, "created_at": "2026-10-30T16:40:00Z" },
-    { "session_id": "66666666-6666-4666-8666-666666666662", "mode": "resume_based", "channel": "voice", "score": 64, "duration_minutes": 18, "created_at": "2026-10-29T11:05:00Z" }
-  ]
+ "readiness": 42,
+ "readiness_label": "early",
+ "provisional": true,
+ "target_role": "AI Engineer",
+ "stats": {
+  "verified_skills": 2,
+  "skills_total": 9,
+  "mock_interviews": 2,
+  "topics_done": 1,
+  "topics_total": 5,
+  "avg_interview_score": 58
+ },
+ "coverage": [
+  {
+   "category": "AI",
+   "verified": 0,
+   "developing": 1,
+   "unverified": 2
+  },
+  {
+   "category": "Backend",
+   "verified": 0,
+   "developing": 0,
+   "unverified": 1
+  },
+  {
+   "category": "Data",
+   "verified": 0,
+   "developing": 1,
+   "unverified": 0
+  },
+  {
+   "category": "Engineering",
+   "verified": 1,
+   "developing": 0,
+   "unverified": 0
+  },
+  {
+   "category": "Frontend",
+   "verified": 0,
+   "developing": 0,
+   "unverified": 1
+  },
+  {
+   "category": "Infra",
+   "verified": 0,
+   "developing": 0,
+   "unverified": 1
+  },
+  {
+   "category": "Language",
+   "verified": 1,
+   "developing": 0,
+   "unverified": 0
+  }
+ ],
+ "priority_skills": [
+  {
+   "skill_id": "llm-rag",
+   "name": "LLM & RAG",
+   "category": "AI",
+   "status": "developing",
+   "claimed_level": "intermediate",
+   "verified_level": "beginner",
+   "expected_level": "expert",
+   "confidence": 0.61,
+   "jd_importance": 0.95,
+   "interview_relevance": 1.0,
+   "gap": 0.7,
+   "priority": 0.67,
+   "priority_band": "critical",
+   "explanation": "Required in the JD at expert level; your evidence shows beginner-level work on one project, so the RAG evaluation gap dominates your prep.",
+   "in_resume": true,
+   "in_jd": true,
+   "last_assessed_at": "2026-10-29T18:02:00Z",
+   "evidence": [
+    {
+     "type": "resume_project",
+     "quote": "Implemented retrieval-augmented generation over 1,200 college documents"
+    },
+    {
+     "type": "assessment_answer",
+     "quote": "I chunked documents by paragraph and stored embeddings, but I never measured retrieval quality."
+    }
+   ]
+  },
+  {
+   "skill_id": "fastapi",
+   "name": "FastAPI",
+   "category": "Backend",
+   "status": "weak",
+   "claimed_level": "listed",
+   "verified_level": "none",
+   "expected_level": "advanced",
+   "confidence": 0.44,
+   "jd_importance": 0.92,
+   "interview_relevance": 0.95,
+   "gap": 0.6,
+   "priority": 0.52,
+   "priority_band": "high",
+   "explanation": "Required at advanced level; your resume lists it but the assessment showed no practical evidence (dependency injection and testing both missed).",
+   "in_resume": true,
+   "in_jd": true,
+   "last_assessed_at": "2026-10-29T18:20:00Z",
+   "evidence": [
+    {
+     "type": "resume_project",
+     "quote": "Built a RAG chatbot backend in Python with FastAPI"
+    },
+    {
+     "type": "assessment_answer",
+     "quote": "Dependency injection is when FastAPI gives you things automatically."
+    }
+   ]
+  },
+  {
+   "skill_id": "system-design",
+   "name": "System Design",
+   "category": "AI",
+   "status": "unverified",
+   "claimed_level": null,
+   "verified_level": null,
+   "expected_level": "intermediate",
+   "confidence": 0.0,
+   "jd_importance": 0.85,
+   "interview_relevance": 0.95,
+   "gap": 0.5,
+   "priority": 0.4,
+   "priority_band": "high",
+   "explanation": "Required in the JD and absent from your resume entirely; nothing has been assessed yet, so treat this as unknown rather than weak.",
+   "in_resume": false,
+   "in_jd": true,
+   "last_assessed_at": null,
+   "evidence": []
+  }
+ ],
+ "interviews": [
+  {
+   "session_id": "66666666-6666-4666-8666-666666666661",
+   "mode": "full_mock",
+   "channel": "text",
+   "score": 58,
+   "duration_minutes": 24,
+   "created_at": "2026-10-30T16:40:00Z"
+  },
+  {
+   "session_id": "66666666-6666-4666-8666-666666666662",
+   "mode": "resume_based",
+   "channel": "voice",
+   "score": 64,
+   "duration_minutes": 18,
+   "created_at": "2026-10-29T11:05:00Z"
+  }
+ ]
 }

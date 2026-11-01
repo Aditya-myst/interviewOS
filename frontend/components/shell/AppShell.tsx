@@ -21,13 +21,15 @@ import {
 } from "@/components/ui/tooltip";
 
 /* ─── Nav items ──────────────────────────────────────────────── */
+// `ready: false` renders as a disabled row with a "soon" marker instead of a
+// link. A dead nav link is worse than an honest one: it turns a demo into a 404.
 const NAV_ITEMS = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/gap-map", label: "Gap Map", icon: Map },
-  { href: "/roadmap", label: "Roadmap", icon: Route },
-  { href: "/tutor", label: "Tutor", icon: GraduationCap },
-  { href: "/interview", label: "Interview", icon: Mic2 },
-  { href: "/report", label: "Report", icon: FileText },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, ready: true },
+  { href: "/gap-map", label: "Gap Map", icon: Map, ready: true },
+  { href: "/roadmap", label: "Roadmap", icon: Route, ready: true },
+  { href: "/tutor", label: "Tutor", icon: GraduationCap, ready: false },
+  { href: "/interview", label: "Interview", icon: Mic2, ready: false },
+  { href: "/report", label: "Report", icon: FileText, ready: false },
 ] as const;
 
 /* ─── NavLink ─────────────────────────────────────────────────── */
@@ -42,9 +44,44 @@ function NavLink({
 }) {
   const pathname = usePathname();
   // Dashboard is also active on /shell-demo (design system demo route)
-  const active =
-    pathname === item.href || pathname.startsWith(item.href + "/");
+  const active = item.ready &&
+    (pathname === item.href || pathname.startsWith(item.href + "/"));
   const Icon = item.icon;
+
+  if (!item.ready) {
+    const dis = (
+      <div
+        aria-disabled="true"
+        title={`${item.label} — not built yet`}
+        className={cn(
+          "flex items-center gap-3 rounded-[12px] px-3 py-2.5 text-sm font-medium",
+          "text-[var(--text-dim)]/55 cursor-not-allowed select-none",
+          iconOnly && "justify-center"
+        )}
+      >
+        <Icon size={18} strokeWidth={1.8} aria-hidden />
+        {!iconOnly && (
+          <>
+            <span>{item.label}</span>
+            <span className="ml-auto type-micro text-[10px] tracking-[0.08em]">
+              soon
+            </span>
+          </>
+        )}
+      </div>
+    );
+    // base-ui trigger takes `render`, not Radix's `asChild`.
+    return iconOnly ? (
+      <Tooltip>
+        <TooltipTrigger render={dis} />
+        <TooltipContent side="right" sideOffset={8}>
+          {item.label} — not built yet
+        </TooltipContent>
+      </Tooltip>
+    ) : (
+      dis
+    );
+  }
 
   const content = (
     <Link
@@ -184,9 +221,23 @@ function BottomTabBar() {
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       {NAV_ITEMS.slice(0, 5).map((item) => {
-        const active =
-          pathname === item.href || pathname.startsWith(item.href + "/");
+        const active = item.ready &&
+          (pathname === item.href || pathname.startsWith(item.href + "/"));
         const Icon = item.icon;
+
+        if (!item.ready) {
+          return (
+            <span
+              key={item.href}
+              aria-disabled="true"
+              className="flex flex-col items-center gap-1 px-3 py-2 rounded-[12px] min-h-[44px] min-w-[44px] text-[11px] font-medium text-[var(--text-dim)]/50 select-none"
+            >
+              <Icon size={20} strokeWidth={1.8} aria-hidden />
+              <span className="leading-none">{item.label}</span>
+            </span>
+          );
+        }
+
         return (
           <Link
             key={item.href}
@@ -239,10 +290,10 @@ function TopBar({
 
       <div className="flex items-center gap-3">
         {/* Target-role chip */}
-        <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[999px] border border-[var(--green-700)] bg-[var(--green-700)]/20 text-[var(--green-300)] text-xs font-medium min-h-[44px]">
+        <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[999px] border border-[var(--border-strong)] bg-[var(--brand-soft)] text-[var(--brand-strong)] text-xs font-medium min-h-[44px]">
           <span
             aria-hidden
-            className="size-1.5 rounded-full bg-[var(--green-400)]"
+            className="size-1.5 rounded-full bg-[var(--brand-strong)]"
           />
           {targetRole}
         </span>
