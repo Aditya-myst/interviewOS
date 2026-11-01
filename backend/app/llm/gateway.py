@@ -53,7 +53,15 @@ class Gateway:
                 attempts.append(Attempt(provider.name, "not configured"))
                 continue
 
-            key = cache_key(provider.model, prompt, self.schema_version)
+            try:
+                model = provider.model
+            except Exception as exc:  # noqa: BLE001 — model lookup is a network call too
+                attempts.append(
+                    Attempt(provider.name, f"{type(exc).__name__}: {exc}"[:300], 0)
+                )
+                continue
+
+            key = cache_key(model, prompt, self.schema_version)
             hit = self.cache.get(key)
             if hit is not None:
                 text = hit.get("text") if isinstance(hit, dict) else None
@@ -67,7 +75,7 @@ class Gateway:
                         return LLMResult(
                             text=text,
                             provider=provider.name,
-                            model=provider.model,
+                            model=model,
                             cached=True,
                             latency_ms=0,
                             attempts=attempts,
@@ -88,13 +96,11 @@ class Gateway:
                 )
                 continue
 
-            self.cache.put(
-                key, {"text": text}, model=provider.model, snippet=prompt[:500]
-            )
+            self.cache.put(key, {"text": text}, model=model, snippet=prompt[:500])
             return LLMResult(
                 text=text,
                 provider=provider.name,
-                model=provider.model,
+                model=model,
                 cached=False,
                 latency_ms=int((time.monotonic() - started) * 1000),
                 attempts=attempts,

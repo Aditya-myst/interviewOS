@@ -99,7 +99,6 @@ def test_invalid_json_is_a_failure_not_a_cache_hit():
 def test_provider_http_error_keeps_the_providers_own_sentence(monkeypatch):
     """httpx.raise_for_status() throws away the response body, which is the only
     place the reason lives ("API key not valid", "model not found", quota)."""
-    import httpx
 
     from app.llm import providers
 
@@ -128,6 +127,10 @@ def test_llm_config_route_never_prints_a_key(monkeypatch):
     from app.main import app
 
     monkeypatch.setenv("GEMINI_API_KEY", "AIzaSECRETSECRETSECRET1234")
+    from app.llm import providers
+
+    monkeypatch.setattr(providers, "list_gemini_models", lambda *a, **k: ["gemini-3.8-flash"])
+    providers._resolved.clear()
     from app.config import get_settings
 
     get_settings.cache_clear()
@@ -138,6 +141,29 @@ def test_llm_config_route_never_prints_a_key(monkeypatch):
         assert body["chain"]
         for row in body["chain"]:
             assert row["key_hint"] is None or len(row["key_hint"]) <= 7
+        assert body["chain"][0]["model"] == "gemini-3.8-flash"
+        assert body["chain"][0]["model_source"] == "auto"
     finally:
         monkeypatch.delenv("GEMINI_API_KEY", raising=False)
         get_settings.cache_clear()
+
+
+def test_pickers_prefer_a_stable_flash_and_a_large_open_model():
+    """Model names expire ("no longer available to new users"). The picker must
+    choose from the provider's live list, not from a constant in this repo."""
+    from app.llm.providers import pick_gemini_model, pick_groq_model
+
+    gem = ["gemini-2.5-pro", "gemini-3.8-flash-preview-09", "gemini-3.8-flash",
+           "gemini-3.8-flash-lite", "text-embedding-004", "imagen-4"]
+    assert pick_gemini_model(gem) == "gemini-3.8-flash"
+
+    groq = ["whisper-large-v3", "tts-1", "llama-3.1-8b-instant", "gpt-oss-120b",
+            "llama-3.3-70b-versatile"]
+    assert pick_groq_model(groq) == "gpt-oss-120b"
+
+
+def test_pickers_return_none_instead_of_a_guess():
+    from app.llm.providers import pick_gemini_model, pick_groq_model
+
+    assert pick_gemini_model([]) is None
+    assert pick_groq_model(["whisper-large-v3", "tts-1"]) is None

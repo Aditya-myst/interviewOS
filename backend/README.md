@@ -116,9 +116,14 @@ prompt ──▶ cache ──hit──▶ return (no network, no quota spent)
 - A provider failure reports **the provider's own sentence** — `HTTP 400:
   INVALID_ARGUMENT: API key not valid.` — not httpx's `Client error '400 Bad Request'`,
   which throws the response body away. That body is the only place the reason lives.
-- `GET /dev/llm` shows the chain, model names, and the last 4 characters of each key,
-  spending no quota. Use it first when a probe fails; `key_hint` tells you whether it is
-  reading the key you think it is.
+- **Model names are not hard-coded.** `GEMINI_MODEL`/`GROQ_MODEL` default to `auto`: the
+  app asks the provider which models the key can call (`GET /dev/llm/models`) and picks a
+  stable Flash / a large open-weight model via a scoring function that is unit-tested.
+  A name that was valid last quarter answers `404 ... no longer available to new users`,
+  which is out-of-date code, not a broken app.
+- `GET /dev/llm` shows the chain, the resolved model and its source (`env` or `auto`), the
+  cache backend, and the last 4 characters of each key — spending no quota. Use it first
+  when a probe fails.
 - `POST /dev/llm` is a probe for exactly this and returns 404 when `ENV=prod`. Its
   `error.attempts[]` carries one `{provider, error, ms}` row per provider tried.
 
@@ -140,7 +145,7 @@ prompt ──▶ cache ──hit──▶ return (no network, no quota spent)
 
 ```powershell
 cd backend
-uv run pytest            # 17 tests, no network, no database
+uv run pytest            # 19 tests, no network, no database
 uv run ruff check .
 ```
 

@@ -11,7 +11,7 @@ os.environ.setdefault("GEMINI_API_KEY", "")
 os.environ.setdefault("GROQ_API_KEY", "")
 os.environ.setdefault("ENV", "test")
 
-import pytest  # noqa: E402
+import pytest
 
 
 @pytest.fixture(autouse=True)

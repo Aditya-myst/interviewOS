@@ -186,19 +186,60 @@ def llm_config() -> dict:
             {
                 "order": index,
                 "provider": provider.name,
-                "model": provider.model,
                 "configured": provider.available(),
                 "key_hint": _key_hint(key),
                 "role": "primary" if index == 1 else "fallback",
             }
         )
+    chain_rows = []
+    for row, provider in zip(chain, gw.chain, strict=False):
+        try:
+            row["model"] = provider.model
+            row["model_source"] = "env" if (provider._model or "").lower() not in ("", "auto") else "auto"
+        except Exception as exc:  # noqa: BLE001 — a bad key is information, not a 500
+            row["model"] = None
+            row["model_error"] = f"{type(exc).__name__}: {exc}"[:300]
+        chain_rows.append(row)
+
     return {
         "order": [s.llm_provider, s.llm_fallback],
         "timeout_s": s.llm_timeout_s,
         "cache": type(gw.cache).__name__,
         "cache_schema_version": gw.schema_version,
-        "chain": chain,
+        "chain": chain_rows,
     }
+
+
+@router.get("/dev/llm/models")
+def llm_models() -> dict:
+    """Dev-only: what the keys can actually call, and what auto would pick.
+
+    This is the route that stops a 404 "model no longer available" from looking
+    like a broken app: it asks the provider for the live list and shows both the
+    list and the choice the picker makes from it.
+    """
+    if get_settings().env == "prod":
+        raise RuntimeError("disabled in prod")
+
+    from app.llm import providers as P
+
+    s = get_settings()
+    out: dict = {"configured": [], "picked": {}}
+    if s.gemini_api_key:
+        try:
+            ids = P.list_gemini_models(s.gemini_api_key, s.llm_timeout_s)
+            out["configured"].append("gemini")
+            out["gemini"] = {"available": ids, "picked": P.pick_gemini_model(ids)}
+        except Exception as exc:  # noqa: BLE001
+            out["gemini"] = {"error": f"{type(exc).__name__}: {exc}"[:300]}
+    if s.groq_api_key:
+        try:
+            ids = P.list_groq_models(s.groq_api_key, s.llm_timeout_s)
+            out["configured"].append("groq")
+            out["groq"] = {"available": ids, "picked": P.pick_groq_model(ids)}
+        except Exception as exc:  # noqa: BLE001
+            out["groq"] = {"error": f"{type(exc).__name__}: {exc}"[:300]}
+    return out
 
 
 @router.post("/dev/llm")

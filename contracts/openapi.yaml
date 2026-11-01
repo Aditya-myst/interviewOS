@@ -56,7 +56,21 @@ paths:
       responses:
         "200": { description: probe result }
 
+  /dev/llm/models:
+    get:
+      tags: [health]
+      security: []
+      summary: Dev-only — the models each key can actually call, plus what "auto" picks
+      responses:
+        "200": { description: live model lists }
+
   /dev/llm:
+    get:
+      tags: [health]
+      security: []
+      summary: Dev-only — provider chain, resolved model, cache backend (spends no quota)
+      responses:
+        "200": { description: chain }
     post:
       tags: [health]
       security: []

@@ -32,9 +32,9 @@ class Settings(BaseSettings):
     llm_fallback: str = "groq"
     llm_timeout_s: float = 45.0
     gemini_api_key: str = ""
-    gemini_model: str = "gemini-2.5-flash"
+    gemini_model: str = "auto"   # "auto" = ask the API which models the key can call
     groq_api_key: str = ""
-    groq_model: str = "llama-3.3-70b-versatile"
+    groq_model: str = "auto"
     llm_cache_version: int = 1
 
     max_upload_mb: int = 5
