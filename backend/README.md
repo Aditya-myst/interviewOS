@@ -121,6 +121,12 @@ prompt ──▶ cache ──hit──▶ return (no network, no quota spent)
   stable Flash / a large open-weight model via a scoring function that is unit-tested.
   A name that was valid last quarter answers `404 ... no longer available to new users`,
   which is out-of-date code, not a broken app.
+- **Cache is searched chain-wide before any network call.** Measured bug: primary timed
+  out at 45 s, the fallback had the answer cached, and the cached call still cost 45 s
+  because the primary was tried first. A cache hit answers in 0 ms even while the primary
+  is dead — there is a test for exactly that.
+- `GEMINI_THINKING=off` sends `thinkingBudget: 0`; Gemini can otherwise spend tens of
+  seconds deciding how hard to think about "reply with ok".
 - `GET /dev/llm` shows the chain, the resolved model and its source (`env` or `auto`), the
   cache backend, and the last 4 characters of each key — spending no quota. Use it first
   when a probe fails.
@@ -145,7 +151,7 @@ prompt ──▶ cache ──hit──▶ return (no network, no quota spent)
 
 ```powershell
 cd backend
-uv run pytest            # 19 tests, no network, no database
+uv run pytest            # 21 tests, no network, no database
 uv run ruff check .
 ```
 

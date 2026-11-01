@@ -150,13 +150,31 @@ def resolve_model(provider: str, configured: str | None, api_key: str, timeout: 
     return picked
 
 
+def gemini_body(
+    prompt: str, *, system: str | None = None, json_mode: bool = False, thinking: str = "auto"
+) -> dict:
+    """Pure so the request shape is testable without a network call."""
+    body: dict = {
+        "contents": [{"role": "user", "parts": [{"text": prompt}]}],
+        "generationConfig": {"temperature": 0.2},
+    }
+    if json_mode:
+        body["generationConfig"]["responseMimeType"] = "application/json"
+    if thinking and thinking.lower() == "off":
+        body["generationConfig"]["thinkingConfig"] = {"thinkingBudget": 0}
+    if system:
+        body["systemInstruction"] = {"parts": [{"text": system}]}
+    return body
+
+
 class GeminiProvider:
     name = "gemini"
 
-    def __init__(self, api_key: str, model: str | None, timeout: float):
+    def __init__(self, api_key: str, model: str | None, timeout: float, thinking: str = "auto"):
         self.api_key = api_key
         self._model = model
         self.timeout = timeout
+        self.thinking = thinking
 
     @property
     def model(self) -> str:
@@ -172,14 +190,7 @@ class GeminiProvider:
         return bool(self.api_key)
 
     def complete(self, prompt: str, *, system: str | None = None, json_mode: bool = False) -> str:
-        body: dict = {
-            "contents": [{"role": "user", "parts": [{"text": prompt}]}],
-            "generationConfig": {"temperature": 0.2},
-        }
-        if json_mode:
-            body["generationConfig"]["responseMimeType"] = "application/json"
-        if system:
-            body["systemInstruction"] = {"parts": [{"text": system}]}
+        body = gemini_body(prompt, system=system, json_mode=json_mode, thinking=self.thinking)
 
         data = _post(
             self.name,
@@ -243,7 +254,9 @@ def default_chain() -> list:
     """Primary then fallback, built from settings. Order is configurable."""
     s = get_settings()
     known = {
-        "gemini": GeminiProvider(s.gemini_api_key, s.gemini_model, s.llm_timeout_s),
+        "gemini": GeminiProvider(
+            s.gemini_api_key, s.gemini_model, s.llm_timeout_s, s.gemini_thinking
+        ),
         "groq": GroqProvider(s.groq_api_key, s.groq_model, s.llm_timeout_s),
     }
     chain = []

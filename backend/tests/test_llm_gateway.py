@@ -141,8 +141,12 @@ def test_llm_config_route_never_prints_a_key(monkeypatch):
         assert body["chain"]
         for row in body["chain"]:
             assert row["key_hint"] is None or len(row["key_hint"]) <= 7
-        assert body["chain"][0]["model"] == "gemini-3.8-flash"
-        assert body["chain"][0]["model_source"] == "auto"
+        rows = {row["provider"]: row for row in body["chain"]}
+        assert rows["gemini"]["model"] == "gemini-3.8-flash"
+        assert rows["gemini"]["model_source"] == "auto"
+        # no Groq key in this test, so the row says so instead of guessing a model
+        assert rows["groq"]["configured"] is False
+        assert rows["groq"]["model"] == "unresolved (no key)"
     finally:
         monkeypatch.delenv("GEMINI_API_KEY", raising=False)
         get_settings.cache_clear()
@@ -167,3 +171,46 @@ def test_pickers_return_none_instead_of_a_guess():
 
     assert pick_gemini_model([]) is None
     assert pick_groq_model(["whisper-large-v3", "tts-1"]) is None
+
+
+def test_a_cached_answer_does_not_wait_behind_a_dead_primary():
+    """Measured in the wild: primary timed out at 45 s, fallback had the answer
+    cached, and the cached call still cost 45 s because the primary was tried
+    first. Cache is now searched across the whole chain before any network call."""
+    import time
+
+    cache = MemoryCache()
+    primary = FakeProvider("primary", fail=True)
+    fallback = FakeProvider("fallback", text="answer")
+    gw = gateway(primary, fallback, cache=cache)
+
+    first = gw.complete("same prompt")
+    assert first.provider == "fallback" and not first.cached
+    assert primary.calls == 1
+
+    started = time.monotonic()
+    second = gw.complete("same prompt")
+    elapsed = time.monotonic() - started
+
+    assert second.cached is True
+    assert second.provider == "fallback"
+    assert primary.calls == 1, "the dead primary must not be called again"
+    assert fallback.calls == 1
+    assert elapsed < 0.1
+
+
+def test_gemini_request_shape_is_pure_and_thinking_is_opt_out():
+    """The 45 s ReadTimeout came from Gemini deciding how hard to think about
+    "reply with ok". Turning thinking off is a one-env-var switch, and the body
+    it produces is testable without a network call."""
+    from app.llm.providers import gemini_body
+
+    plain = gemini_body("hi")
+    assert "thinkingConfig" not in plain["generationConfig"]
+
+    thinking_off = gemini_body("hi", thinking="off")
+    assert thinking_off["generationConfig"]["thinkingConfig"] == {"thinkingBudget": 0}
+
+    js = gemini_body("hi", json_mode=True, system="be terse")
+    assert js["generationConfig"]["responseMimeType"] == "application/json"
+    assert js["systemInstruction"]["parts"][0]["text"] == "be terse"

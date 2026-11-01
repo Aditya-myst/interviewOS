@@ -19,7 +19,7 @@ Everything in this phase is verifiable by curl in under a minute. Run
 | Provider-agnostic LLM gateway | `backend/app/llm/gateway.py` | 5 tests: fallback, all-fail raises, cache hit, cache split, invalid JSON |
 | Persistent cache | `backend/app/llm/cache.py` | `DbCache` when connected, `MemoryCache` otherwise |
 | 9 routes | `backend/app/api/*.py` | `/openapi.json` path list |
-| 17 tests, no network | `backend/tests/` | `uv run pytest` |
+| 21 tests, no network | `backend/tests/` | `uv run pytest` |
 
 ## Decisions worth defending
 
@@ -43,6 +43,16 @@ That turns an outage into a lie the UI cannot detect. Instead `LLMUnavailable` c
 The gateway takes a `validator` callable. If a provider returns prose instead of the schema,
 that response is discarded, the next provider is tried, and nothing is written to cache —
 so one bad generation cannot poison every future call for the same prompt.
+
+## Measured, not assumed (2026-11-01, first live run)
+
+| Observation | What it changed |
+|---|---|
+| `gemini-2.5-flash` → `404 no longer available to new users` | model names resolve from the provider's live list; `GEMINI_MODEL=auto` |
+| `llama-3.3-70b-versatile` → `404 does not exist or you do not have access` | `GROQ_MODEL=auto`, largest open-weight model wins |
+| Gemini read-timed-out at **45 s** twice; Groq answered in **2.7 s** | default order flipped to groq → gemini, `LLM_TIMEOUT_S=25` |
+| second (cached) call still waited 45 s for the dead primary | cache is searched across the whole chain before any network call |
+| both providers down | `/dev/llm` returned both reasons; nothing was invented |
 
 ## The honest gap (unchanged by this phase)
 

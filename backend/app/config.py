@@ -28,10 +28,11 @@ class Settings(BaseSettings):
     direct_url: str = ""
 
     # LLM
-    llm_provider: str = "gemini"
-    llm_fallback: str = "groq"
-    llm_timeout_s: float = 45.0
+    llm_provider: str = "groq"
+    llm_fallback: str = "gemini"
+    llm_timeout_s: float = 25.0
     gemini_api_key: str = ""
+    gemini_thinking: str = "auto"   # off = send thinkingBudget 0 (Gemini can spend 45 s thinking)
     gemini_model: str = "auto"   # "auto" = ask the API which models the key can call
     groq_api_key: str = ""
     groq_model: str = "auto"

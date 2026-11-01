@@ -6,6 +6,7 @@ generation will not, and says so with `llm_unavailable`).
 """
 from __future__ import annotations
 
+import logging
 import time
 from collections.abc import Callable
 from typing import Any
@@ -15,6 +16,8 @@ from app.db import db_status
 from app.llm.base import Attempt, LLMResult, LLMUnavailable, Provider
 from app.llm.cache import Cache, DbCache, MemoryCache, cache_key
 from app.llm.providers import default_chain
+
+log = logging.getLogger(__name__)
 
 
 class Gateway:
@@ -48,11 +51,15 @@ class Gateway:
         """`validator` runs on the text before it is cached: a provider that
         answers with invalid JSON is a provider failure, not a cache entry."""
         attempts: list[Attempt] = []
+
+        # Phase 1 — look the prompt up across the WHOLE chain before calling
+        # anyone. A cache hit on the fallback must not wait behind a primary
+        # timeout: that is exactly how a cached answer still cost 45 s.
+        keyed: list[tuple[Provider, str, str]] = []
         for provider in self.chain:
             if not provider.available():
                 attempts.append(Attempt(provider.name, "not configured"))
                 continue
-
             try:
                 model = provider.model
             except Exception as exc:  # noqa: BLE001 — model lookup is a network call too
@@ -62,25 +69,31 @@ class Gateway:
                 continue
 
             key = cache_key(model, prompt, self.schema_version)
-            hit = self.cache.get(key)
-            if hit is not None:
-                text = hit.get("text") if isinstance(hit, dict) else None
-                if text:
-                    if validator is not None:
-                        try:
-                            validator(text)
-                        except Exception:  # noqa: BLE001 — stale/invalid entry, ignore it
-                            hit = None
-                    if hit is not None:
-                        return LLMResult(
-                            text=text,
-                            provider=provider.name,
-                            model=model,
-                            cached=True,
-                            latency_ms=0,
-                            attempts=attempts,
-                        )
+            keyed.append((provider, model, key))
 
+            hit = self.cache.get(key)
+            if hit is None:
+                continue
+            text = hit.get("text") if isinstance(hit, dict) else None
+            if not text:
+                continue
+            if validator is not None:
+                try:
+                    validator(text)
+                except Exception as exc:  # noqa: BLE001 — stale/invalid entry
+                    log.info("cache entry for %s rejected by validator: %s", model, exc)
+                    continue
+            return LLMResult(
+                text=text,
+                provider=provider.name,
+                model=model,
+                cached=True,
+                latency_ms=0,
+                attempts=attempts,
+            )
+
+        # Phase 2 — nothing cached: call the providers in order.
+        for provider, model, key in keyed:
             started = time.monotonic()
             try:
                 text = provider.complete(prompt, system=system, json_mode=json_mode)
