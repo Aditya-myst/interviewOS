@@ -6,8 +6,10 @@ InterviewOS takes three inputs — your resume, a target job description, and sh
 skill checks — and produces a preparation plan ordered by *interview impact*, not by what
 happens to be on your CV. Every priority it shows cites the evidence behind it.
 
-> **Status:** frontend (dashboard, gap map, roadmap) + API service running in fixture mode;
-> resume/JD pipeline next. Backend: [backend/README.md](backend/README.md).
+> **Status:** frontend (dashboard, gap map, roadmap) + API service, database verified live
+> (18 tables / 22 enums / 31 skills / 100 subtopics / 39 resources, `GET /dev/db`).
+> `/v1/*` still serves fixtures, labelled `X-Data-Source: fixture`. Resume/JD pipeline next.
+> Backend: [backend/README.md](backend/README.md) · Phase log: [docs/PHASE4.md](docs/PHASE4.md).
 > See [docs/architecture.md](docs/architecture.md) for the full design and
 > [docs/PHASE0.md](docs/PHASE0.md) for the environment checklist.
 

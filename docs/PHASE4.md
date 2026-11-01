@@ -44,6 +44,26 @@ The gateway takes a `validator` callable. If a provider returns prose instead of
 that response is discarded, the next provider is tried, and nothing is written to cache —
 so one bad generation cannot poison every future call for the same prompt.
 
+## Verified against the live project (2026-11-01)
+
+`GET /dev/db` on a fresh Supabase project — every handover promise, expected beside actual:
+
+| Check | Expected | Actual | |
+|---|---|---|---|
+| tables | 18 | 18 | ✅ |
+| rls_tables | 18 | 18 | ✅ |
+| enums | 22 | 22 | ✅ |
+| extensions | 3 | 3 | ✅ |
+| skills | 31 | 31 | ✅ |
+| subtopics | 100 | 100 | ✅ |
+| resources | 39 | 39 | ✅ |
+| policies | informational | 48 | — |
+| verified_links | informational | 33 | — |
+
+`"ok": true, "failed": []`, `server_version 17.11`. The seed numbers match the ones
+recorded when the fixtures were authored, which is the point: fixtures were *recorded
+output*, not hand-typed constants.
+
 ## Measured, not assumed (2026-11-01, first live run)
 
 | Observation | What it changed |
