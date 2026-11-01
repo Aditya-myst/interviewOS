@@ -158,6 +158,49 @@ class LLMProbe(BaseModel):
     json_mode: bool = False
 
 
+def _key_hint(key: str | None) -> str | None:
+    """Last 4 characters only — enough to tell two keys apart in a support
+    conversation, not enough to use one."""
+    if not key:
+        return None
+    return f"...{key[-4:]}" if len(key) > 8 else "set"
+
+
+@router.get("/dev/llm")
+def llm_config() -> dict:
+    """Dev-only: which providers are wired, in what order, with what model.
+
+    Spends no quota — this is the "why did the probe fail" route. It answers
+    questions like *is it reading the key I think it is* and *which model name*,
+    without ever printing a secret.
+    """
+    if get_settings().env == "prod":
+        raise RuntimeError("disabled in prod")
+
+    s = get_settings()
+    gw = get_gateway()
+    chain = []
+    for index, provider in enumerate(gw.chain, start=1):
+        key = getattr(provider, "api_key", None)
+        chain.append(
+            {
+                "order": index,
+                "provider": provider.name,
+                "model": provider.model,
+                "configured": provider.available(),
+                "key_hint": _key_hint(key),
+                "role": "primary" if index == 1 else "fallback",
+            }
+        )
+    return {
+        "order": [s.llm_provider, s.llm_fallback],
+        "timeout_s": s.llm_timeout_s,
+        "cache": type(gw.cache).__name__,
+        "cache_schema_version": gw.schema_version,
+        "chain": chain,
+    }
+
+
 @router.post("/dev/llm")
 def llm_probe(body: LLMProbe) -> dict:
     """Dev-only: prove which provider answered, or why none could.
@@ -177,6 +220,7 @@ def llm_probe(body: LLMProbe) -> dict:
                 "code": "llm_unavailable",
                 "message": "No provider could answer",
                 "detail": str(exc),
+                "attempts": [a.__dict__ for a in exc.attempts],
             },
             "configured": gateway.available_providers(),
         }

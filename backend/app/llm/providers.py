@@ -11,6 +11,48 @@ import httpx
 
 from app.config import get_settings
 
+
+class ProviderHTTPError(RuntimeError):
+    """A provider said no, and here is what it actually said.
+
+    httpx's raise_for_status() gives you "Client error '400 Bad Request' for url
+    ..." and drops the response body — which is the only part that tells you
+    whether the key is wrong, the model name is wrong, or the daily quota is
+    gone. That message is what we surface instead.
+    """
+
+    def __init__(self, provider: str, status: int, message: str, raw: str = ""):
+        self.provider = provider
+        self.status = status
+        self.message = message
+        super().__init__(f"HTTP {status}: {message}" + (f" | {raw[:200]}" if raw else ""))
+
+
+def _error_message(resp: httpx.Response) -> str:
+    """Gemini and Groq both put the useful sentence in different places."""
+    try:
+        data = resp.json()
+    except Exception:  # noqa: BLE001 — not JSON, fall back to the text
+        return resp.text.strip()[:300] or resp.reason_phrase
+
+    err = data.get("error") if isinstance(data, dict) else None
+    if isinstance(err, dict):
+        bits = [str(err.get("status") or err.get("type") or "").strip(), str(err.get("message") or "").strip()]
+        joined = ": ".join(b for b in bits if b)
+        if joined:
+            return joined[:300]
+    if isinstance(err, str):
+        return err[:300]
+    return json.dumps(data)[:300]
+
+
+def _post(provider: str, url: str, **kwargs) -> dict:
+    resp = httpx.post(url, **kwargs)
+    if resp.status_code >= 400:
+        raise ProviderHTTPError(provider, resp.status_code, _error_message(resp))
+    return resp.json()
+
+
 GEMINI_URL = (
     "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 )
@@ -38,14 +80,13 @@ class GeminiProvider:
         if system:
             body["systemInstruction"] = {"parts": [{"text": system}]}
 
-        resp = httpx.post(
+        data = _post(
+            self.name,
             GEMINI_URL.format(model=self.model),
             headers={"x-goog-api-key": self.api_key, "content-type": "application/json"},
             json=body,
             timeout=self.timeout,
         )
-        resp.raise_for_status()
-        data = resp.json()
         try:
             return data["candidates"][0]["content"]["parts"][0]["text"]
         except (KeyError, IndexError) as exc:  # blocked prompt, safety stop, etc.
@@ -73,7 +114,8 @@ class GroqProvider:
         if json_mode:
             body["response_format"] = {"type": "json_object"}
 
-        resp = httpx.post(
+        data = _post(
+            self.name,
             GROQ_URL,
             headers={
                 "Authorization": f"Bearer {self.api_key}",
@@ -82,8 +124,6 @@ class GroqProvider:
             json=body,
             timeout=self.timeout,
         )
-        resp.raise_for_status()
-        data = resp.json()
         try:
             return data["choices"][0]["message"]["content"]
         except (KeyError, IndexError) as exc:

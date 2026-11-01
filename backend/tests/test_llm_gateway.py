@@ -94,3 +94,50 @@ def test_invalid_json_is_a_failure_not_a_cache_hit():
     assert result.provider == "groq"
     assert result.cached is False
     assert json.loads(result.text) == {"ok": True}
+
+
+def test_provider_http_error_keeps_the_providers_own_sentence(monkeypatch):
+    """httpx.raise_for_status() throws away the response body, which is the only
+    place the reason lives ("API key not valid", "model not found", quota)."""
+    import httpx
+
+    from app.llm import providers
+
+    class Resp:
+        status_code = 400
+        text = "{}"
+
+        def json(self):
+            return {"error": {"status": "INVALID_ARGUMENT", "message": "API key not valid."}}
+
+    monkeypatch.setattr(providers.httpx, "post", lambda *a, **k: Resp())
+    p = providers.GeminiProvider("k" * 20, "gemini-2.5-flash", 5)
+    try:
+        p.complete("hi")
+    except providers.ProviderHTTPError as exc:
+        assert "API key not valid" in str(exc)
+        assert "INVALID_ARGUMENT" in str(exc)
+        assert exc.status == 400
+    else:
+        raise AssertionError("expected ProviderHTTPError")
+
+
+def test_llm_config_route_never_prints_a_key(monkeypatch):
+    from fastapi.testclient import TestClient
+
+    from app.main import app
+
+    monkeypatch.setenv("GEMINI_API_KEY", "AIzaSECRETSECRETSECRET1234")
+    from app.config import get_settings
+
+    get_settings.cache_clear()
+    try:
+        body = TestClient(app).get("/dev/llm").json()
+        dumped = str(body)
+        assert "AIzaSECRETSECRETSECRET" not in dumped
+        assert body["chain"]
+        for row in body["chain"]:
+            assert row["key_hint"] is None or len(row["key_hint"]) <= 7
+    finally:
+        monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+        get_settings.cache_clear()

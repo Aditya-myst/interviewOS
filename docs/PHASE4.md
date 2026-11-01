@@ -18,8 +18,8 @@ Everything in this phase is verifiable by curl in under a minute. Run
 | Lazy engine + status probe | `backend/app/db.py` | `/ready` reports `unconfigured` / `connected` + table count |
 | Provider-agnostic LLM gateway | `backend/app/llm/gateway.py` | 5 tests: fallback, all-fail raises, cache hit, cache split, invalid JSON |
 | Persistent cache | `backend/app/llm/cache.py` | `DbCache` when connected, `MemoryCache` otherwise |
-| 8 routes | `backend/app/api/*.py` | `/openapi.json` path list |
-| 14 tests, no network | `backend/tests/` | `uv run pytest` |
+| 9 routes | `backend/app/api/*.py` | `/openapi.json` path list |
+| 17 tests, no network | `backend/tests/` | `uv run pytest` |
 
 ## Decisions worth defending
 

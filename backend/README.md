@@ -113,7 +113,14 @@ prompt ──▶ cache ──hit──▶ return (no network, no quota spent)
 - A provider that returns unparseable JSON is a **failure**, not a cache entry.
 - There is deliberately **no** "return canned text if everything fails" step. The failure
   carries each provider's reason so the UI can say why.
-- `POST /dev/llm` is a probe for exactly this and returns 404 when `ENV=prod`.
+- A provider failure reports **the provider's own sentence** — `HTTP 400:
+  INVALID_ARGUMENT: API key not valid.` — not httpx's `Client error '400 Bad Request'`,
+  which throws the response body away. That body is the only place the reason lives.
+- `GET /dev/llm` shows the chain, model names, and the last 4 characters of each key,
+  spending no quota. Use it first when a probe fails; `key_hint` tells you whether it is
+  reading the key you think it is.
+- `POST /dev/llm` is a probe for exactly this and returns 404 when `ENV=prod`. Its
+  `error.attempts[]` carries one `{provider, error, ms}` row per provider tried.
 
 ## 5. Routes
 
@@ -133,7 +140,7 @@ prompt ──▶ cache ──hit──▶ return (no network, no quota spent)
 
 ```powershell
 cd backend
-uv run pytest            # 15 tests, no network, no database
+uv run pytest            # 17 tests, no network, no database
 uv run ruff check .
 ```
 
