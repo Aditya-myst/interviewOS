@@ -1,0 +1,716 @@
+openapi: 3.0.3
+info:
+  title: InterviewOS API
+  version: 0.1.0
+  description: >
+    Contract for the UI and the backend. The UI generates its types from this file and
+    must never invent fields. All list endpoints are scoped to the authenticated user.
+servers:
+  - url: http://localhost:8000
+    description: local
+  - url: https://interviewos-api.onrender.com
+    description: production
+security:
+  - bearerAuth: []
+tags:
+  - { name: health }
+  - { name: profile }
+  - { name: resume }
+  - { name: jd }
+  - { name: skills }
+  - { name: preparation }
+  - { name: assessment }
+  - { name: learning }
+  - { name: interview }
+  - { name: analytics }
+
+paths:
+  /health:
+    get:
+      tags: [health]
+      security: []
+      summary: Liveness
+      responses:
+        "200": { description: ok, content: { application/json: { schema: { $ref: "#/components/schemas/Health" } } } }
+
+  /ready:
+    get:
+      tags: [health]
+      security: []
+      summary: Readiness (db, vector ext, llm provider)
+      responses:
+        "200": { description: ready, content: { application/json: { schema: { $ref: "#/components/schemas/Ready" } } } }
+        "503": { $ref: "#/components/responses/Error" }
+
+  /profile:
+    get:
+      tags: [profile]
+      responses:
+        "200": { description: profile, content: { application/json: { schema: { $ref: "#/components/schemas/Profile" } } } }
+        "401": { $ref: "#/components/responses/Error" }
+    patch:
+      tags: [profile]
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/ProfileUpdate" } } }
+      responses:
+        "200": { description: updated, content: { application/json: { schema: { $ref: "#/components/schemas/Profile" } } } }
+        "422": { $ref: "#/components/responses/Error" }
+
+  /resume/upload:
+    post:
+      tags: [resume]
+      summary: Upload a PDF/DOCX or paste raw text. Parses + extracts claims.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file: { type: string, format: binary }
+                text: { type: string, description: paste path, used when no file }
+      responses:
+        "200": { description: parsed, content: { application/json: { schema: { $ref: "#/components/schemas/ParsedResume" } } } }
+        "413": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+
+  /resume/latest:
+    get:
+      tags: [resume]
+      responses:
+        "200": { description: latest resume, content: { application/json: { schema: { $ref: "#/components/schemas/ParsedResume" } } } }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /resume/{resume_id}:
+    get:
+      tags: [resume]
+      parameters: [{ name: resume_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses:
+        "200": { description: resume, content: { application/json: { schema: { $ref: "#/components/schemas/ParsedResume" } } } }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /jd/analyze:
+    post:
+      tags: [jd]
+      summary: Analyze a job description into tiered requirements.
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/JDInput" } } }
+      responses:
+        "200": { description: analyzed, content: { application/json: { schema: { $ref: "#/components/schemas/ParsedJD" } } } }
+        "422": { $ref: "#/components/responses/Error" }
+
+  /skills/profile:
+    get:
+      tags: [skills]
+      summary: Per-skill state with evidence, priority factors and explanation.
+      responses:
+        "200": { description: skill profile, content: { application/json: { schema: { $ref: "#/components/schemas/SkillProfile" } } } }
+    patch:
+      tags: [skills]
+      summary: User corrections from the Review screen (adds user_correction evidence)
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/SkillCorrection" } } }
+      responses:
+        "200": { description: updated, content: { application/json: { schema: { $ref: "#/components/schemas/SkillProfile" } } } }
+
+  /preparation/create:
+    post:
+      tags: [preparation]
+      summary: Run the preparation graph (match -> gap -> roadmap). Idempotent per (resume, jd).
+      requestBody:
+        required: false
+        content: { application/json: { schema: { $ref: "#/components/schemas/PreparationRequest" } } }
+      responses:
+        "200": { description: plan, content: { application/json: { schema: { $ref: "#/components/schemas/PreparationPlan" } } } }
+        "409": { $ref: "#/components/responses/Error" }
+
+  /preparation/latest:
+    get:
+      tags: [preparation]
+      responses:
+        "200": { description: plan, content: { application/json: { schema: { $ref: "#/components/schemas/PreparationPlan" } } } }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /assessment/start:
+    post:
+      tags: [assessment]
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/AssessmentStart" } } }
+      responses:
+        "200": { description: first question, content: { application/json: { schema: { $ref: "#/components/schemas/AssessmentState" } } } }
+
+  /assessment/answer:
+    post:
+      tags: [assessment]
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/AssessmentAnswerInput" } } }
+      responses:
+        "200": { description: graded + next step, content: { application/json: { schema: { $ref: "#/components/schemas/AssessmentState" } } } }
+
+  /learning/roadmap:
+    get:
+      tags: [learning]
+      responses:
+        "200": { description: roadmap, content: { application/json: { schema: { $ref: "#/components/schemas/Roadmap" } } } }
+
+  /learning/topic/{topic_id}:
+    get:
+      tags: [learning]
+      parameters: [{ name: topic_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses:
+        "200": { description: topic with resources, content: { application/json: { schema: { $ref: "#/components/schemas/LearningTopic" } } } }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /learning/chat:
+    post:
+      tags: [learning]
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/TutorInput" } } }
+      responses:
+        "200": { description: tutor reply, content: { application/json: { schema: { $ref: "#/components/schemas/TutorReply" } } } }
+
+  /learning/complete:
+    post:
+      tags: [learning]
+      summary: Mark a topic done. Rejected without checkpoint evidence (422 insufficient_evidence).
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/TopicCompleteInput" } } }
+      responses:
+        "200": { description: updated topic, content: { application/json: { schema: { $ref: "#/components/schemas/LearningTopic" } } } }
+        "422": { $ref: "#/components/responses/Error" }
+
+  /interview/start:
+    post:
+      tags: [interview]
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/InterviewStart" } } }
+      responses:
+        "200": { description: session + first question, content: { application/json: { schema: { $ref: "#/components/schemas/InterviewState" } } } }
+
+  /interview/answer:
+    post:
+      tags: [interview]
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/InterviewAnswerInput" } } }
+      responses:
+        "200": { description: next question or finish, content: { application/json: { schema: { $ref: "#/components/schemas/InterviewState" } } } }
+
+  /interview/{session_id}/transcript:
+    get:
+      tags: [interview]
+      parameters: [{ name: session_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses:
+        "200": { description: transcript, content: { application/json: { schema: { $ref: "#/components/schemas/Transcript" } } } }
+
+  /interview/{session_id}/evaluate:
+    post:
+      tags: [interview]
+      responses:
+        "200": { description: report, content: { application/json: { schema: { $ref: "#/components/schemas/InterviewReport" } } } }
+
+  /interview/{session_id}/report:
+    get:
+      tags: [interview]
+      parameters: [{ name: session_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      responses:
+        "200": { description: report, content: { application/json: { schema: { $ref: "#/components/schemas/InterviewReport" } } } }
+        "404": { $ref: "#/components/responses/Error" }
+
+  /analytics/dashboard:
+    get:
+      tags: [analytics]
+      responses:
+        "200": { description: dashboard, content: { application/json: { schema: { $ref: "#/components/schemas/Dashboard" } } } }
+
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
+
+  responses:
+    Error:
+      description: Error envelope
+      content: { application/json: { schema: { $ref: "#/components/schemas/ErrorEnvelope" } } }
+
+  schemas:
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code: { type: string }
+            message: { type: string }
+            detail: { type: string, nullable: true }
+
+    Health:
+      type: object
+      required: [status, version]
+      properties:
+        status: { type: string, enum: [ok] }
+        version: { type: string }
+
+    Ready:
+      type: object
+      required: [status, checks]
+      properties:
+        status: { type: string, enum: [ready, degraded] }
+        checks:
+          type: object
+          additionalProperties: { type: boolean }
+
+    Profile:
+      type: object
+      required: [id]
+      properties:
+        id: { type: string, format: uuid }
+        email: { type: string, nullable: true }
+        full_name: { type: string, nullable: true }
+        target_role: { type: string, nullable: true }
+        target_company: { type: string, nullable: true }
+        seniority: { type: string, nullable: true, enum: [intern, junior, mid, senior, lead, null] }
+        interview_date: { type: string, format: date, nullable: true }
+        created_at: { type: string, format: date-time }
+
+    ProfileUpdate:
+      type: object
+      properties:
+        full_name: { type: string }
+        target_role: { type: string }
+        target_company: { type: string }
+        seniority: { type: string, enum: [intern, junior, mid, senior, lead] }
+        interview_date: { type: string, format: date, nullable: true }
+
+    Evidence:
+      type: object
+      required: [type, quote]
+      properties:
+        type: { type: string, enum: [resume_skill_list, resume_project, resume_experience, assessment_answer, interview_answer, user_correction] }
+        quote: { type: string, description: verbatim substring of the source, never paraphrased }
+        section: { type: string, nullable: true }
+        start: { type: integer, nullable: true, description: char offset into raw_text for highlighting }
+        end: { type: integer, nullable: true }
+        source_id: { type: string, format: uuid, nullable: true }
+        created_at: { type: string, format: date-time }
+
+    ExtractedSkill:
+      type: object
+      required: [skill_id, name, claimed_level, confidence, evidence]
+      properties:
+        skill_id: { type: string, description: "canonical id from taxonomy.yaml, e.g. fastapi" }
+        name: { type: string }
+        category: { type: string, nullable: true }
+        claimed_level: { type: string, enum: [none, listed, beginner, intermediate, advanced, expert] }
+        confidence: { type: number, format: float, minimum: 0, maximum: 1 }
+        in_resume: { type: boolean }
+        evidence: { type: array, items: { $ref: "#/components/schemas/Evidence" } }
+
+    ParsedProject:
+      type: object
+      required: [title]
+      properties:
+        title: { type: string }
+        description: { type: string }
+        technologies: { type: array, items: { type: string } }
+        highlights: { type: array, items: { type: string } }
+
+    ParsedResume:
+      type: object
+      required: [id, parse_status, skills, projects]
+      properties:
+        id: { type: string, format: uuid }
+        filename: { type: string, nullable: true }
+        parse_status: { type: string, enum: [ok, degraded] }
+        parse_meta:
+          type: object
+          properties:
+            model: { type: string }
+            prompt_hash: { type: string }
+            parse_version: { type: integer }
+            extracted_chars: { type: integer }
+            warn: { type: string, nullable: true }
+        skills: { type: array, items: { $ref: "#/components/schemas/ExtractedSkill" } }
+        projects: { type: array, items: { $ref: "#/components/schemas/ParsedProject" } }
+        experience_years: { type: number, nullable: true }
+        achievements: { type: array, items: { type: string } }
+        unsupported_claims: { type: array, items: { type: string } }
+        created_at: { type: string, format: date-time }
+
+    JDInput:
+      type: object
+      required: [text]
+      properties:
+        title: { type: string, nullable: true }
+        company: { type: string, nullable: true }
+        text: { type: string, minLength: 80 }
+
+    JDRequirement:
+      type: object
+      required: [skill_id, name, requirement_type, jd_importance, expected_level]
+      properties:
+        skill_id: { type: string }
+        name: { type: string }
+        requirement_type: { type: string, enum: [required, preferred] }
+        jd_importance: { type: number, format: float, minimum: 0, maximum: 1 }
+        expected_level: { type: string, enum: [none, beginner, intermediate, advanced, expert] }
+        mentions: { type: integer }
+        evidence: { type: array, items: { $ref: "#/components/schemas/Evidence" } }
+
+    ParsedJD:
+      type: object
+      required: [id, role, requirements, interview_rounds]
+      properties:
+        id: { type: string, format: uuid }
+        title: { type: string, nullable: true }
+        company: { type: string, nullable: true }
+        role: { type: string }
+        seniority: { type: string, nullable: true }
+        min_years_experience: { type: number, nullable: true }
+        requirements: { type: array, items: { $ref: "#/components/schemas/JDRequirement" } }
+        interview_rounds:
+          type: array
+          items: { type: string, enum: [technical, coding, system_design, take_home, behavioral, hr] }
+          description: inferred from text, not company-confirmed
+        rounds_inferred: { type: boolean }
+        topics: { type: array, items: { type: string } }
+        parse_status: { type: string, enum: [ok, degraded] }
+        created_at: { type: string, format: date-time }
+
+    CandidateSkill:
+      type: object
+      required: [skill_id, name, status, priority, priority_band, explanation]
+      properties:
+        skill_id: { type: string }
+        name: { type: string }
+        category: { type: string, nullable: true }
+        status: { type: string, enum: [claimed, unverified, weak, developing, verified, needs_revision] }
+        claimed_level: { type: string, enum: [none, listed, beginner, intermediate, advanced, expert], nullable: true }
+        verified_level: { type: string, enum: [none, beginner, intermediate, advanced, expert], nullable: true }
+        expected_level: { type: string, enum: [none, beginner, intermediate, advanced, expert], nullable: true }
+        confidence: { type: number, minimum: 0, maximum: 1 }
+        jd_importance: { type: number, minimum: 0, maximum: 1 }
+        interview_relevance: { type: number, minimum: 0, maximum: 1 }
+        gap: { type: number, minimum: 0, maximum: 1 }
+        priority: { type: number, minimum: 0, maximum: 1 }
+        priority_band: { type: string, enum: [critical, high, medium, low] }
+        explanation: { type: string }
+        in_resume: { type: boolean }
+        in_jd: { type: boolean }
+        evidence: { type: array, items: { $ref: "#/components/schemas/Evidence" } }
+        last_assessed_at: { type: string, format: date-time, nullable: true }
+
+    SkillProfile:
+      type: object
+      required: [skills, counts, provisional]
+      properties:
+        skills: { type: array, items: { $ref: "#/components/schemas/CandidateSkill" } }
+        counts:
+          type: object
+          properties:
+            critical: { type: integer }
+            high: { type: integer }
+            medium: { type: integer }
+            low: { type: integer }
+            verified: { type: integer }
+            unverified: { type: integer }
+        provisional: { type: boolean, description: true when any critical/high skill has no assessment evidence }
+        coverage_by_category:
+          type: array
+          description: radar chart series source
+          items:
+            type: object
+            properties:
+              category: { type: string }
+              verified: { type: number }
+              developing: { type: number }
+              unverified: { type: number }
+
+    SkillCorrection:
+      type: object
+      required: [skill_id, action]
+      properties:
+        skill_id: { type: string }
+        action: { type: string, enum: [remove, set_claimed_level, add] }
+        claimed_level: { type: string, enum: [listed, beginner, intermediate, advanced, expert] }
+
+    PreparationRequest:
+      type: object
+      properties:
+        resume_id: { type: string, format: uuid, nullable: true }
+        jd_id: { type: string, format: uuid, nullable: true }
+        force_refresh: { type: boolean, default: false }
+
+    Resource:
+      type: object
+      required: [id, role, title, url, provider, is_paid]
+      properties:
+        id: { type: string, format: uuid }
+        role: { type: string, enum: [concept, practice, checkpoint] }
+        title: { type: string }
+        url: { type: string }
+        provider: { type: string, description: "e.g. FastAPI Docs, freeCodeCamp, YouTube" }
+        author: { type: string, nullable: true }
+        kind: { type: string, enum: [docs, article, video, course, exercise, repo, paper, book], nullable: true }
+        duration_minutes: { type: integer, nullable: true }
+        is_paid: { type: boolean }
+        license: { type: string, nullable: true }
+        verified_at: { type: string, format: date-time, nullable: true }
+        why: { type: string, description: "one line explaining why this was picked" }
+
+    LearningTopic:
+      type: object
+      required: [id, title, status, depth, order_index, resources]
+      properties:
+        id: { type: string, format: uuid }
+        skill_id: { type: string, nullable: true }
+        skill_name: { type: string, nullable: true }
+        title: { type: string }
+        objective: { type: string, nullable: true }
+        status: { type: string, enum: [not_started, in_progress, checkpoint_passed, done] }
+        depth: { type: string, enum: [refresh, core, deep_dive] }
+        order_index: { type: integer }
+        estimated_minutes: { type: integer, nullable: true }
+        subtopics: { type: array, items: { type: string } }
+        progress: { type: number, minimum: 0, maximum: 1 }
+        resources: { type: array, items: { $ref: "#/components/schemas/Resource" } }
+
+    Roadmap:
+      type: object
+      required: [id, summary, topics, status]
+      properties:
+        id: { type: string, format: uuid }
+        summary: { type: string }
+        status: { type: string, enum: [active, completed] }
+        target_role: { type: string, nullable: true }
+        topics: { type: array, items: { $ref: "#/components/schemas/LearningTopic" } }
+        progress:
+          type: object
+          properties:
+            done: { type: integer }
+            total: { type: integer }
+
+    PreparationPlan:
+      type: object
+      required: [id, readiness, skill_profile, roadmap, generated_at]
+      properties:
+        id: { type: string, format: uuid }
+        readiness: { type: number, minimum: 0, maximum: 100 }
+        readiness_label: { type: string, enum: [not_ready, early, approaching, interview_ready] }
+        skill_profile: { $ref: "#/components/schemas/SkillProfile" }
+        roadmap: { $ref: "#/components/schemas/Roadmap" }
+        next_best_action: { type: string }
+        generated_at: { type: string, format: date-time }
+        parse_status: { type: string, enum: [ok, degraded] }
+
+    AssessmentStart:
+      type: object
+      required: [skill_id]
+      properties:
+        skill_id: { type: string }
+        mode: { type: string, enum: [adaptive, quick], default: adaptive }
+
+    AssessmentAnswerInput:
+      type: object
+      required: [assessment_id, answer]
+      properties:
+        assessment_id: { type: string, format: uuid }
+        answer: { type: string, minLength: 1 }
+
+    RubricScores:
+      type: object
+      properties:
+        technical_correctness: { type: number, minimum: 0, maximum: 1 }
+        depth: { type: number, minimum: 0, maximum: 1 }
+        practical_ability: { type: number, minimum: 0, maximum: 1 }
+        problem_solving: { type: number, minimum: 0, maximum: 1 }
+        communication: { type: number, minimum: 0, maximum: 1 }
+
+    AssessmentState:
+      type: object
+      required: [assessment_id, skill_id, level, status]
+      properties:
+        assessment_id: { type: string, format: uuid }
+        skill_id: { type: string }
+        skill_name: { type: string }
+        level: { type: string, enum: [conceptual, practical, applied] }
+        status: { type: string, enum: [in_progress, completed] }
+        question_index: { type: integer }
+        question_total: { type: integer }
+        question:
+          type: object
+          nullable: true
+          properties:
+            text: { type: string }
+            question_type: { type: string, enum: [fundamentals, advanced, coding, debugging, project_deep_dive, scenario, system_design, behavioral] }
+            hint: { type: string, nullable: true }
+        feedback:
+          type: object
+          nullable: true
+          properties:
+            scores: { $ref: "#/components/schemas/RubricScores" }
+            missing_concepts: { type: array, items: { type: string } }
+            summary: { type: string }
+        result:
+          type: object
+          nullable: true
+          properties:
+            inferred_level: { type: string, enum: [none, beginner, intermediate, advanced, expert] }
+            status_after: { type: string, enum: [weak, developing, verified, needs_revision] }
+            confidence: { type: number }
+
+    TutorInput:
+      type: object
+      required: [topic_id, message]
+      properties:
+        topic_id: { type: string, format: uuid }
+        message: { type: string }
+
+    TutorReply:
+      type: object
+      required: [reply, checkpoint_ready]
+      properties:
+        reply: { type: string }
+        citations: { type: array, items: { $ref: "#/components/schemas/Resource" } }
+        checkpoint_ready: { type: boolean }
+        suggested_next: { type: string, nullable: true }
+
+    TopicCompleteInput:
+      type: object
+      required: [topic_id, checkpoint_answer]
+      properties:
+        topic_id: { type: string, format: uuid }
+        checkpoint_answer: { type: string, minLength: 10 }
+
+    InterviewStart:
+      type: object
+      required: [mode]
+      properties:
+        mode: { type: string, enum: [beginner_practice, intermediate_technical, advanced_technical, resume_based, jd_based, full_mock] }
+        channel: { type: string, enum: [text, voice], default: text }
+        question_count: { type: integer, default: 6, minimum: 3, maximum: 12 }
+
+    InterviewAnswerInput:
+      type: object
+      required: [session_id, answer]
+      properties:
+        session_id: { type: string, format: uuid }
+        answer: { type: string }
+        audio_url: { type: string, nullable: true }
+
+    InterviewState:
+      type: object
+      required: [session_id, status, asked]
+      properties:
+        session_id: { type: string, format: uuid }
+        status: { type: string, enum: [active, completed] }
+        asked: { type: integer }
+        total: { type: integer }
+        question:
+          type: object
+          nullable: true
+          properties:
+            text: { type: string }
+            question_type: { type: string, enum: [fundamentals, advanced, coding, debugging, project_deep_dive, scenario, system_design, behavioral] }
+            skill_id: { type: string, nullable: true }
+            source: { type: string, enum: [jd, resume_project, weak_skill, verified_skill, general] }
+
+    Transcript:
+      type: object
+      required: [session_id, messages]
+      properties:
+        session_id: { type: string, format: uuid }
+        messages:
+          type: array
+          items:
+            type: object
+            properties:
+              role: { type: string, enum: [interviewer, candidate, system] }
+              content: { type: string }
+              question_type: { type: string, nullable: true }
+              created_at: { type: string, format: date-time }
+
+    InterviewReport:
+      type: object
+      required: [session_id, overall_scores, per_skill, strengths, gaps, next_actions]
+      properties:
+        session_id: { type: string, format: uuid }
+        overall_scores:
+          type: object
+          properties:
+            overall: { type: number }
+            technical: { type: number }
+            problem_solving: { type: number }
+            communication_transcript_based: { type: number, description: "derived from text only; never claims delivery analysis" }
+        per_skill:
+          type: array
+          items:
+            type: object
+            properties:
+              skill_id: { type: string }
+              name: { type: string }
+              score: { type: number }
+              status_after: { type: string, enum: [weak, developing, verified, needs_revision] }
+              comment: { type: string }
+        strengths: { type: array, items: { type: string } }
+        gaps: { type: array, items: { type: string } }
+        weak_answers:
+          type: array
+          items:
+            type: object
+            properties:
+              question: { type: string }
+              why_weak: { type: string }
+              better_answer_outline: { type: array, items: { type: string } }
+        next_actions: { type: array, items: { type: string } }
+        created_at: { type: string, format: date-time }
+
+    Dashboard:
+      type: object
+      required: [readiness, stats, coverage, priority_skills, interviews]
+      properties:
+        readiness: { type: number }
+        readiness_label: { type: string, enum: [not_ready, early, approaching, interview_ready] }
+        provisional: { type: boolean }
+        target_role: { type: string, nullable: true }
+        stats:
+          type: object
+          properties:
+            verified_skills: { type: integer }
+            skills_total: { type: integer }
+            mock_interviews: { type: integer }
+            topics_done: { type: integer }
+            topics_total: { type: integer }
+            avg_interview_score: { type: number, nullable: true }
+        coverage:
+          type: array
+          items:
+            type: object
+            properties:
+              category: { type: string }
+              verified: { type: number }
+              developing: { type: number }
+              unverified: { type: number }
+        priority_skills:
+          type: array
+          items: { $ref: "#/components/schemas/CandidateSkill" }
+        interviews:
+          type: array
+          items:
+            type: object
+            properties:
+              session_id: { type: string, format: uuid }
+              mode: { type: string }
+              channel: { type: string }
+              score: { type: number, nullable: true }
+              duration_minutes: { type: integer, nullable: true }
+              created_at: { type: string, format: date-time }

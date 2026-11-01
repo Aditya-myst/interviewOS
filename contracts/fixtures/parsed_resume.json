@@ -1,0 +1,28 @@
+{
+  "id": "11111111-1111-4111-8111-111111111111",
+  "filename": "aditya_resume.pdf",
+  "parse_status": "ok",
+  "parse_meta": { "model": "gemini-2.5-flash", "prompt_hash": "a91c4e2", "parse_version": 3, "extracted_chars": 4213, "warn": null },
+  "experience_years": 0.5,
+  "skills": [
+    { "skill_id": "python", "name": "Python", "category": "language", "claimed_level": "intermediate", "confidence": 0.78, "in_resume": true,
+      "evidence": [{ "type": "resume_project", "quote": "Built a RAG chatbot backend in Python with FastAPI", "section": "projects", "start": 812, "end": 865 }] },
+    { "skill_id": "fastapi", "name": "FastAPI", "category": "backend", "claimed_level": "listed", "confidence": 0.62, "in_resume": true,
+      "evidence": [{ "type": "resume_project", "quote": "Built a RAG chatbot backend in Python with FastAPI", "section": "projects", "start": 812, "end": 865 }] },
+    { "skill_id": "llm-rag", "name": "LLM & RAG", "category": "ai", "claimed_level": "intermediate", "confidence": 0.74, "in_resume": true,
+      "evidence": [{ "type": "resume_project", "quote": "Implemented retrieval-augmented generation over 1,200 college documents", "section": "projects", "start": 900, "end": 975 }] },
+    { "skill_id": "postgresql", "name": "PostgreSQL", "category": "data", "claimed_level": "intermediate", "confidence": 0.66, "in_resume": true,
+      "evidence": [{ "type": "resume_experience", "quote": "Designed normalised Postgres schemas for the placement portal", "section": "experience", "start": 1510, "end": 1570 }] },
+    { "skill_id": "react", "name": "React", "category": "frontend", "claimed_level": "advanced", "confidence": 0.71, "in_resume": true,
+      "evidence": [{ "type": "resume_skill_list", "quote": "React, Next.js, Tailwind CSS", "section": "skills", "start": 240, "end": 268 }] },
+    { "skill_id": "git", "name": "Git", "category": "engineering", "claimed_level": "intermediate", "confidence": 0.55, "in_resume": true,
+      "evidence": [{ "type": "resume_skill_list", "quote": "Git, GitHub Actions", "section": "skills", "start": 300, "end": 321 }] }
+  ],
+  "projects": [
+    { "title": "CampusRAG", "description": "Retrieval-augmented chatbot answering questions over college documents.", "technologies": ["Python", "FastAPI", "PostgreSQL", "pgvector"], "highlights": ["1,200 documents indexed", "Reduced hallucination with citation-only answers"] },
+    { "title": "Placement Portal", "description": "College placement management system.", "technologies": ["Next.js", "PostgreSQL", "Prisma"], "highlights": ["Used by 400+ students"] }
+  ],
+  "achievements": ["Top 5 in internal hackathon 2025"],
+  "unsupported_claims": ["Familiar with Kubernetes (no project evidence found)"],
+  "created_at": "2026-10-28T09:14:00Z"
+}

@@ -1,0 +1,94 @@
+# InterviewOS curated resource catalogue (Tier 0)
+# These win over any search result. The resolver still re-validates every URL at runtime
+# (HTTP GET, 200, no login wall) and stamps `verified_at`. `verified: false` means the
+# link is trusted by hand but not yet machine-checked in this environment.
+# Keyed by skill id -> subtopic id -> resources (role: concept | practice | checkpoint)
+version: 1
+catalogue:
+  python:
+    syntax-types:
+      - { role: concept, title: "The Python Tutorial — An Informal Introduction", url: "https://docs.python.org/3/tutorial/introduction.html", provider: "Python Docs", kind: docs, license: PSF, is_paid: false, verified: true }
+      - { role: practice, title: "Python track — hands-on exercises", url: "https://exercism.org/tracks/python", provider: "Exercism", kind: exercise, license: MIT, is_paid: false, verified: true }
+    async-io:
+      - { role: concept, title: "asyncio — Coroutines and Tasks", url: "https://docs.python.org/3/library/asyncio-task.html", provider: "Python Docs", kind: docs, license: PSF, is_paid: false, verified: true }
+      - { role: practice, title: "Async IO in Python: A Complete Walkthrough", url: "https://realpython.com/async-io-python/", provider: "Real Python", kind: article, is_paid: false, verified: true }
+    typing-testing:
+      - { role: concept, title: "pytest — Get Started", url: "https://docs.pytest.org/en/stable/getting-started.html", provider: "pytest Docs", kind: docs, license: MIT, is_paid: false, verified: true }
+
+  fastapi:
+    http-fundamentals:
+      - { role: concept, title: "MDN — HTTP request methods", url: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Methods", provider: "MDN", kind: docs, license: CC-BY-SA, is_paid: false, verified: true }
+    routing:
+      - { role: concept, title: "FastAPI — Path Parameters", url: "https://fastapi.tiangolo.com/tutorial/path-params/", provider: "FastAPI Docs", kind: docs, license: MIT, is_paid: false, verified: true }
+      - { role: concept, title: "FastAPI — Query Parameters", url: "https://fastapi.tiangolo.com/tutorial/query-params/", provider: "FastAPI Docs", kind: docs, license: MIT, is_paid: false, verified: true }
+    models-validation:
+      - { role: concept, title: "FastAPI — Request Body and Pydantic models", url: "https://fastapi.tiangolo.com/tutorial/body/", provider: "FastAPI Docs", kind: docs, license: MIT, is_paid: false, verified: true }
+    dependency-injection:
+      - { role: concept, title: "FastAPI — Dependencies", url: "https://fastapi.tiangolo.com/tutorial/dependencies/", provider: "FastAPI Docs", kind: docs, license: MIT, is_paid: false, verified: true }
+      - { role: practice, title: "FastAPI — Testing dependencies with overrides", url: "https://fastapi.tiangolo.com/advanced/testing-dependencies/", provider: "FastAPI Docs", kind: exercise, license: MIT, is_paid: false, verified: true }
+      - { role: checkpoint, title: "Full Stack FastAPI Template — test suite", url: "https://github.com/tiangolo/full-stack-fastapi-template", provider: "GitHub", kind: repo, license: MIT, is_paid: false, verified: true }
+    auth:
+      - { role: concept, title: "FastAPI — Security (OAuth2 and JWT)", url: "https://fastapi.tiangolo.com/tutorial/security/", provider: "FastAPI Docs", kind: docs, license: MIT, is_paid: false, verified: true }
+    async-endpoints:
+      - { role: concept, title: "FastAPI — Concurrency and async / await", url: "https://fastapi.tiangolo.com/async/", provider: "FastAPI Docs", kind: docs, license: MIT, is_paid: false, verified: true }
+    db-integration:
+      - { role: concept, title: "FastAPI — SQL (Relational) Databases", url: "https://fastapi.tiangolo.com/tutorial/sql-databases/", provider: "FastAPI Docs", kind: docs, license: MIT, is_paid: false, verified: true }
+    fastapi-testing:
+      - { role: concept, title: "FastAPI — Testing", url: "https://fastapi.tiangolo.com/tutorial/testing/", provider: "FastAPI Docs", kind: docs, license: MIT, is_paid: false, verified: true }
+    fastapi-deploy:
+      - { role: concept, title: "FastAPI — Deployment concepts", url: "https://fastapi.tiangolo.com/deployment/concepts/", provider: "FastAPI Docs", kind: docs, license: MIT, is_paid: false, verified: true }
+
+  docker:
+    images-containers:
+      - { role: concept, title: "Docker — What is an image?", url: "https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-an-image/", provider: "Docker Docs", kind: docs, is_paid: false, verified: true }
+      - { role: concept, title: "Docker — What is a container?", url: "https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-a-container/", provider: "Docker Docs", kind: docs, is_paid: false, verified: true }
+    dockerfile:
+      - { role: concept, title: "Docker — Building images", url: "https://docs.docker.com/get-started/docker-concepts/building-images/", provider: "Docker Docs", kind: docs, is_paid: false, verified: true }
+    compose:
+      - { role: practice, title: "Awesome Compose — reference stacks", url: "https://github.com/docker/awesome-compose", provider: "GitHub", kind: repo, license: Apache-2.0, is_paid: false, verified: true }
+    debugging:
+      - { role: concept, title: "Docker — Debugging containers", url: "https://docs.docker.com/reference/cli/docker/container/logs/", provider: "Docker Docs", kind: docs, is_paid: false, verified: false }
+
+  sql:
+    joins:
+      - { role: concept, title: "SQLBolt — Interactive SQL lessons", url: "https://sqlbolt.com/", provider: "SQLBolt", kind: exercise, is_paid: false, verified: true }
+    indexing:
+      - { role: practice, title: "PG Exercises — Indexes and performance", url: "https://pgexercises.com/", provider: "PG Exercises", kind: exercise, is_paid: false, verified: true }
+    aggregation:
+      - { role: concept, title: "PostgreSQL Tutorial — Window functions", url: "https://www.postgresqltutorial.com/postgresql-window-function/", provider: "PostgreSQL Tutorial", kind: article, is_paid: false, verified: false }
+
+  postgresql:
+    pg-index:
+      - { role: concept, title: "PostgreSQL Docs — Using EXPLAIN", url: "https://www.postgresql.org/docs/current/using-explain.html", provider: "PostgreSQL Docs", kind: docs, license: PostgreSQL, is_paid: false, verified: true }
+    pg-schema:
+      - { role: concept, title: "PostgreSQL Docs — Data definition", url: "https://www.postgresql.org/docs/current/ddl.html", provider: "PostgreSQL Docs", kind: docs, license: PostgreSQL, is_paid: false, verified: true }
+
+  llm-rag:
+    llm-basics:
+      - { role: concept, title: "Anthropic — Introduction to prompt design", url: "https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview", provider: "Anthropic Docs", kind: docs, is_paid: false, verified: false }
+    rag-architecture:
+      - { role: concept, title: "RAG for Knowledge-Intensive NLP Tasks (paper)", url: "https://arxiv.org/abs/2005.11401", provider: "arXiv", author: "Lewis et al.", kind: paper, is_paid: false, verified: true }
+    rag-evaluation:
+      - { role: concept, title: "Ragas — evaluation documentation", url: "https://docs.ragas.io/", provider: "Ragas", kind: docs, license: Apache-2.0, is_paid: false, verified: false }
+      - { role: practice, title: "Ragas — get started", url: "https://docs.ragas.io/en/stable/getstarted/", provider: "Ragas", kind: exercise, license: Apache-2.0, is_paid: false, verified: false }
+    retrieval-quality:
+      - { role: concept, title: "pgvector — README and index types", url: "https://github.com/pgvector/pgvector", provider: "GitHub", kind: repo, license: PostgreSQL, is_paid: false, verified: true }
+    hallucination:
+      - { role: concept, title: "LangChain — Build a RAG app (grounding patterns)", url: "https://python.langchain.com/docs/tutorials/rag/", provider: "LangChain Docs", kind: docs, license: MIT, is_paid: false, verified: false }
+
+  system-design:
+    requirements:
+      - { role: concept, title: "The System Design Primer", url: "https://github.com/donnemartin/system-design-primer", provider: "GitHub", kind: repo, license: CC-BY-4.0, is_paid: false, verified: true }
+    scaling:
+      - { role: concept, title: "System Design 101 — visual walkthroughs", url: "https://github.com/ByteByteGoHq/system-design-101", provider: "GitHub", kind: repo, license: CC-BY-4.0, is_paid: false, verified: true }
+    data-consistency:
+      - { role: concept, title: "Designing Data-Intensive Applications (book)", url: "https://dataintensive.net/", provider: "dataintensive.net", kind: book, is_paid: true, verified: true }
+
+  git:
+    branching:
+      - { role: concept, title: "Pro Git — Branching", url: "https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell", provider: "Git SCM", kind: docs, license: GPL-4.0-docs, is_paid: false, verified: true }
+      - { role: practice, title: "Learn Git Branching — interactive", url: "https://learngitbranching.js.org/", provider: "learngitbranching.js.org", kind: exercise, is_paid: false, verified: true }
+
+  testing:
+    llm-testing:
+      - { role: concept, title: "promptfoo — testing and evals for LLM apps", url: "https://github.com/promptfoo/promptfoo", provider: "GitHub", kind: repo, license: MIT, is_paid: false, verified: true }

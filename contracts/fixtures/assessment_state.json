@@ -1,0 +1,20 @@
+{
+  "assessment_id": "77777777-7777-4777-8777-777777777771",
+  "skill_id": "fastapi",
+  "skill_name": "FastAPI",
+  "level": "applied",
+  "status": "in_progress",
+  "question_index": 3,
+  "question_total": 3,
+  "question": {
+    "text": "Your FastAPI service works locally but returns 504s in production under load, and one endpoint is slow. Walk me through how you would diagnose and fix it.",
+    "question_type": "scenario",
+    "hint": "Think about blocking calls inside async endpoints, connection pool limits, and where you'd look first."
+  },
+  "feedback": {
+    "scores": { "technical_correctness": 0.55, "depth": 0.4, "practical_ability": 0.5, "problem_solving": 0.6, "communication": 0.7 },
+    "missing_concepts": ["blocking I/O inside async def", "connection pool exhaustion", "request timeouts"],
+    "summary": "You identified logging and profiling, which is right, but did not mention that a synchronous DB driver inside an async endpoint blocks the event loop."
+  },
+  "result": null
+}

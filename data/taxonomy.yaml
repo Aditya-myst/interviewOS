@@ -1,0 +1,327 @@
+# InterviewOS skill taxonomy v1
+# Purpose: single vocabulary shared by resume parsing, JD parsing, matching and the roadmap.
+# Rules:
+#   - `id` is stable forever; never rename it (rows in candidate_skills point at it).
+#   - `aliases` are matched case-insensitively by Aho-Corasick with word boundaries.
+#   - `interview_relevance` (0..1) is the default weight when a skill is NOT in the JD.
+#   - `subtopics` define the curriculum graph. The teaching agent never invents a syllabus.
+version: 1
+updated: "2026-11-01"
+
+skills:
+  - id: python
+    name: Python
+    category: Language
+    aliases: [python3, "python 3", py]
+    interview_relevance: 0.9
+    subtopics:
+      - { id: syntax-types, title: "Syntax and data types", level: beginner, objective: "Explain mutability, truthiness and slicing confidently." }
+      - { id: functions-scope, title: "Functions, closures and scope", level: beginner, objective: "Reason about LEGB and default-argument pitfalls." }
+      - { id: oop-dataclasses, title: "OOP and dataclasses", level: intermediate, objective: "Choose between classes, dataclasses and plain dicts." }
+      - { id: async-io, title: "Async I/O and the event loop", level: advanced, objective: "Know when I/O bound code must be async, and what blocks the loop." }
+      - { id: typing-testing, title: "Type hints and pytest", level: intermediate, objective: "Write typed code and test it without a framework fight." }
+      - { id: packaging, title: "Packaging, venvs and dependencies", level: beginner, objective: "Own a reproducible environment." }
+
+  - id: javascript
+    name: JavaScript
+    category: Language
+    aliases: [js, ecmascript, es6]
+    interview_relevance: 0.5
+    subtopics:
+      - { id: scope-hoisting, title: "Scope, hoisting and closures", level: beginner, objective: "Explain let/const/var and closure capture." }
+      - { id: async-js, title: "Promises and async/await", level: intermediate, objective: "Handle errors and concurrency correctly." }
+      - { id: event-loop, title: "Event loop and microtasks", level: advanced, objective: "Predict output ordering in tricky snippets." }
+
+  - id: typescript
+    name: TypeScript
+    category: Language
+    aliases: [ts, "type script"]
+    interview_relevance: 0.5
+    subtopics:
+      - { id: ts-basics, title: "Types, interfaces and narrowing", level: beginner, objective: "Model data without any-casts." }
+      - { id: ts-generics, title: "Generics and utility types", level: advanced, objective: "Write reusable, safe abstractions." }
+
+  - id: sql
+    name: SQL
+    category: Data
+    aliases: [sq-l, structured query language]
+    interview_relevance: 0.8
+    subtopics:
+      - { id: joins, title: "Joins and set operations", level: beginner, objective: "Pick the right join and explain NULL behaviour." }
+      - { id: aggregation, title: "Aggregation and window functions", level: intermediate, objective: "Answer analytics questions in one query." }
+      - { id: indexing, title: "Indexes and query plans", level: advanced, objective: "Read an EXPLAIN and justify an index." }
+      - { id: transactions, title: "Transactions and isolation", level: advanced, objective: "Explain dirty reads and deadlocks." }
+
+  - id: postgresql
+    name: PostgreSQL
+    category: Data
+    aliases: [postgres, psql, "postgre sql"]
+    interview_relevance: 0.75
+    subtopics:
+      - { id: pg-schema, title: "Schema design and normalisation", level: intermediate, objective: "Design tables that survive feature growth." }
+      - { id: pg-index, title: "Indexes, EXPLAIN and performance", level: advanced, objective: "Diagnose a slow query with evidence." }
+      - { id: pg-json, title: "JSONB and full-text search", level: intermediate, objective: "Know when structured beats document columns." }
+      - { id: pg-migrations, title: "Migrations and zero-downtime changes", level: advanced, objective: "Change a table without breaking live traffic." }
+
+  - id: mongodb
+    name: MongoDB
+    category: Data
+    aliases: [mongo, "mongo db"]
+    interview_relevance: 0.4
+    subtopics:
+      - { id: mongo-model, title: "Document modelling", level: beginner, objective: "Decide embed vs reference." }
+      - { id: mongo-agg, title: "Aggregation pipeline", level: intermediate, objective: "Build a multi-stage pipeline." }
+
+  - id: redis
+    name: Redis
+    category: Data
+    aliases: [redis-cache, "redis cache"]
+    interview_relevance: 0.5
+    subtopics:
+      - { id: redis-types, title: "Data structures and TTL", level: beginner, objective: "Choose the right structure for the access pattern." }
+      - { id: redis-patterns, title: "Caching patterns and invalidation", level: intermediate, objective: "Explain stampede, TTL and consistency tradeoffs." }
+
+  - id: vector-db
+    name: Vector Databases
+    category: AI
+    aliases: [pgvector, pinecone, weaviate, qdrant, faiss, "vector store", "vector database"]
+    interview_relevance: 0.85
+    subtopics:
+      - { id: embeddings, title: "Embeddings and similarity", level: beginner, objective: "Explain cosine similarity and dimensionality." }
+      - { id: ann-index, title: "ANN indexes (HNSW, IVFFlat)", level: advanced, objective: "Trade recall against latency and memory." }
+      - { id: chunking, title: "Chunking and metadata filters", level: intermediate, objective: "Chunk documents without destroying context." }
+
+  - id: fastapi
+    name: FastAPI
+    category: Backend
+    aliases: [fast-api, "fast api"]
+    interview_relevance: 0.9
+    subtopics:
+      - { id: http-fundamentals, title: "HTTP fundamentals and status codes", level: beginner, objective: "Use verbs and status codes correctly." }
+      - { id: routing, title: "Routing, path and query params", level: beginner, objective: "Structure an API surface that stays readable." }
+      - { id: models-validation, title: "Pydantic models and validation", level: intermediate, objective: "Validate input and shape output without leaking internals." }
+      - { id: dependency-injection, title: "Dependency injection", level: intermediate, objective: "Use Depends for shared logic and test overrides." }
+      - { id: auth, title: "Authentication and authorisation", level: advanced, objective: "Implement token auth and explain the flow." }
+      - { id: async-endpoints, title: "Async endpoints and blocking calls", level: advanced, objective: "Keep the event loop free under load." }
+      - { id: db-integration, title: "Database integration and pooling", level: intermediate, objective: "Manage sessions, transactions and pool limits." }
+      - { id: fastapi-testing, title: "Testing with TestClient", level: intermediate, objective: "Test endpoints and override dependencies." }
+      - { id: fastapi-deploy, title: "Deployment and workers", level: advanced, objective: "Explain workers, health checks and containerisation." }
+
+  - id: django
+    name: Django
+    category: Backend
+    aliases: [django-rest, drf, "django rest framework"]
+    interview_relevance: 0.5
+    subtopics:
+      - { id: django-orm, title: "ORM and query optimisation", level: intermediate, objective: "Avoid N+1 and explain select_related." }
+      - { id: django-migrations, title: "Migrations and models", level: intermediate, objective: "Evolve a schema safely." }
+
+  - id: flask
+    name: Flask
+    category: Backend
+    aliases: [flask-api]
+    interview_relevance: 0.3
+    subtopics:
+      - { id: flask-basics, title: "App factory and blueprints", level: beginner, objective: "Structure a non-trivial Flask app." }
+
+  - id: nodejs
+    name: Node.js
+    category: Backend
+    aliases: [node, "node js", expressjs, express]
+    interview_relevance: 0.5
+    subtopics:
+      - { id: node-eventloop, title: "Event loop, streams and buffers", level: intermediate, objective: "Explain non-blocking I/O with real costs." }
+      - { id: node-api, title: "REST APIs with Express", level: beginner, objective: "Build and validate an endpoint." }
+
+  - id: rest-api
+    name: REST API Design
+    category: Backend
+    aliases: [rest, restful, "rest apis", "api design"]
+    interview_relevance: 0.85
+    subtopics:
+      - { id: resource-modelling, title: "Resource modelling and naming", level: beginner, objective: "Design predictable URLs." }
+      - { id: pagination-versioning, title: "Pagination, filtering, versioning", level: intermediate, objective: "Handle growth without breaking clients." }
+      - { id: idempotency, title: "Idempotency and error contracts", level: advanced, objective: "Make retries safe and errors machine-readable." }
+
+  - id: react
+    name: React
+    category: Frontend
+    aliases: [reactjs, "react js", jsx]
+    interview_relevance: 0.6
+    subtopics:
+      - { id: components-state, title: "Components, props and state", level: beginner, objective: "Lift state correctly and avoid derived-state bugs." }
+      - { id: hooks, title: "Hooks and effects", level: intermediate, objective: "Use useEffect without starvation or loops." }
+      - { id: rendering, title: "Rendering, memoisation and keys", level: advanced, objective: "Explain re-render causes precisely." }
+
+  - id: nextjs
+    name: Next.js
+    category: Frontend
+    aliases: ["next js", next]
+    interview_relevance: 0.6
+    subtopics:
+      - { id: routing-layouts, title: "App router, layouts and loading states", level: beginner, objective: "Structure routes and stream UI." }
+      - { id: server-client, title: "Server vs client components", level: intermediate, objective: "Decide where data fetching belongs." }
+      - { id: data-fetching, title: "Caching, revalidation and mutations", level: advanced, objective: "Reason about staleness and invalidation." }
+
+  - id: tailwind
+    name: Tailwind CSS
+    category: Frontend
+    aliases: [tailwindcss, "tailwind css"]
+    interview_relevance: 0.3
+    subtopics:
+      - { id: utility-first, title: "Utility-first workflow and design tokens", level: beginner, objective: "Keep a consistent scale instead of magic numbers." }
+
+  - id: docker
+    name: Docker
+    category: Infra
+    aliases: [containerisation, containerization, dockerfile, "docker compose"]
+    interview_relevance: 0.8
+    subtopics:
+      - { id: images-containers, title: "Images, containers and layers", level: beginner, objective: "Explain the difference crisply." }
+      - { id: dockerfile, title: "Writing an efficient Dockerfile", level: intermediate, objective: "Use layer caching and a slim base image." }
+      - { id: compose, title: "Compose for app plus database", level: intermediate, objective: "Run a local stack reproducibly." }
+      - { id: debugging, title: "Debugging containers in production", level: advanced, objective: "Diagnose work-locally-fails-deployed with evidence." }
+      - { id: docker-security, title: "Secrets, users and image hygiene", level: advanced, objective: "Ship images you would defend in review." }
+
+  - id: kubernetes
+    name: Kubernetes
+    category: Infra
+    aliases: [k8s, kube]
+    interview_relevance: 0.5
+    subtopics:
+      - { id: pods-services, title: "Pods, deployments and services", level: beginner, objective: "Explain the object model." }
+      - { id: probes-scaling, title: "Probes, resources and autoscaling", level: advanced, objective: "Diagnose crashloops and OOM kills." }
+
+  - id: aws
+    name: AWS
+    category: Infra
+    aliases: [amazon web services, ec2, s3, lambda, "aws cloud"]
+    interview_relevance: 0.6
+    subtopics:
+      - { id: core-services, title: "Compute, storage and networking basics", level: beginner, objective: "Pick a service and justify it." }
+      - { id: iam, title: "IAM and least privilege", level: intermediate, objective: "Explain roles, policies and trust." }
+      - { id: deployment, title: "Deploying a containerised API", level: intermediate, objective: "Describe a working deployment path." }
+
+  - id: linux
+    name: Linux
+    category: Infra
+    aliases: [unix, bash, shell]
+    interview_relevance: 0.5
+    subtopics:
+      - { id: processes, title: "Processes, signals and systemd", level: beginner, objective: "Debug a service that will not start." }
+      - { id: networking-tools, title: "Networking tools and logs", level: intermediate, objective: "Use ss, curl, dig and journalctl with purpose." }
+      - { id: permissions, title: "Permissions and disk", level: beginner, objective: "Fix access and space issues safely." }
+
+  - id: git
+    name: Git
+    category: Engineering
+    aliases: [github, gitlab, version control]
+    interview_relevance: 0.4
+    subtopics:
+      - { id: branching, title: "Branching, merge and rebase", level: beginner, objective: "Explain history rewriting tradeoffs." }
+      - { id: recovery, title: "Recovery and conflict resolution", level: intermediate, objective: "Rescue work with reflog and cherry-pick." }
+      - { id: workflow, title: "Review workflow and PR hygiene", level: beginner, objective: "Ship reviewable commits." }
+
+  - id: ci-cd
+    name: CI/CD
+    category: Engineering
+    aliases: [cicd, "github actions", "continuous integration", "continuous deployment", pipeline]
+    interview_relevance: 0.6
+    subtopics:
+      - { id: pipeline-basics, title: "Build, test, deploy stages", level: beginner, objective: "Design a pipeline that fails fast." }
+      - { id: secrets-artifacts, title: "Secrets, caching and artifacts", level: intermediate, objective: "Keep builds fast and safe." }
+      - { id: rollout, title: "Rollbacks and blue-green deploys", level: advanced, objective: "Explain how a bad deploy is undone." }
+
+  - id: testing
+    name: Testing
+    category: Engineering
+    aliases: [pytest, unittest, "unit testing", "integration testing", tdd]
+    interview_relevance: 0.7
+    subtopics:
+      - { id: unit-vs-integration, title: "Unit vs integration vs e2e", level: beginner, objective: "Choose the cheapest test that would catch the bug." }
+      - { id: test-design, title: "Fixtures, parametrisation and mocking", level: intermediate, objective: "Write tests that survive refactors." }
+      - { id: llm-testing, title: "Testing non-deterministic systems", level: advanced, objective: "Test LLM output with rubrics and eval sets." }
+
+  - id: data-structures
+    name: Data Structures
+    category: Fundamentals
+    aliases: [dsa, "data structure", hashmap, "linked list", tree]
+    interview_relevance: 0.85
+    subtopics:
+      - { id: arrays-hashing, title: "Arrays, strings and hashing", level: beginner, objective: "Solve two-pointer and counting problems cleanly." }
+      - { id: stacks-queues, title: "Stacks, queues and heaps", level: intermediate, objective: "Recognise monotonic and priority patterns." }
+      - { id: trees-graphs, title: "Trees and graph traversal", level: advanced, objective: "Choose BFS/DFS and bound complexity." }
+
+  - id: algorithms
+    name: Algorithms
+    category: Fundamentals
+    aliases: [algorithmic, "time complexity", big-o, "dynamic programming", recursion]
+    interview_relevance: 0.85
+    subtopics:
+      - { id: complexity, title: "Complexity analysis", level: beginner, objective: "State time and space bounds without hand-waving." }
+      - { id: sorting-searching, title: "Sorting and binary search", level: intermediate, objective: "Apply search-on-answer patterns." }
+      - { id: dp-greedy, title: "Dynamic programming and greedy", level: advanced, objective: "Derive a recurrence and justify it." }
+
+  - id: system-design
+    name: System Design
+    category: Architecture
+    aliases: [architecture, "distributed systems", scalability, "system architecture"]
+    interview_relevance: 0.95
+    subtopics:
+      - { id: requirements, title: "Requirements and back-of-envelope maths", level: beginner, objective: "Scope before designing." }
+      - { id: scaling, title: "Load balancing, caching and queues", level: intermediate, objective: "Explain each primitive's cost." }
+      - { id: data-consistency, title: "Replication, sharding and consistency", level: advanced, objective: "Choose a consistency model on purpose." }
+      - { id: reliability, title: "Failure modes and observability", level: advanced, objective: "Design for partial failure." }
+      - { id: llm-services, title: "Designing LLM-backed services", level: advanced, objective: "Budget latency, cost and rate limits." }
+
+  - id: machine-learning
+    name: Machine Learning
+    category: AI
+    aliases: [ml, "machine learning", scikit-learn, sklearn, "supervised learning"]
+    interview_relevance: 0.8
+    subtopics:
+      - { id: ml-fundamentals, title: "Bias, variance and validation", level: beginner, objective: "Explain overfitting with an example." }
+      - { id: metrics, title: "Metrics and class imbalance", level: intermediate, objective: "Pick precision/recall/F1 deliberately." }
+      - { id: feature-engineering, title: "Features and leakage", level: intermediate, objective: "Spot leakage before it inflates results." }
+
+  - id: llm-rag
+    name: LLM & RAG
+    category: AI
+    aliases: [rag, llm, "large language model", "retrieval augmented generation", "retrieval-augmented generation", langchain, gpt]
+    interview_relevance: 1.0
+    subtopics:
+      - { id: llm-basics, title: "How LLMs work: tokens, context, temperature", level: beginner, objective: "Explain generation limits without mysticism." }
+      - { id: rag-architecture, title: "RAG architecture end to end", level: intermediate, objective: "Describe ingest, retrieve, rerank, generate." }
+      - { id: retrieval-quality, title: "Retrieval quality and reranking", level: advanced, objective: "Measure recall@k and improve it." }
+      - { id: hallucination, title: "Hallucination, grounding and citations", level: advanced, objective: "Design a refusal path that works." }
+      - { id: rag-evaluation, title: "Evaluating a RAG pipeline", level: advanced, objective: "Build an eval set and report faithfulness." }
+      - { id: llm-cost-latency, title: "Cost, latency and streaming", level: advanced, objective: "Trade quality against budget explicitly." }
+
+  - id: prompt-engineering
+    name: Prompt Engineering
+    category: AI
+    aliases: [prompting, "prompt design", "system prompt", "few-shot"]
+    interview_relevance: 0.8
+    subtopics:
+      - { id: structured-output, title: "Structured outputs and schemas", level: intermediate, objective: "Force validated JSON instead of prose." }
+      - { id: prompt-eval, title: "Prompt evaluation and regression", level: advanced, objective: "Version prompts and measure changes." }
+      - { id: injection, title: "Prompt injection and safety", level: advanced, objective: "Name the attack surface honestly." }
+
+  - id: langgraph
+    name: LangGraph
+    category: AI
+    aliases: [langchain, langgraph, "agent framework", "agentic workflow"]
+    interview_relevance: 0.6
+    subtopics:
+      - { id: graph-basics, title: "State graphs, nodes and edges", level: beginner, objective: "Model a workflow as a graph." }
+      - { id: checkpointing, title: "Checkpointing and resumability", level: intermediate, objective: "Resume a workflow after failure." }
+      - { id: control-flow, title: "Conditional routing and retries", level: advanced, objective: "Keep agents on a controlled path." }
+
+  - id: pandas
+    name: Pandas
+    category: Data
+    aliases: [numpy, dataframe, dataframes]
+    interview_relevance: 0.5
+    subtopics:
+      - { id: pd-basics, title: "Indexing, groupby and joins", level: beginner, objective: "Reshape data without loops." }
+      - { id: pd-performance, title: "Vectorisation and memory", level: intermediate, objective: "Make a slow pipeline fast." }

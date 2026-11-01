@@ -1,0 +1,29 @@
+{
+  "id": "22222222-2222-4222-8222-222222222222",
+  "title": "AI Engineer (LLM Applications)",
+  "company": "Northwind Labs",
+  "role": "AI Engineer",
+  "seniority": "mid",
+  "min_years_experience": 2,
+  "parse_status": "ok",
+  "rounds_inferred": true,
+  "interview_rounds": ["technical", "coding", "system_design", "behavioral"],
+  "topics": ["RAG pipelines", "API design", "evaluation of LLM outputs", "latency/cost tradeoffs", "SQL schema design"],
+  "requirements": [
+    { "skill_id": "llm-rag", "name": "LLM & RAG", "requirement_type": "required", "jd_importance": 0.95, "expected_level": "expert", "mentions": 4,
+      "evidence": [{ "type": "resume_skill_list", "quote": "Production experience building RAG pipelines with evaluation and guardrails", "section": "requirements", "start": 0, "end": 0 }] },
+    { "skill_id": "fastapi", "name": "FastAPI", "requirement_type": "required", "jd_importance": 0.92, "expected_level": "advanced", "mentions": 3,
+      "evidence": [{ "type": "resume_skill_list", "quote": "Strong Python and FastAPI; you will own service APIs end to end", "section": "requirements" }] },
+    { "skill_id": "python", "name": "Python", "requirement_type": "required", "jd_importance": 0.9, "expected_level": "advanced", "mentions": 5,
+      "evidence": [{ "type": "resume_skill_list", "quote": "Expert-level Python", "section": "requirements" }] },
+    { "skill_id": "system-design", "name": "System Design", "requirement_type": "required", "jd_importance": 0.85, "expected_level": "intermediate", "mentions": 2,
+      "evidence": [{ "type": "resume_skill_list", "quote": "Design services that stay reliable at scale", "section": "responsibilities" }] },
+    { "skill_id": "postgresql", "name": "PostgreSQL", "requirement_type": "required", "jd_importance": 0.75, "expected_level": "intermediate", "mentions": 2,
+      "evidence": [{ "type": "resume_skill_list", "quote": "Comfortable with SQL and Postgres in production", "section": "requirements" }] },
+    { "skill_id": "docker", "name": "Docker", "requirement_type": "required", "jd_importance": 0.7, "expected_level": "intermediate", "mentions": 1,
+      "evidence": [{ "type": "resume_skill_list", "quote": "Containerised deployments", "section": "requirements" }] },
+    { "skill_id": "langgraph", "name": "LangGraph", "requirement_type": "preferred", "jd_importance": 0.45, "expected_level": "beginner", "mentions": 1,
+      "evidence": [{ "type": "resume_skill_list", "quote": "Experience with agent frameworks (LangGraph, LangChain) is a plus", "section": "nice to have" }] }
+  ],
+  "created_at": "2026-10-28T09:20:00Z"
+}

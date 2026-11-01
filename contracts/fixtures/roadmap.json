@@ -1,0 +1,67 @@
+{
+  "id": "33333333-3333-4333-8333-333333333333",
+  "status": "active",
+  "target_role": "AI Engineer",
+  "summary": "Five topics ordered by interview impact for Northwind Labs: RAG evaluation first (critical), then FastAPI depth and system design (high), then Docker and Python async (medium). Frontend skills are intentionally excluded.",
+  "progress": { "done": 1, "total": 5 },
+  "topics": [
+    {
+      "id": "44444444-4444-4444-8444-444444444441",
+      "skill_id": "llm-rag", "skill_name": "LLM & RAG",
+      "title": "Evaluating a RAG pipeline", "objective": "Measure retrieval and answer quality with a small labelled set, and explain the metrics in an interview.",
+      "status": "in_progress", "depth": "deep_dive", "order_index": 0, "estimated_minutes": 120, "progress": 0.35,
+      "subtopics": ["Chunking strategies", "Retrieval metrics (recall@k, MRR)", "Answer faithfulness vs relevance", "Building a 30-question eval set", "Guardrails and refusal"],
+      "resources": [
+        { "id": "55555555-5555-4555-8555-555555555551", "role": "concept", "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks", "url": "https://arxiv.org/abs/2005.11401", "provider": "arXiv", "author": "Lewis et al.", "kind": "paper", "duration_minutes": 45, "is_paid": false, "license": "arXiv non-exclusive", "verified_at": "2026-10-30T06:10:00Z", "why": "Original RAG formulation — most interviewers expect you to know what retrieval buys you." },
+        { "id": "55555555-5555-4555-8555-555555555552", "role": "practice", "title": "Ragas documentation — evaluating RAG", "url": "https://docs.ragas.io/", "provider": "Ragas", "kind": "docs", "duration_minutes": 40, "is_paid": false, "license": "Apache-2.0", "verified_at": "2026-10-30T06:10:00Z", "why": "Gives you concrete faithfulness/relevance metrics you can actually run on your CampusRAG project." },
+        { "id": "55555555-5555-4555-8555-555555555553", "role": "checkpoint", "title": "Write a 30-question eval set for CampusRAG", "url": "https://docs.ragas.io/en/stable/getstarted/", "provider": "Ragas", "kind": "exercise", "duration_minutes": 35, "is_paid": false, "verified_at": "2026-10-30T06:10:00Z", "why": "Turns the concept into evidence you can quote in an interview." }
+      ]
+    },
+    {
+      "id": "44444444-4444-4444-8444-444444444442",
+      "skill_id": "fastapi", "skill_name": "FastAPI",
+      "title": "Dependency injection, testing and async endpoints", "objective": "Explain and implement DI, override dependencies in tests, and reason about blocking calls.",
+      "status": "not_started", "depth": "core", "order_index": 1, "estimated_minutes": 90, "progress": 0.0,
+      "subtopics": ["Dependencies and Depends", "Dependency overrides in tests", "Pydantic request/response models", "Async vs sync endpoints", "Background tasks"],
+      "resources": [
+        { "id": "55555555-5555-4555-8555-555555555554", "role": "concept", "title": "FastAPI — Dependencies", "url": "https://fastapi.tiangolo.com/tutorial/dependencies/", "provider": "FastAPI Docs", "kind": "docs", "duration_minutes": 30, "is_paid": false, "license": "MIT", "verified_at": "2026-10-30T06:11:00Z", "why": "Directly targets the gap your assessment exposed." },
+        { "id": "55555555-5555-4555-8555-555555555555", "role": "practice", "title": "FastAPI — Testing dependencies with overrides", "url": "https://fastapi.tiangolo.com/advanced/testing-dependencies/", "provider": "FastAPI Docs", "kind": "exercise", "duration_minutes": 35, "is_paid": false, "license": "MIT", "verified_at": "2026-10-30T06:11:00Z", "why": "The exact interview follow-up: 'how would you test that?'" },
+        { "id": "55555555-5555-4555-8555-555555555556", "role": "checkpoint", "title": "Reference project structure and test suite", "url": "https://github.com/tiangolo/full-stack-fastapi-template", "provider": "GitHub", "kind": "repo", "duration_minutes": 25, "is_paid": false, "license": "MIT", "verified_at": "2026-10-30T06:11:00Z", "why": "Read a real project layout and test the API layer end to end." }
+      ]
+    },
+    {
+      "id": "44444444-4444-4444-8444-444444444443",
+      "skill_id": "system-design", "skill_name": "System Design",
+      "title": "Designing an LLM service at scale", "objective": "Walk through latency, cost, caching, rate limits and failure modes for a model-backed API.",
+      "status": "not_started", "depth": "core", "order_index": 2, "estimated_minutes": 150, "progress": 0.0,
+      "subtopics": ["Load balancing and stateless services", "Caching and queueing", "Rate limiting", "Observability", "Cost/latency tradeoffs for LLM calls"],
+      "resources": [
+        { "id": "55555555-5555-4555-8555-555555555557", "role": "concept", "title": "The System Design Primer", "url": "https://github.com/donnemartin/system-design-primer", "provider": "GitHub", "kind": "repo", "duration_minutes": 90, "is_paid": false, "license": "CC-BY-4.0", "verified_at": "2026-10-30T06:12:00Z", "why": "Covers every primitive interviewers probe, free and structured." },
+        { "id": "55555555-5555-4555-8555-555555555558", "role": "practice", "title": "System Design 101 (visual walkthroughs)", "url": "https://github.com/ByteByteGoHq/system-design-101", "provider": "GitHub", "kind": "repo", "duration_minutes": 45, "is_paid": false, "license": "CC-BY-4.0", "verified_at": "2026-10-30T06:12:00Z", "why": "Fast visual refresh before a mock interview." }
+      ]
+    },
+    {
+      "id": "44444444-4444-4444-8444-444444444444",
+      "skill_id": "docker", "skill_name": "Docker",
+      "title": "From image to container: shipping the API", "objective": "Write a Dockerfile, explain image vs container, and debug a container that works locally but fails deployed.",
+      "status": "not_started", "depth": "core", "order_index": 3, "estimated_minutes": 75, "progress": 0.0,
+      "subtopics": ["Images vs containers", "Dockerfile layers and caching", "Compose for app + db", "Logs and exec debugging", "Environment and secrets"],
+      "resources": [
+        { "id": "55555555-5555-4555-8555-555555555559", "role": "concept", "title": "Docker — Get started", "url": "https://docs.docker.com/get-started/", "provider": "Docker Docs", "kind": "docs", "duration_minutes": 40, "is_paid": false, "verified_at": "2026-10-30T06:13:00Z", "why": "Official, current, and matches the JD's deployment requirement." },
+        { "id": "55555555-5555-4555-8555-555555555560", "role": "practice", "title": "Awesome Compose — reference stacks", "url": "https://github.com/docker/awesome-compose", "provider": "GitHub", "kind": "repo", "duration_minutes": 35, "is_paid": false, "license": "Apache-2.0", "verified_at": "2026-10-30T06:13:00Z", "why": "Copy a compose file for FastAPI + Postgres instead of writing one from scratch." }
+      ]
+    },
+    {
+      "id": "44444444-4444-4444-8444-444444444445",
+      "skill_id": "python", "skill_name": "Python",
+      "title": "Async Python for API services",
+      "objective": "Explain the event loop, offload blocking work, and use concurrency without corrupting state.",
+      "status": "done", "depth": "refresh", "order_index": 4, "estimated_minutes": 45, "progress": 1.0,
+      "subtopics": ["Event loop", "asyncio.gather vs sequential", "run_in_executor for blocking calls", "Timeouts and cancellation"],
+      "resources": [
+        { "id": "55555555-5555-4555-8555-555555555561", "role": "concept", "title": "asyncio — Coroutines and Tasks", "url": "https://docs.python.org/3/library/asyncio-task.html", "provider": "Python Docs", "kind": "docs", "duration_minutes": 30, "is_paid": false, "license": "PSF", "verified_at": "2026-10-30T06:14:00Z", "why": "Authoritative refresher for the depth gap the JD expects." },
+        { "id": "55555555-5555-4555-8555-555555555562", "role": "practice", "title": "Async IO in Python: A Complete Walkthrough", "url": "https://realpython.com/async-io-python/", "provider": "Real Python", "kind": "article", "duration_minutes": 40, "is_paid": false, "verified_at": "2026-10-30T06:14:00Z", "why": "Worked examples you can convert into interview answers." }
+      ]
+    }
+  ]
+}
