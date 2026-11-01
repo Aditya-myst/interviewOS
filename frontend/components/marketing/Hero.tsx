@@ -4,14 +4,14 @@ import SkillPill from "@/components/primitives/SkillPill";
 export default function Hero() {
   return (
     <section className="bg-[var(--canvas)] pt-16 pb-20 lg:pt-20 lg:pb-24">
-      <div className="max-w-5xl mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+      <div className="max-w-6xl mx-auto px-6 lg:px-10 grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-10 lg:gap-12 items-center">
         {/* ── Left: message ── */}
         <div className="flex flex-col">
           <p className="text-micro text-[var(--text-dim)] mb-5">
             AI career preparation
           </p>
 
-          <h1 className="text-display-1 text-[var(--text)]">
+          <h1 className="text-hero text-[var(--text)]">
             EVERY RESUME
             <br />
             <span className="text-[var(--brand-strong)]">CLAIMS MORE</span>
@@ -31,24 +31,21 @@ export default function Hero() {
             <IosButton variant="primary" size="lg" arrow>
               Start free — upload resume
             </IosButton>
-            <IosButton variant="ghost" size="lg">
+            <IosButton variant="secondary" size="lg">
               See a sample report
             </IosButton>
           </div>
 
-          <ul className="flex flex-wrap items-center gap-x-3 gap-y-2 mt-7 list-none p-0 text-micro text-[var(--text-dim)]">
-            <li className="whitespace-nowrap">No credit card</li>
-            <li aria-hidden className="size-[3px] rounded-full bg-[var(--text-dim)]" />
-            <li className="whitespace-nowrap">Open-source models</li>
-            <li aria-hidden className="size-[3px] rounded-full bg-[var(--text-dim)]" />
-            <li className="whitespace-nowrap">Free learning resources only</li>
-          </ul>
+          <p className="mt-7 text-small text-[var(--text-dim)] max-w-[46ch]">
+            No credit card <span aria-hidden>·</span> Open-source models{" "}
+            <span aria-hidden>·</span> Free learning resources only
+          </p>
         </div>
 
         {/* ── Right: card stack (both cards fully populated) ── */}
-        <div className="relative w-full max-w-[380px] mx-auto h-[430px]">
+        <div className="relative w-full max-w-[400px] mx-auto h-[480px]">
           {/* Back card */}
-          <div className="absolute left-4 right-0 top-0 h-[300px] -rotate-2 scale-[0.97] origin-top-left card-inset p-6 flex flex-col items-center justify-center gap-3">
+          <div className="absolute left-8 right-0 top-0 h-[250px] -rotate-2 origin-top-right card-inset px-6 pt-7 pb-16 flex flex-col items-center gap-3">
             <p className="text-micro text-[var(--text-dim)]">Readiness</p>
             <p className="font-mono text-[44px] leading-none text-[var(--text)] tabular-nums">
               42%
@@ -56,8 +53,8 @@ export default function Hero() {
             <div className="w-3/4 h-[6px] rounded-full bg-[var(--surface)] overflow-hidden">
               <div className="h-full bg-[var(--brand)]" style={{ width: "42%" }} />
             </div>
-            <p className="text-xs text-[var(--text-dim)] text-center max-w-[24ch]">
-              2 of 9 skills verified against the job description
+            <p className="text-xs text-[var(--text-dim)] text-center max-w-[22ch] leading-snug">
+              2 of 9 skills verified against the job
             </p>
           </div>
 

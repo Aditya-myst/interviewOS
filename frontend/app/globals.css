@@ -234,6 +234,11 @@
     min-height: 44px;
   }
 
+  /* sticky header height offset for in-page anchors */
+  section[id] {
+    scroll-margin-top: 88px;
+  }
+
   .mono,
   [data-mono] {
     font-family: var(--font-mono);
@@ -247,6 +252,13 @@
     font-family: var(--font-display);
     font-size: clamp(2.75rem, 7vw, 5.5rem);
     line-height: 0.88;
+    letter-spacing: -0.03em;
+  }
+  /* Hero headline: sized so the three lines never reflow at 1280-1600px */
+  .text-hero {
+    font-family: var(--font-display);
+    font-size: clamp(2.25rem, 3.9vw, 56px);
+    line-height: 0.94;
     letter-spacing: -0.03em;
   }
   .text-display-2 {
