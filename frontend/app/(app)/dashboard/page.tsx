@@ -118,7 +118,7 @@ async function DashboardBody({
         </div>
       )}
 
-      <div className="space-y-5">
+      <div className="space-y-6">
         <TopRow d={d} profile={profile.data} />
         <NextMoves d={d} roadmap={roadmap.data} />
         <section className="card-surface p-5">
@@ -167,10 +167,10 @@ function TopRow({ d, profile }: { d: Dashboard; profile: SkillProfile }) {
 
   return (
     <section className="card-surface overflow-hidden">
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-[240px_1fr_230px]">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-[260px_1fr_260px]">
       {/* Readiness and coverage share a row until the chart has room to breathe;
           below 1280px the curve gets the full width in its own band. */}
-      <div className="order-1 flex flex-col p-5 border-b border-[var(--border)] md:border-b-0 md:border-r xl:border-r">
+      <div className="order-1 flex flex-col p-6 border-b border-[var(--border)] md:border-b-0 md:border-r xl:order-1 xl:border-r">
         <div className="flex items-start justify-between gap-3">
           <p className="type-micro text-[var(--text-dim)] m-0">Readiness</p>
           {values.length > 1 && <DeltaPill value={delta} suffix=" pts" label="7d" />}
@@ -181,7 +181,7 @@ function TopRow({ d, profile }: { d: Dashboard; profile: SkillProfile }) {
             <RadialScore
               value={d.readiness}
               label={d.readiness_label.replace("_", " ")}
-              size={148}
+              size={158}
             />
           </div>
 
@@ -205,18 +205,21 @@ function TopRow({ d, profile }: { d: Dashboard; profile: SkillProfile }) {
         </p>
       </div>
 
-      <div className="order-3 min-w-0 border-t border-[var(--border)] p-5 md:order-3 md:col-span-2 xl:order-none xl:col-span-1 xl:border-t-0 xl:border-l">
+      <div className="order-3 min-w-0 border-t border-[var(--border)] p-6 md:order-3 md:col-span-2 xl:order-2 xl:col-span-1 xl:border-t-0 xl:border-l">
         <div className="flex items-baseline justify-between gap-4 mb-1">
-          <h2 className="type-h4 m-0">Priority curve</h2>
-          <span className="type-small text-[var(--text-dim)]">
-            gap × importance × relevance
-          </span>
+          <div>
+            <h2 className="type-h4 m-0">Priority curve</h2>
+            <p className="m-0 mt-0.5 type-micro text-[var(--text-dim)]">
+              top {Math.min(6, profile.skills.length)} of {profile.skills.length} skills, by
+              gap × importance × relevance
+            </p>
+          </div>
         </div>
         {/* every assessed skill, in the order you would work through them */}
         <PriorityCurve skills={profile.skills} />
       </div>
 
-      <div className="order-2 border-t border-[var(--border)] p-5 md:border-t-0 xl:border-l">
+      <div className="order-2 border-t border-[var(--border)] p-6 md:border-t-0 xl:order-3 xl:border-l">
         <h2 className="type-h4 m-0 mb-4">Coverage</h2>
         <CoverageStack rows={d.coverage} />
       </div>

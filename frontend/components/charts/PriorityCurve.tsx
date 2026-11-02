@@ -77,8 +77,8 @@ export default function PriorityCurve({ skills }: { skills: CandidateSkill[] }) 
     >
       <defs>
         <linearGradient id="ios-priority-fill" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="var(--brand)" stopOpacity="0.18" />
-          <stop offset="100%" stopColor="var(--brand)" stopOpacity="0.01" />
+          <stop offset="0%" stopColor="var(--brand)" stopOpacity="0.24" />
+          <stop offset="100%" stopColor="var(--brand)" stopOpacity="0.02" />
         </linearGradient>
       </defs>
 
@@ -136,14 +136,14 @@ export default function PriorityCurve({ skills }: { skills: CandidateSkill[] }) 
         points={line}
         fill="none"
         stroke="var(--brand-strong)"
-        strokeWidth="2"
+        strokeWidth="2.5"
         strokeLinejoin="round"
         strokeLinecap="round"
       />
 
       {points.map(({ s, cx, cy, i }) => {
         const color = BAND_COLOR[s.priority_band] ?? BAND_COLOR.low;
-        const r = 4.6 + s.interview_relevance * 3.4;
+        const r = 5.4 + s.interview_relevance * 4;
         return (
           <g key={s.skill_id}>
             <title>
@@ -174,7 +174,7 @@ export default function PriorityCurve({ skills }: { skills: CandidateSkill[] }) 
               x={cx}
               y={plotBottom + (i % 2 === 0 ? 17 : 34)}
               textAnchor="middle"
-              fontSize="11"
+              fontSize="11.5"
               fill="var(--text-dim)"
             >
               {shorten(s.name)}
@@ -183,16 +183,6 @@ export default function PriorityCurve({ skills }: { skills: CandidateSkill[] }) 
         );
       })}
 
-      {/* axis titles */}
-      <text
-        x={PAD.left}
-        y={PAD.top - 12}
-        fontSize="10"
-        fill="var(--text-dim)"
-        letterSpacing="0.08em"
-      >
-        TOP 6 BY PRIORITY →
-      </text>
       <line
         x1={PAD.left}
         x2={W - PAD.right}
