@@ -36,7 +36,7 @@ CREATE_TABLE = re.compile(
     re.IGNORECASE | re.DOTALL,
 )
 # Constraint lines start a column definition but are not columns.
-NOT_A_COLUMN = re.compile(r"^\s*(primary|unique|constraint|foreign|check|exclude)\b", re.I)
+NOT_A_COLUMN = re.compile(r"^\s*(primary|unique|constraint|foreign|check|exclude)\b", re.IGNORECASE)
 # `from public.x a` / `join public.x as a` / `from public.x` (alias = table name)
 FROM_TABLE = re.compile(
     r"\b(?:from|join)\s+public\.(\w+)(?:\s+(?:as\s+)?(\w+))?",
