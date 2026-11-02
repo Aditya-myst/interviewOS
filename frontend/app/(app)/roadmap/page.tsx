@@ -1,7 +1,12 @@
-import { CheckCircle2, Clock, ExternalLink } from "lucide-react";
+import { Suspense } from "react";
+import { CheckCircle2, Clock, CircleDashed, ExternalLink, TriangleAlert } from "lucide-react";
 import PageHeader from "@/components/shell/PageHeader";
 import IosButton from "@/components/primitives/IosButton";
-import { roadmapFixture } from "@/lib/fixtures";
+import DataSourceBadge from "@/components/app/DataSourceBadge";
+import StateNotice from "@/components/app/StateNotice";
+import Skeleton from "@/components/app/Skeleton";
+import { loadRoadmap } from "@/lib/api";
+import { parseState } from "@/lib/fixtures";
 import type { LearningTopic, Resource } from "../../../../contracts/types";
 
 export const metadata = { title: "Roadmap — InterviewOS" };
@@ -32,14 +37,41 @@ const ROLE_LABEL: Record<string, string> = {
   checkpoint: "Prove it",
 };
 
-export default function RoadmapPage() {
-  const r = roadmapFixture;
+/**
+ * The roadmap reads `/v1/learning/roadmap`. Topics are subtopics from the
+ * curriculum graph, never invented, and a slot the catalogue cannot fill is
+ * reported as a named gap (`missing_roles`) rather than an empty box that looks
+ * finished. That is the whole reason this page exists in this shape.
+ */
+export default function RoadmapPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ state?: string }>;
+}) {
+  return (
+    <div className="max-w-[1180px] mx-auto">
+      <Suspense fallback={<RoadmapLoading />}>
+        <RoadmapBody searchParams={searchParams} />
+      </Suspense>
+    </div>
+  );
+}
+
+async function RoadmapBody({
+  searchParams,
+}: {
+  searchParams: Promise<{ state?: string }>;
+}) {
+  const state = parseState((await searchParams).state);
+  const { data: r, source, reason, endpoint } = await loadRoadmap(state);
+
   const done = r.progress?.done ?? 0;
   const total = r.progress?.total ?? r.topics.length;
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  const gaps = r.topics.reduce((n, t) => n + (t.missing_roles?.length ?? 0), 0);
 
   return (
-    <div className="max-w-[1180px] mx-auto">
+    <>
       <PageHeader
         eyebrow={`Roadmap · ${r.target_role ?? "target role"}`}
         title="What to study, in order"
@@ -72,28 +104,53 @@ export default function RoadmapPage() {
         </div>
       </section>
 
-      <ol className="list-none m-0 p-0 space-y-4">
-        {r.topics.map((t) => (
-          <li key={t.id}>
-            <TopicCard topic={t} />
-          </li>
-        ))}
-      </ol>
+      {gaps > 0 && (
+        <div className="mb-5">
+          <StateNotice kind="warn" title={`${gaps} resource slot${gaps === 1 ? "" : "s"} the catalogue cannot fill`}>
+            Each topic below names the roles it is missing — usually a checkpoint,
+            because a checkpoint has to be something you can fail and a blog post
+            is not. Nothing is substituted with a generated link to make the page
+            look complete.
+          </StateNotice>
+        </div>
+      )}
 
-      <p className="mt-6 type-small text-[var(--text-dim)]">
-        Every resource below was resolved against the curated catalogue and
-        HTTP-checked before it was shown — no generated links. Fixture data:
-        contracts/fixtures/roadmap.json.
-      </p>
-    </div>
+      {r.topics.length === 0 ? (
+        <section className="card-surface p-8 lg:p-12 text-center">
+          <h2 className="type-display-3 m-0 mb-3">No plan yet</h2>
+          <p className="type-body text-[var(--text-dim)] m-0 max-w-[52ch] mx-auto">
+            A roadmap needs scored skills first. Run the JD analysis and the
+            first plan appears here, ordered by priority.
+          </p>
+        </section>
+      ) : (
+        <ol className="list-none m-0 p-0 space-y-4">
+          {r.topics.map((t) => (
+            <li key={t.id}>
+              <TopicCard topic={t} />
+            </li>
+          ))}
+        </ol>
+      )}
+
+      <div className="mt-6 flex flex-wrap items-center gap-2">
+        <DataSourceBadge source={source} endpoint={endpoint} reason={reason} />
+        <span className="type-small text-[var(--text-dim)]">
+          Topics come from the curriculum graph in data/taxonomy.yaml; resources
+          come from the 75-link catalogue in data/curated.yaml, each HTTP-checked.
+        </span>
+      </div>
+    </>
   );
 }
 
 function TopicCard({ topic }: { topic: LearningTopic }) {
-  const progressPct = Math.round(topic.progress * 100);
+  const progressPct = Math.round((topic.progress ?? 0) * 100);
+  const missing = topic.missing_roles ?? [];
   const grouped = (["concept", "practice", "checkpoint"] as const).map((role) => ({
     role,
-    items: topic.resources.filter((res) => res.role === role),
+    items: (topic.resources ?? []).filter((res) => res.role === role),
+    missing: missing.includes(role),
   }));
 
   return (
@@ -101,7 +158,7 @@ function TopicCard({ topic }: { topic: LearningTopic }) {
       <div className="flex flex-wrap items-start justify-between gap-3 mb-1">
         <div className="flex items-center gap-2">
           <span className="font-mono text-[11px] text-[var(--text-dim)] tabular-nums">
-            {String(topic.order_index + 1).padStart(2, "0")}
+            {String((topic.order_index ?? 0) + 1).padStart(2, "0")}
           </span>
           <h2 className="type-h4 m-0">{topic.title}</h2>
         </div>
@@ -137,26 +194,29 @@ function TopicCard({ topic }: { topic: LearningTopic }) {
         </span>
       </div>
 
-      <ul className="list-none m-0 p-0 mb-4 flex flex-wrap gap-1.5">
-        {(topic.subtopics ?? []).map((s) => (
-          <li
-            key={s}
-            className="type-small px-2.5 py-1 rounded-[999px] bg-[var(--surface-2)] text-[var(--text-dim)]"
-          >
-            {s}
-          </li>
-        ))}
-      </ul>
-
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        {grouped.map(({ role, items }) => (
-          <div key={role} className="rounded-[12px] border border-[var(--border)] p-3">
-            <p className="type-micro text-[var(--text-dim)] m-0 mb-2">
+        {grouped.map(({ role, items, missing: isMissing }) => (
+          <div
+            key={role}
+            className={`rounded-[12px] border p-3 ${
+              isMissing
+                ? "border-dashed border-[var(--developing)]/45 bg-[var(--developing)]/[0.06]"
+                : "border-[var(--border)]"
+            }`}
+          >
+            <p className="type-micro text-[var(--text-dim)] m-0 mb-2 flex items-center gap-1.5">
               {ROLE_LABEL[role]}
+              {isMissing && (
+                <span className="inline-flex items-center gap-1 text-[var(--developing)]">
+                  <TriangleAlert size={11} aria-hidden />
+                  gap
+                </span>
+              )}
             </p>
             {items.length === 0 ? (
-              <p className="type-small text-[var(--text-dim)] m-0">
-                Not resolved yet — shows a labelled search, never a fake link.
+              <p className="type-small text-[var(--developing)] m-0">
+                Not in the catalogue yet. Shown as a named gap, never a generated
+                link.
               </p>
             ) : (
               <ul className="list-none m-0 p-0 space-y-3">
@@ -194,12 +254,30 @@ function ResourceLink({ res }: { res: Resource }) {
       {res.why && (
         <p className="m-0 mt-1.5 type-small text-[var(--text-dim)]">{res.why}</p>
       )}
-      {res.verified_at && (
+      {res.verified_at ? (
         <p className="m-0 mt-1.5 inline-flex items-center gap-1 type-micro text-[var(--verified)]">
           <CheckCircle2 size={11} aria-hidden />
           link checked
         </p>
+      ) : (
+        <p className="m-0 mt-1.5 inline-flex items-center gap-1 type-micro text-[var(--text-dim)]">
+          <CircleDashed size={11} aria-hidden />
+          not machine-checked
+        </p>
       )}
+    </div>
+  );
+}
+
+function RoadmapLoading() {
+  return (
+    <div className="space-y-4" aria-busy="true" aria-live="polite">
+      <span className="sr-only">Loading your roadmap</span>
+      <Skeleton className="h-8 w-64" />
+      <Skeleton className="h-28" />
+      {Array.from({ length: 3 }).map((_, i) => (
+        <Skeleton key={i} className="h-52" />
+      ))}
     </div>
   );
 }

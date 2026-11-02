@@ -6,15 +6,23 @@ import { FIXTURE_TODAY } from "@/lib/fixtures";
  * exists, how recent it is. Replaces a paragraph per row with a shape per row.
  * Cells link to the detailed row further down the page.
  */
-function daysSince(iso: string | null | undefined): string {
+function daysSince(iso: string | null | undefined, today: string): string {
   if (!iso) return "—";
-  const d = Math.round((Date.parse(FIXTURE_TODAY) - Date.parse(iso)) / 86_400_000);
+  const d = Math.round((Date.parse(today) - Date.parse(iso)) / 86_400_000);
   if (d <= 0) return "today";
   if (d === 1) return "1d";
   return `${d}d`;
 }
 
-export default function SkillMatrix({ skills }: { skills: CandidateSkill[] }) {
+export default function SkillMatrix({
+  skills,
+  asOf,
+}: {
+  skills: CandidateSkill[];
+  /** "Now" for relative ages. Live rows pass the real clock; fixtures pass their own. */
+  asOf?: string;
+}) {
+  const today = asOf ?? FIXTURE_TODAY;
   const rows = [...skills].sort((a, b) => b.priority - a.priority);
 
   return (
@@ -64,7 +72,7 @@ export default function SkillMatrix({ skills }: { skills: CandidateSkill[] }) {
                 </span>
 
                 <span className="w-[52px] text-right type-small text-[var(--text-dim)] tabular-nums shrink-0">
-                  {daysSince(s.last_assessed_at)}
+                  {daysSince(s.last_assessed_at, today)}
                 </span>
 
                 <span

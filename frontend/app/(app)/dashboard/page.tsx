@@ -9,35 +9,76 @@ import DeltaPill from "@/components/charts/DeltaPill";
 import PriorityScatter from "@/components/charts/PriorityScatter";
 import CoverageStack from "@/components/app/CoverageStack";
 import InterviewTable from "@/components/app/InterviewTable";
+import DataSourceBadge from "@/components/app/DataSourceBadge";
 import StateNotice from "@/components/app/StateNotice";
 import Skeleton from "@/components/app/Skeleton";
-import {
-  dashboardFixture,
-  roadmapFixture,
-  skillProfileFixture,
-  parseState,
-  type DemoState,
-} from "@/lib/fixtures";
-import type { CandidateSkill } from "../../../../contracts/types";
+import { describeReason, loadDashboard, loadRoadmap, loadSkillProfile } from "@/lib/api";
+import { parseState, type DemoState } from "@/lib/fixtures";
+import type {
+  CandidateSkill,
+  Dashboard,
+  Roadmap,
+  SkillProfile,
+} from "../../../../contracts/types";
 
 export const metadata = { title: "Dashboard — InterviewOS" };
 
 type Move = { action: string; meta: string; minutes: number; href: string };
 
 /**
- * The header, the state banner and the trend strip are static; anything that
- * depends on `?state=` sits behind Suspense, which is the shape Cache Components
- * asks for. The fallback IS the loading state.
+ * Everything here comes from the API now, not from `lib/fixtures`. The page shell
+ * is static; the body is dynamic and sits behind Suspense, which is the shape
+ * Cache Components asks for, and the fallback is the loading state.
+ *
+ * What the screen shows and what it *says* it shows are the same thing: the
+ * provenance strip at the bottom prints `X-Data-Source` for all three endpoints
+ * this page reads. `database` means these numbers came out of Postgres for you.
  */
 export default function DashboardPage({
   searchParams,
 }: {
   searchParams: Promise<{ state?: string }>;
 }) {
-  const d = dashboardFixture;
-
   return (
     <div className="max-w-[1240px] mx-auto">
+      <Suspense fallback={<LoadingState />}>
+        <DashboardBody searchParams={searchParams} />
+      </Suspense>
+    </div>
+  );
+}
+
+function Sep() {
+  return <span className="mx-2 text-[var(--border-strong)]" aria-hidden>·</span>;
+}
+
+async function DashboardBody({
+  searchParams,
+}: {
+  searchParams: Promise<{ state?: string }>;
+}) {
+  const state: DemoState = parseState((await searchParams).state);
+  if (state === "loading") return <LoadingState />;
+
+  const [dashboard, profile, roadmap] = await Promise.all([
+    loadDashboard(state),
+    loadSkillProfile(state),
+    loadRoadmap(state),
+  ]);
+
+  const d = dashboard.data;
+
+  if (state === "empty" || d.stats.skills_total === 0) {
+    return (
+      <>
+        <EmptyState />
+        <ProvenanceStrip payloads={[dashboard, profile, roadmap]} />
+      </>
+    );
+  }
+
+  return (
+    <>
       <PageHeader
         eyebrow={`Dashboard · ${d.target_role ?? "target role"}`}
         title="Where you stand today"
@@ -63,29 +104,6 @@ export default function DashboardPage({
         {d.stats.mock_interviews} mock interviews
       </p>
 
-      <Suspense fallback={<LoadingState />}>
-        <DashboardBody searchParams={searchParams} />
-      </Suspense>
-    </div>
-  );
-}
-
-function Sep() {
-  return <span className="mx-2 text-[var(--border-strong)]" aria-hidden>·</span>;
-}
-
-async function DashboardBody({
-  searchParams,
-}: {
-  searchParams: Promise<{ state?: string }>;
-}) {
-  const state: DemoState = parseState((await searchParams).state);
-
-  if (state === "loading") return <LoadingState />;
-  if (state === "empty") return <EmptyState />;
-
-  return (
-    <>
       {state === "degraded" && (
         <div className="mb-5">
           <StateNotice kind="warn" title="Parsing ran in degraded mode">
@@ -97,8 +115,8 @@ async function DashboardBody({
       )}
 
       <div className="space-y-5">
-        <TopRow />
-        <NextMoves />
+        <TopRow d={d} profile={profile.data} />
+        <NextMoves d={d} roadmap={roadmap.data} />
         <section className="card-surface p-5">
           <div className="flex items-center justify-between gap-4 mb-3">
             <h2 className="type-h4 m-0">Recent mock interviews</h2>
@@ -106,21 +124,39 @@ async function DashboardBody({
               score is transcript-based
             </span>
           </div>
-          <InterviewTable interviews={dashboardFixture.interviews} />
+          <InterviewTable interviews={d.interviews} />
         </section>
       </div>
 
-      <p className="mt-6 type-small text-[var(--text-dim)]">
-        Data source: contracts/fixtures/dashboard.json · phase 3 renders
-        fixtures, phase 4 swaps in the API.
-      </p>
+      <ProvenanceStrip payloads={[dashboard, profile, roadmap]} />
     </>
   );
 }
 
+/* ─── where did these numbers come from ─────────────────────── */
+function ProvenanceStrip({
+  payloads,
+}: {
+  payloads: { source: Parameters<typeof DataSourceBadge>[0]["source"]; endpoint: string; reason: string | null }[];
+}) {
+  const anyFixture = payloads.some((p) => p.source !== "database");
+
+  return (
+    <div className="mt-6 flex flex-wrap items-center gap-2">
+      {payloads.map((p) => (
+        <DataSourceBadge key={p.endpoint} source={p.source} endpoint={p.endpoint} reason={p.reason} />
+      ))}
+      {anyFixture && (
+        <span className="type-small text-[var(--text-dim)]">
+          {describeReason(payloads.find((p) => p.source !== "database")?.reason ?? null)}
+        </span>
+      )}
+    </div>
+  );
+}
+
 /* ─── readiness · priority map · coverage ───────────────────── */
-function TopRow() {
-  const d = dashboardFixture;
+function TopRow({ d, profile }: { d: Dashboard; profile: SkillProfile }) {
   const history = d.readiness_history ?? [];
   const values = history.map((h) => h.readiness);
   const delta = values.length > 1 ? values[values.length - 1] - values[0] : 0;
@@ -158,6 +194,7 @@ function TopRow() {
           {d.provisional
             ? "Provisional — partial evidence only"
             : "Based on assessed evidence"}
+          {values.length === 1 && " · one measurement so far"}
         </p>
       </section>
 
@@ -169,7 +206,7 @@ function TopRow() {
           </span>
         </div>
         {/* every assessed skill, not just the top three — the shape is the point */}
-        <PriorityScatter skills={skillProfileFixture.skills} />
+        <PriorityScatter skills={profile.skills} />
       </section>
 
       <section className="card-surface p-5">
@@ -181,10 +218,9 @@ function TopRow() {
 }
 
 /* ─── next three moves, derived, not authored ───────────────── */
-function NextMoves() {
-  const d = dashboardFixture;
+function NextMoves({ d, roadmap }: { d: Dashboard; roadmap: Roadmap }) {
   const skills = [...d.priority_skills].sort((a, b) => b.priority - a.priority);
-  const firstRead = roadmapFixture.topics.find(
+  const firstRead = roadmap.topics.find(
     (t) => t.status !== "done" && t.resources.some((r) => r.role === "concept")
   );
   const concept = firstRead?.resources.find((r) => r.role === "concept");
@@ -201,6 +237,18 @@ function NextMoves() {
     });
   }
   if (skills[1]) moves.push(assessMove(skills[1]));
+
+  if (moves.length === 0) {
+    return (
+      <section className="card-surface p-5">
+        <h2 className="type-h4 m-0 mb-2">Next three moves</h2>
+        <p className="type-small text-[var(--text-dim)] m-0">
+          No moves to derive yet — that needs at least one critical gap and one
+          resolved concept resource.
+        </p>
+      </section>
+    );
+  }
 
   return (
     <section className="card-surface overflow-hidden">

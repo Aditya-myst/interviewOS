@@ -201,6 +201,12 @@ export interface LearningTopic {
   subtopics?: string[];
   progress: number;
   resources: Resource[];
+  /**
+   * Roles the catalogue cannot fill for this topic. The API populates this rather
+   * than leaving an empty slot: an unfilled checkpoint is a fact about the
+   * catalogue, and the screen is required to say so.
+   */
+  missing_roles?: Array<"concept" | "practice" | "checkpoint">;
 }
 
 export interface Roadmap {
