@@ -153,3 +153,17 @@ def test_topics_are_ordered_by_priority_and_capped():
     priorities = [t["priority"] for t in roadmap["topics"]]
     assert priorities == sorted(priorities, reverse=True)
     assert [t["order_index"] for t in roadmap["topics"]] == list(range(len(roadmap["topics"])))
+
+
+def test_the_resource_query_types_its_array_parameter():
+    """A list bound into `= any(...)` is only safe with an explicit cast.
+
+    Without it Postgres has to infer the parameter type from context; when that
+    inference fails the endpoint 500s, and the UI can only report "the API did not
+    answer" — which reads like an outage, not a bug in one query.
+    """
+    from app import store
+
+    sql = str(store.RESOURCES_SQL)
+    assert "cast(:skill_ids as text[])" in sql
+    assert "is_dead = false" in sql

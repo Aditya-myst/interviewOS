@@ -65,7 +65,11 @@ export default function RadialScore({
           <span className="text-[13px]">%</span>
         </span>
         {label && (
-          <span className="type-micro text-[var(--text-dim)] mt-1">{label}</span>
+          // A label like "interview ready" is wider than the ring, and a label that
+          // spills over the stroke looks like a rendering bug. Constrained and wrapped.
+          <span className="type-micro text-[var(--text-dim)] mt-1 max-w-[76%] text-center leading-[1.15] tracking-[0.04em] uppercase">
+            {label}
+          </span>
         )}
       </div>
     </div>

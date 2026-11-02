@@ -5,5 +5,5 @@ export default function AppLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <AppShell targetRole="AI Engineer">{children}</AppShell>;
+  return <AppShell>{children}</AppShell>;
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useCallback, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -11,6 +11,8 @@ import {
   Mic2,
   FileText,
   ChevronRight,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -19,6 +21,31 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+
+/* ─── Collapse preference: read from localStorage without a hydration flip ───
+ * `useSyncExternalStore` gives the server a snapshot of `false` and the client the
+ * stored value, so the rail never renders one width and snap to the other. It also
+ * keeps two tabs in step, which a plain useState would not.
+ */
+const SIDEBAR_KEY = "ios.sidebar";
+const sidebarListeners = new Set<() => void>();
+
+function subscribeSidebar(onChange: () => void) {
+  sidebarListeners.add(onChange);
+  window.addEventListener("storage", onChange);
+  return () => {
+    sidebarListeners.delete(onChange);
+    window.removeEventListener("storage", onChange);
+  };
+}
+
+const readCollapsed = () => window.localStorage.getItem(SIDEBAR_KEY) === "collapsed";
+const serverCollapsed = () => false;
+
+function writeCollapsed(next: boolean) {
+  window.localStorage.setItem(SIDEBAR_KEY, next ? "collapsed" : "open");
+  sidebarListeners.forEach((listener) => listener());
+}
 
 /* ─── Nav items ──────────────────────────────────────────────── */
 // `ready: false` renders as a disabled row with a "soon" marker instead of a
@@ -143,7 +170,13 @@ function NavLink({
 }
 
 /* ─── SideRail (≥1024px) ──────────────────────────────────────── */
-function SideRail({ iconOnly }: { iconOnly: boolean }) {
+function SideRail({
+  iconOnly,
+  onToggle,
+}: {
+  iconOnly: boolean;
+  onToggle: () => void;
+}) {
   return (
     <aside
       className={cn(
@@ -177,11 +210,32 @@ function SideRail({ iconOnly }: { iconOnly: boolean }) {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 overflow-y-auto p-3 space-y-0.5">
+      <nav className="flex-1 overflow-y-auto p-3 space-y-0.5" aria-label="Primary">
         {NAV_ITEMS.map((item) => (
           <NavLink key={item.href} item={item} iconOnly={iconOnly} />
         ))}
       </nav>
+
+      {/* Collapse control */}
+      <div className="shrink-0 px-3 pb-1">
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-expanded={!iconOnly}
+          aria-label={iconOnly ? "Expand sidebar" : "Collapse sidebar"}
+          title={iconOnly ? "Expand sidebar" : "Collapse sidebar"}
+          className={cn(
+            "w-full flex items-center gap-3 rounded-[12px] px-3 py-2 min-h-[40px]",
+            "type-small text-[var(--text-dim)] hover:bg-[var(--surface-2)] hover:text-[var(--text)]",
+            "transition-colors duration-[150ms] ease-out",
+            "focus-visible:outline-2 focus-visible:outline-[var(--brand-strong)] focus-visible:outline-offset-2",
+            iconOnly && "justify-center px-0"
+          )}
+        >
+          {iconOnly ? <PanelLeftOpen size={17} aria-hidden /> : <PanelLeftClose size={17} aria-hidden />}
+          {!iconOnly && <span>Collapse</span>}
+        </button>
+      </div>
 
       {/* Bottom user area */}
       <div className="shrink-0 p-3 border-t border-[var(--border)]">
@@ -261,11 +315,7 @@ function BottomTabBar() {
 }
 
 /* ─── TopBar (640–1024px) ────────────────────────────────────── */
-function TopBar({
-  targetRole = "Senior SWE",
-}: {
-  targetRole?: string;
-}) {
+function TopBar() {
   const pathname = usePathname();
   const currentPage = NAV_ITEMS.find(
     (i) => pathname === i.href || pathname.startsWith(i.href + "/")
@@ -289,14 +339,9 @@ function TopBar({
       </div>
 
       <div className="flex items-center gap-3">
-        {/* Target-role chip */}
-        <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[999px] border border-[var(--border-strong)] bg-[var(--brand-soft)] text-[var(--brand-strong)] text-xs font-medium min-h-[44px]">
-          <span
-            aria-hidden
-            className="size-1.5 rounded-full bg-[var(--brand-strong)]"
-          />
-          {targetRole}
-        </span>
+        {/* No target-role chip here: the real role comes from the API and is
+            printed in each page header. A hardcoded "AI Engineer" pill was the one
+            label on screen that no row backed. */}
 
         {/* Avatar */}
         <button
@@ -316,24 +361,19 @@ function TopBar({
 }
 
 /* ─── AppShell ────────────────────────────────────────────────── */
-export default function AppShell({
-  children,
-  targetRole = "Senior SWE",
-}: {
-  children: React.ReactNode;
-  targetRole?: string;
-}) {
-  const [collapsed] = useState(false);
+export default function AppShell({ children }: { children: React.ReactNode }) {
+  const collapsed = useSyncExternalStore(subscribeSidebar, readCollapsed, serverCollapsed);
+  const toggleSidebar = useCallback(() => writeCollapsed(!readCollapsed()), []);
 
   return (
     <div className="flex min-h-screen w-full">
       {/* Side rail: visible on lg+ */}
-      <SideRail iconOnly={collapsed} />
+      <SideRail iconOnly={collapsed} onToggle={toggleSidebar} />
 
       {/* Main content area */}
       <div className="flex flex-col flex-1 min-w-0">
         {/* Top bar (always visible, but role shifts on lg) */}
-        <TopBar targetRole={targetRole} />
+        <TopBar />
 
         {/* Page content */}
         <main

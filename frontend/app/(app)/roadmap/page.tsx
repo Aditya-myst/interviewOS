@@ -37,6 +37,14 @@ const ROLE_LABEL: Record<string, string> = {
   checkpoint: "Prove it",
 };
 
+// Why a slot can be empty, in one line each. The long explanation lives in the
+// banner above the list; repeating it five times per topic is noise, not honesty.
+const GAP_TEXT: Record<string, string> = {
+  concept: "No concept resource yet",
+  practice: "No practice task yet",
+  checkpoint: "No checkpoint yet — nothing to pass",
+};
+
 /**
  * The roadmap reads `/v1/learning/roadmap`. Topics are subtopics from the
  * curriculum graph, never invented, and a slot the catalogue cannot fill is
@@ -124,12 +132,13 @@ async function RoadmapBody({
           </p>
         </section>
       ) : (
-        <ol className="list-none m-0 p-0 space-y-4">
+        <ol className="list-none m-0 p-0">
           {r.topics.map((t) => (
             <li key={t.id}>
               <TopicCard topic={t} />
             </li>
           ))}
+          <li aria-hidden className="border-t border-[var(--border)]" />
         </ol>
       )}
 
@@ -154,7 +163,7 @@ function TopicCard({ topic }: { topic: LearningTopic }) {
   }));
 
   return (
-    <article className="card-surface p-5 lg:p-6">
+    <article className="border-t border-[var(--border)] pt-5">
       <div className="flex flex-wrap items-start justify-between gap-3 mb-1">
         <div className="flex items-center gap-2">
           <span className="font-mono text-[11px] text-[var(--text-dim)] tabular-nums">
@@ -194,14 +203,12 @@ function TopicCard({ topic }: { topic: LearningTopic }) {
         </span>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-3 md:divide-x divide-[var(--border)]">
         {grouped.map(({ role, items, missing: isMissing }) => (
           <div
             key={role}
-            className={`rounded-[12px] border p-3 ${
-              isMissing
-                ? "border-dashed border-[var(--developing)]/45 bg-[var(--developing)]/[0.06]"
-                : "border-[var(--border)]"
+            className={`md:px-5 first:md:pl-0 last:md:pr-0 pt-4 md:pt-0 pb-1 ${
+              isMissing ? "bg-[var(--developing)]/[0.04]" : ""
             }`}
           >
             <p className="type-micro text-[var(--text-dim)] m-0 mb-2 flex items-center gap-1.5">
@@ -215,8 +222,7 @@ function TopicCard({ topic }: { topic: LearningTopic }) {
             </p>
             {items.length === 0 ? (
               <p className="type-small text-[var(--developing)] m-0">
-                Not in the catalogue yet. Shown as a named gap, never a generated
-                link.
+                {GAP_TEXT[role] ?? "Not in the catalogue yet"}
               </p>
             ) : (
               <ul className="list-none m-0 p-0 space-y-3">

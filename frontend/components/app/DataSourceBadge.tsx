@@ -1,5 +1,5 @@
 import { Database, FileJson, Unplug } from "lucide-react";
-import { describeReason, type DataSource } from "@/lib/api";
+import { describeReason, describeUnreachable, type DataSource } from "@/lib/api";
 
 /**
  * The provenance strip. Every screen that renders numbers carries one.
@@ -52,7 +52,7 @@ export default function DataSourceBadge({
       ? `${endpoint} · live rows`
       : source === "fixture"
         ? `${endpoint} · ${describeReason(reason ?? "no_rows") || "no rows"}`
-        : `${endpoint} · API not reachable, showing saved fixtures`;
+        : `${endpoint} · ${describeUnreachable(reason ?? null)} — showing saved fixtures`;
 
   return (
     <span

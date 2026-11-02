@@ -6,7 +6,7 @@ import IosButton from "@/components/primitives/IosButton";
 import RadialScore from "@/components/charts/RadialScore";
 import Sparkline from "@/components/charts/Sparkline";
 import DeltaPill from "@/components/charts/DeltaPill";
-import PriorityScatter from "@/components/charts/PriorityScatter";
+import PriorityCurve from "@/components/charts/PriorityCurve";
 import CoverageStack from "@/components/app/CoverageStack";
 import InterviewTable from "@/components/app/InterviewTable";
 import DataSourceBadge from "@/components/app/DataSourceBadge";
@@ -68,7 +68,11 @@ async function DashboardBody({
 
   const d = dashboard.data;
 
-  if (state === "empty" || d.stats.skills_total === 0) {
+  // `?state=empty` is a demo switch for the fixture path only. Once the API is serving
+  // this user's rows, an empty screen would be a lie — the database wins.
+  const demoEmpty = state === "empty" && dashboard.source !== "database";
+
+  if (demoEmpty || d.stats.skills_total === 0) {
     return (
       <>
         <EmptyState />
@@ -162,8 +166,11 @@ function TopRow({ d, profile }: { d: Dashboard; profile: SkillProfile }) {
   const delta = values.length > 1 ? values[values.length - 1] - values[0] : 0;
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr_300px] gap-5">
-      <section className="card-surface p-5 flex flex-col">
+    <section className="card-surface overflow-hidden">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-[240px_1fr_230px]">
+      {/* Readiness and coverage share a row until the chart has room to breathe;
+          below 1280px the curve gets the full width in its own band. */}
+      <div className="order-1 flex flex-col p-5 border-b border-[var(--border)] md:border-b-0 md:border-r xl:border-r">
         <div className="flex items-start justify-between gap-3">
           <p className="type-micro text-[var(--text-dim)] m-0">Readiness</p>
           {values.length > 1 && <DeltaPill value={delta} suffix=" pts" label="7d" />}
@@ -196,24 +203,25 @@ function TopRow({ d, profile }: { d: Dashboard; profile: SkillProfile }) {
             : "Based on assessed evidence"}
           {values.length === 1 && " · one measurement so far"}
         </p>
-      </section>
+      </div>
 
-      <section className="card-surface p-5">
-        <div className="flex items-baseline justify-between gap-4 mb-3">
-          <h2 className="type-h4 m-0">Priority map</h2>
+      <div className="order-3 min-w-0 border-t border-[var(--border)] p-5 md:order-3 md:col-span-2 xl:order-none xl:col-span-1 xl:border-t-0 xl:border-l">
+        <div className="flex items-baseline justify-between gap-4 mb-1">
+          <h2 className="type-h4 m-0">Priority curve</h2>
           <span className="type-small text-[var(--text-dim)]">
-            importance × gap
+            gap × importance × relevance
           </span>
         </div>
-        {/* every assessed skill, not just the top three — the shape is the point */}
-        <PriorityScatter skills={profile.skills} />
-      </section>
+        {/* every assessed skill, in the order you would work through them */}
+        <PriorityCurve skills={profile.skills} />
+      </div>
 
-      <section className="card-surface p-5">
+      <div className="order-2 border-t border-[var(--border)] p-5 md:border-t-0 xl:border-l">
         <h2 className="type-h4 m-0 mb-4">Coverage</h2>
         <CoverageStack rows={d.coverage} />
-      </section>
-    </div>
+      </div>
+      </div>
+    </section>
   );
 }
 

@@ -321,7 +321,10 @@ RESOURCES_SQL = text(
     select id, url, title, provider, kind::text, is_paid, license, verified_at,
            curated_skill_id, curated_subtopic_id
     from public.resources
-    where curated_skill_id = any(:skill_ids)
+    -- explicit cast, same reason the uuid params have one: an untyped array parameter
+    -- is left for Postgres to infer, and a failed inference is a 500 the UI reports as
+    -- "the API is down" rather than "this query is wrong".
+    where curated_skill_id = any(cast(:skill_ids as text[]))
       and is_dead = false
     """
 )

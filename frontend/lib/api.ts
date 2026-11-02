@@ -16,6 +16,7 @@
  * `endpoint` travels with the payload so a badge can print exactly what was asked,
  * which is the difference between a demo and a claim.
  */
+import { cache } from "react";
 import type { Dashboard, Roadmap, SkillProfile } from "../../contracts/types";
 import { dashboardFixture, roadmapFixture, skillProfileFixture } from "./fixtures";
 
@@ -33,8 +34,23 @@ export type ApiPayload<T> = {
 /** Override in `.env.local` when the API is not on the default port. */
 const BASE = (process.env.INTERVIEWOS_API_URL ?? "http://127.0.0.1:8000").replace(/\/+$/, "");
 
-/** Short on purpose: a demo should fail over to a labelled fixture, not hang. */
-const TIMEOUT_MS = 4000;
+/**
+ * A demo should fail over to a labelled fixture rather than hang, but a remote
+ * Postgres pooler can take seconds to hand out its first connection, and a false
+ * "offline" is worse than a slow page. Ten seconds, then say so.
+ */
+const TIMEOUT_MS = 10_000;
+
+/**
+ * `unreachable` covers three different things — a network error, a timeout and a
+ * non-2xx response — and printing one sentence for all three is how a 500 hides.
+ */
+export function describeUnreachable(reason: string | null): string {
+  if (!reason) return "the API did not answer";
+  if (reason === "TimeoutError") return `no answer within ${TIMEOUT_MS / 1000}s`;
+  if (reason.startsWith("http_")) return `the API answered ${reason.slice(5)}`;
+  return reason;
+}
 
 const REASON_TEXT: Record<string, string> = {
   no_db: "the API has no database configured",
@@ -89,14 +105,19 @@ function demoQuery(state?: string): string {
   return state && state !== "populated" ? `?state=${encodeURIComponent(state)}` : "";
 }
 
-export function loadDashboard(state?: string): Promise<ApiPayload<Dashboard>> {
-  return getJson<Dashboard>(`/v1/analytics/dashboard${demoQuery(state)}`, dashboardFixture);
-}
+/* `cache` wraps a function per render pass, so a page and a layout asking for the
+ * same endpoint share one HTTP call instead of two. */
+export const loadDashboard = cache(
+  (state?: string): Promise<ApiPayload<Dashboard>> =>
+    getJson<Dashboard>(`/v1/analytics/dashboard${demoQuery(state)}`, dashboardFixture)
+);
 
-export function loadSkillProfile(state?: string): Promise<ApiPayload<SkillProfile>> {
-  return getJson<SkillProfile>(`/v1/skills/profile${demoQuery(state)}`, skillProfileFixture);
-}
+export const loadSkillProfile = cache(
+  (state?: string): Promise<ApiPayload<SkillProfile>> =>
+    getJson<SkillProfile>(`/v1/skills/profile${demoQuery(state)}`, skillProfileFixture)
+);
 
-export function loadRoadmap(state?: string): Promise<ApiPayload<Roadmap>> {
-  return getJson<Roadmap>(`/v1/learning/roadmap${demoQuery(state)}`, roadmapFixture);
-}
+export const loadRoadmap = cache(
+  (state?: string): Promise<ApiPayload<Roadmap>> =>
+    getJson<Roadmap>(`/v1/learning/roadmap${demoQuery(state)}`, roadmapFixture)
+);
