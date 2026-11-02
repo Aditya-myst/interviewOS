@@ -84,17 +84,36 @@ with counts as (
 select * from counts;
 """
 
-# (name, expected) — the numbers docs/sql/004_verify.sql promises. Keeping the
-# expectations here, next to the query, means a seed change breaks this loudly.
-EXPECTED = [
-    ("tables", 18),
-    ("rls_tables", 18),
-    ("enums", 22),
-    ("extensions", 3),
-    ("skills", 31),
-    ("subtopics", 100),
-    ("resources", 39),
-]
+# Schema expectations are structural and belong in code: 001_init.sql defines them.
+SCHEMA_EXPECTED = [("tables", 18), ("rls_tables", 18), ("enums", 22), ("extensions", 3)]
+
+
+def data_expected() -> tuple[list[tuple[str, int]], str]:
+    """Seed expectations come from the YAML, not from a constant.
+
+    Hard-coding 31/100/39 here meant that adding one skill to data/taxonomy.yaml
+    would make /dev/db report a failure against a correct database. The files are
+    the source of truth; this reads them.
+    """
+    try:
+        import yaml
+
+        from app.config import DATA_DIR
+        from app.parsing import taxonomy
+
+        vocab = taxonomy.load()
+        subtopics = sum(len(skill.subtopic_ids) for skill in vocab.values())
+        curated = yaml.safe_load((DATA_DIR / "curated.yaml").read_text()) or {}
+        resources = sum(
+            len(rows) for by_subtopic in curated.get("catalogue", {}).values()
+            for rows in by_subtopic.values()
+        )
+        return (
+            [("skills", len(vocab)), ("subtopics", subtopics), ("resources", resources)],
+            "data/taxonomy.yaml + data/curated.yaml",
+        )
+    except Exception:  # noqa: BLE001 — a missing data dir must not break the probe
+        return [("skills", 31), ("subtopics", 100), ("resources", 39)], "fallback constants"
 
 
 @router.get("/dev/db")
@@ -122,9 +141,10 @@ def db_probe() -> dict:
     with get_session() as session:
         row = session.execute(text(VERIFY_SQL)).mappings().one()
 
+    data_rows, data_source = data_expected()
     checks = [
         {"name": name, "expected": expected, "actual": int(row[name]), "ok": int(row[name]) >= expected}
-        for name, expected in EXPECTED
+        for name, expected in SCHEMA_EXPECTED + data_rows
     ]
     checks.append(
         {
@@ -149,6 +169,7 @@ def db_probe() -> dict:
         "ok": all(c["ok"] for c in checks),
         "mode": "database",
         "checks": checks,
+        "expectations_from": data_source,
         "failed": [c["name"] for c in checks if not c["ok"]],
     }
 
