@@ -397,21 +397,27 @@ def dashboard_payload(session: Session, *, user_id: str) -> dict | None:
         {"user_id": user_id},
     ).scalar()
 
+    # Column names here are the schema's, not the fixture's: reports hold `overall_scores`
+    # (jsonb, keyed "overall"), and a session has `started_at`, not `created_at`. Getting
+    # either wrong used to be invisible — the query threw, the route served fixtures and
+    # the screen still looked right (tests/test_sql_columns.py now catches it).
     interviews = [
         {
             "session_id": str(row["id"]),
             "mode": row["mode"],
             "channel": row["channel"],
-            "score": float(row["overall_score"]) if row["overall_score"] is not None else None,
+            "score": float(row["score"]) if row["score"] is not None else None,
             "duration_minutes": row["duration_minutes"],
-            "created_at": row["created_at"].isoformat() if row["created_at"] else None,
+            "created_at": row["started_at"].isoformat() if row["started_at"] else None,
         }
         for row in session.execute(
             text(
-                "select s.id, s.mode, s.channel, r.overall_score, s.duration_minutes, s.created_at "
+                "select s.id, s.mode::text as mode, s.channel::text as channel, "
+                "(r.overall_scores->>'overall')::numeric as score, s.duration_minutes, "
+                "s.started_at "
                 "from public.interview_sessions s "
                 "left join public.interview_reports r on r.session_id = s.id "
-                "where s.user_id = cast(:user_id as uuid) order by s.created_at desc limit 10"
+                "where s.user_id = cast(:user_id as uuid) order by s.started_at desc limit 10"
             ),
             {"user_id": user_id},
         ).mappings().all()

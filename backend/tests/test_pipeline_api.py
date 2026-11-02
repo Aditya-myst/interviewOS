@@ -9,7 +9,7 @@ import pathlib
 import pytest
 from fastapi.testclient import TestClient
 
-from app import store
+from app import fixtures, store
 from app.main import app
 
 DATA = pathlib.Path(__file__).parent / "data"
@@ -104,7 +104,7 @@ def test_profile_switches_to_database_when_rows_exist(client, monkeypatch):
                     "priority_band": "critical", "evidence": [{"type": "assessment_answer",
                     "quote": "Measured recall@10 on a labelled set."}]}],
     }
-    monkeypatch.setattr("app.api.prep._from_store", lambda builder: payload if builder == "profile_payload" else None)
+    monkeypatch.setattr("app.api.prep._from_store", lambda builder: (payload, None) if builder == "profile_payload" else (None, "no_rows"))
     response = client.get("/v1/skills/profile")
     assert response.headers["x-data-source"] == "database"
     assert response.json()["skills"][0]["skill_id"] == "llm-rag"
@@ -142,3 +142,28 @@ def test_store_refuses_to_write_a_skill_with_no_evidence():
 
     with pytest.raises(store.EvidenceRequired):
         store.upsert_skills(FakeSession(), user_id="00000000-0000-4000-8000-000000000000", rows=[Row()])
+
+
+def test_a_broken_read_says_so_instead_of_looking_empty(client, monkeypatch):
+    """A SQL error and an empty account both serve fixtures. The header now tells them
+    apart — that difference is what turned a wrong column name into a quiet fixture."""
+    monkeypatch.setattr("app.api.prep._from_store", lambda builder: (None, "db_error"))
+    response = client.get("/v1/analytics/dashboard")
+    assert response.headers["x-data-source"] == "fixture"
+    assert response.headers["x-fallback-reason"] == "db_error"
+
+
+def test_an_empty_account_is_labelled_no_rows(client, monkeypatch):
+    monkeypatch.setattr("app.api.prep._from_store", lambda builder: (None, "no_rows"))
+    response = client.get("/v1/learning/roadmap")
+    assert response.headers["x-fallback-reason"] == "no_rows"
+
+
+def test_the_database_path_carries_no_fallback_reason(client, monkeypatch):
+    monkeypatch.setattr(
+        "app.api.prep._from_store",
+        lambda builder: (fixtures.load("dashboard"), None),
+    )
+    response = client.get("/v1/analytics/dashboard")
+    assert response.headers["x-data-source"] == "database"
+    assert "x-fallback-reason" not in response.headers
