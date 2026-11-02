@@ -104,7 +104,7 @@ def test_profile_switches_to_database_when_rows_exist(client, monkeypatch):
                     "priority_band": "critical", "evidence": [{"type": "assessment_answer",
                     "quote": "Measured recall@10 on a labelled set."}]}],
     }
-    monkeypatch.setattr("app.api.prep._profile_from_store", lambda: payload)
+    monkeypatch.setattr("app.api.prep._from_store", lambda builder: payload if builder == "profile_payload" else None)
     response = client.get("/v1/skills/profile")
     assert response.headers["x-data-source"] == "database"
     assert response.json()["skills"][0]["skill_id"] == "llm-rag"

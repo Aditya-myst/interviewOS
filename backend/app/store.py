@@ -25,8 +25,10 @@ from app.config import get_settings
 from app.parsing.extract import Document
 from app.parsing.jd import ParsedJD
 from app.parsing.resume import ParsedResume
+from app.prep.dashboard import build_dashboard
 from app.prep.priority import ScoredSkill
 from app.prep.profile import counts, coverage_by_category
+from app.prep.roadmap import build_roadmap
 
 log = logging.getLogger(__name__)
 
@@ -312,6 +314,127 @@ def _coverage(skills: list[dict]) -> list[dict]:
             self.status = data["status"]
 
     return coverage_by_category([_Row(s) for s in skills])  # type: ignore[arg-type]
+
+
+RESOURCES_SQL = text(
+    """
+    select id, url, title, provider, kind::text, is_paid, license, verified_at,
+           curated_skill_id, curated_subtopic_id
+    from public.resources
+    where curated_skill_id = any(:skill_ids)
+      and is_dead = false
+    """
+)
+
+
+def catalogue_for(session: Session, *, skill_ids: list[str]) -> dict[tuple[str, str], list[dict]]:
+    """Resource rows grouped by (skill, subtopic) — the roadmap's raw material."""
+    if not skill_ids:
+        return {}
+    rows = session.execute(RESOURCES_SQL, {"skill_ids": skill_ids}).mappings().all()
+    grouped: dict[tuple[str, str], list[dict]] = {}
+    for row in rows:
+        item = dict(row)
+        item["id"] = str(item["id"])
+        item["verified_at"] = item["verified_at"].isoformat() if item["verified_at"] else None
+        key = (item["curated_skill_id"], item["curated_subtopic_id"])
+        grouped.setdefault(key, []).append(item)
+    return grouped
+
+
+def _scored_rows(session: Session, user_id: str) -> list:
+    """Stored rows back into the shape the dashboard/roadmap builders expect."""
+    class _Row:
+        pass
+
+    out = []
+    for row in session.execute(PROFILE_SQL, {"user_id": user_id}).mappings().all():
+        item = _Row()
+        item.skill_id = row["skill_id"]
+        item.name = row["name"]
+        item.category = row["category"]
+        item.status = row["status"]
+        item.claimed_level = row["claimed_level"]
+        item.verified_level = row["verified_level"]
+        item.expected_level = row["expected_level"]
+        item.confidence = float(row["confidence"])
+        item.jd_importance = float(row["jd_importance"])
+        item.interview_relevance = float(row["interview_relevance"])
+        item.gap = float(row["gap"])
+        item.priority = float(row["priority"])
+        item.priority_band = row["priority_band"]
+        item.explanation = row["explanation"]
+        item.in_resume = row["in_resume"]
+        item.in_jd = row["in_jd"]
+        item.evidence = row["evidence"] or []
+        item.as_json = lambda _row=row: {
+            "skill_id": _row["skill_id"], "name": _row["name"], "category": _row["category"],
+            "status": _row["status"], "claimed_level": _row["claimed_level"],
+            "verified_level": _row["verified_level"], "expected_level": _row["expected_level"],
+            "confidence": float(_row["confidence"]), "jd_importance": float(_row["jd_importance"]),
+            "interview_relevance": float(_row["interview_relevance"]),
+            "gap": float(_row["gap"]), "priority": float(_row["priority"]),
+            "priority_band": _row["priority_band"], "explanation": _row["explanation"],
+            "in_resume": _row["in_resume"], "in_jd": _row["in_jd"],
+            "last_assessed_at": None, "evidence": _row["evidence"] or [],
+        }
+        out.append(item)
+    return out
+
+
+def dashboard_payload(session: Session, *, user_id: str) -> dict | None:
+    """None when this user has no scored skills — the caller serves fixtures."""
+    rows = _scored_rows(session, user_id)
+    if not rows:
+        return None
+
+    role = session.execute(
+        text(
+            "select coalesce(p.target_role, (select title from public.job_descriptions "
+            "where user_id = p.id order by created_at desc limit 1)) "
+            "from public.profiles p where p.id = cast(:user_id as uuid)"
+        ),
+        {"user_id": user_id},
+    ).scalar()
+
+    interviews = [
+        {
+            "session_id": str(row["id"]),
+            "mode": row["mode"],
+            "channel": row["channel"],
+            "score": float(row["overall_score"]) if row["overall_score"] is not None else None,
+            "duration_minutes": row["duration_minutes"],
+            "created_at": row["created_at"].isoformat() if row["created_at"] else None,
+        }
+        for row in session.execute(
+            text(
+                "select s.id, s.mode, s.channel, r.overall_score, s.duration_minutes, s.created_at "
+                "from public.interview_sessions s "
+                "left join public.interview_reports r on r.session_id = s.id "
+                "where s.user_id = cast(:user_id as uuid) order by s.created_at desc limit 10"
+            ),
+            {"user_id": user_id},
+        ).mappings().all()
+    ]
+
+    return build_dashboard(rows, target_role=role, interviews=interviews)
+
+
+def roadmap_payload(session: Session, *, user_id: str) -> dict | None:
+    rows = _scored_rows(session, user_id)
+    if not rows:
+        return None
+    skill_ids = sorted({row.skill_id for row in rows if row.priority_band != "low"})
+    catalogue = catalogue_for(session, skill_ids=skill_ids) if skill_ids else {}
+    role = session.execute(
+        text(
+            "select coalesce(p.target_role, (select title from public.job_descriptions "
+            "where user_id = p.id order by created_at desc limit 1)) "
+            "from public.profiles p where p.id = cast(:user_id as uuid)"
+        ),
+        {"user_id": user_id},
+    ).scalar()
+    return build_roadmap(rows, catalogue, target_role=role)
 
 
 def latest_resume(session: Session, *, user_id: str) -> dict | None:

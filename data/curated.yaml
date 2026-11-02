@@ -26,7 +26,7 @@ catalogue:
     dependency-injection:
       - { role: concept, title: "FastAPI — Dependencies", url: "https://fastapi.tiangolo.com/tutorial/dependencies/", provider: "FastAPI Docs", kind: docs, license: MIT, is_paid: false, verified: true }
       - { role: practice, title: "FastAPI — Testing dependencies with overrides", url: "https://fastapi.tiangolo.com/advanced/testing-dependencies/", provider: "FastAPI Docs", kind: exercise, license: MIT, is_paid: false, verified: true }
-      - { role: checkpoint, title: "Full Stack FastAPI Template — test suite", url: "https://github.com/tiangolo/full-stack-fastapi-template", provider: "GitHub", kind: repo, license: MIT, is_paid: false, verified: true }
+      - { role: checkpoint, title: "Full Stack FastAPI Template — test suite", url: "https://github.com/fastapi/full-stack-fastapi-template", provider: "GitHub", kind: repo, license: MIT, is_paid: false, verified: true }
     auth:
       - { role: concept, title: "FastAPI — Security (OAuth2 and JWT)", url: "https://fastapi.tiangolo.com/tutorial/security/", provider: "FastAPI Docs", kind: docs, license: MIT, is_paid: false, verified: true }
     async-endpoints:
@@ -74,7 +74,7 @@ catalogue:
     retrieval-quality:
       - { role: concept, title: "pgvector — README and index types", url: "https://github.com/pgvector/pgvector", provider: "GitHub", kind: repo, license: PostgreSQL, is_paid: false, verified: true }
     hallucination:
-      - { role: concept, title: "LangChain — Build a RAG app (grounding patterns)", url: "https://python.langchain.com/docs/tutorials/rag/", provider: "LangChain Docs", kind: docs, license: MIT, is_paid: false, verified: false }
+      - { role: concept, title: "LangChain — Build a RAG app (grounding patterns)", url: "https://docs.langchain.com/oss/python/deepagents/rag", provider: "LangChain Docs", kind: docs, license: MIT, is_paid: false, verified: false }
 
   system-design:
     requirements:
@@ -92,3 +92,84 @@ catalogue:
   testing:
     llm-testing:
       - { role: concept, title: "promptfoo — testing and evals for LLM apps", url: "https://github.com/promptfoo/promptfoo", provider: "GitHub", kind: repo, license: MIT, is_paid: false, verified: true }
+
+  # ---- content / growth ------------------------------------------------
+  # All 29 links below were machine-checked on 2026-11-02 (HTTP 200, no login wall).
+  content-strategy:
+    audience-research:
+      - { role: concept, title: "Content marketing: the complete guide", url: "https://blog.hubspot.com/marketing/content-marketing", provider: "HubSpot", kind: article, license: "All rights reserved", is_paid: false, verified: true, verified_on: "2026-11-02" }
+    hook-craft:
+      - { role: concept, title: "Copyhackers — conversion copywriting guides", url: "https://copyhackers.com/", provider: "Copyhackers", kind: article, license: "All rights reserved", is_paid: false, verified: true, verified_on: "2026-11-02" }
+    storytelling-arcs:
+      - { role: concept, title: "Storytelling in marketing", url: "https://blog.hubspot.com/marketing/storytelling", provider: "HubSpot", kind: article, license: "All rights reserved", is_paid: false, verified: true, verified_on: "2026-11-02" }
+    content-systems:
+      - { role: concept, title: "How to create a content calendar", url: "https://www.shopify.com/blog/content-calendar", provider: "Shopify", kind: article, license: "All rights reserved", is_paid: false, verified: true, verified_on: "2026-11-02" }
+      - { role: practice, title: "HubSpot Academy — Content Marketing certification", url: "https://academy.hubspot.com/courses/content-marketing", provider: "HubSpot Academy", kind: course, license: "All rights reserved", is_paid: false, verified: true, verified_on: "2026-11-02" }
+      - { role: concept, title: "Building a content marketing strategy", url: "https://www.semrush.com/blog/content-marketing-strategy-guide/", provider: "Semrush", kind: article, license: "All rights reserved", is_paid: false, verified: true, verified_on: "2026-11-02" }
+  social-growth:
+    profile-funnel:
+      - { role: concept, title: "Buffer Resources — social marketing library", url: "https://buffer.com/resources/", provider: "Buffer", kind: article, license: "All rights reserved", is_paid: false, verified: true, verified_on: "2026-11-02" }
+    posting-cadence:
+      - { role: practice, title: "HubSpot Academy — Social Media Marketing certification", url: "https://academy.hubspot.com/courses/social-media-marketing", provider: "HubSpot Academy", kind: course, license: "All rights reserved", is_paid: false, verified: true, verified_on: "2026-11-02" }
+    distribution-loops:
+      - { role: concept, title: "How to build a social media strategy", url: "https://buffer.com/resources/social-media-marketing-strategy/", provider: "Buffer", kind: article, license: "All rights reserved", is_paid: false, verified: true, verified_on: "2026-11-02" }
+    audience-metrics:
+      - { role: concept, title: "Social media metrics that matter", url: "https://buffer.com/resources/social-media-metrics/", provider: "Buffer", kind: article, license: "All rights reserved", is_paid: false, verified: true, verified_on: "2026-11-02" }
+      - { role: concept, title: "Social media analytics: what to track", url: "https://later.com/blog/social-media-analytics/", provider: "Later", kind: article, license: "All rights reserved", is_paid: false, verified: true, verified_on: "2026-11-02" }
+  newsletter:
+    issue-structure:
+      - { role: practice, title: "HubSpot Academy — Email Marketing certification", url: "https://academy.hubspot.com/courses/email-marketing-certification-en", provider: "HubSpot Academy", kind: course, license: "All rights reserved", is_paid: false, verified: true, verified_on: "2026-11-02" }
+    list-growth:
+      - { role: concept, title: "Email marketing benchmarks by industry", url: "https://mailchimp.com/resources/email-marketing-benchmarks/", provider: "Mailchimp", kind: docs, license: "All rights reserved", is_paid: false, verified: true, verified_on: "2026-11-02" }
+    open-click:
+      - { role: concept, title: "Email marketing metrics and benchmarks", url: "https://www.campaignmonitor.com/resources/guides/email-marketing-benchmarks/", provider: "Campaign Monitor", kind: docs, license: "All rights reserved", is_paid: false, verified: true, verified_on: "2026-11-02" }
+  seo:
+    keyword-intent:
+      - { role: concept, title: "Keyword research: the beginner's guide", url: "https://www.semrush.com/blog/keyword-research/", provider: "Semrush", kind: article, license: "All rights reserved", is_paid: false, verified: true, verified_on: "2026-11-02" }
+    on-page:
+      - { role: concept, title: "Google Search Central — SEO starter guide", url: "https://developers.google.com/search/docs/fundamentals/seo-starter-guide", provider: "Google", kind: docs, license: "CC BY 4.0", is_paid: false, verified: true, verified_on: "2026-11-02" }
+      - { role: concept, title: "Influencing title links in search results", url: "https://developers.google.com/search/docs/appearance/title-link", provider: "Google", kind: docs, license: "CC BY 4.0", is_paid: false, verified: true, verified_on: "2026-11-02" }
+    topical-authority:
+      - { role: concept, title: "The Beginner's Guide to SEO", url: "https://moz.com/beginners-guide-to-seo", provider: "Mozilla (Moz)", kind: article, license: "All rights reserved", is_paid: false, verified: true, verified_on: "2026-11-02" }
+    seo-measurement:
+      - { role: concept, title: "SEO basics: a complete beginner's guide", url: "https://ahrefs.com/seo/seo-basics", provider: "Ahrefs", kind: article, license: "All rights reserved", is_paid: false, verified: true, verified_on: "2026-11-02" }
+  marketing-analytics:
+    metric-tree:
+      - { role: concept, title: "GA4 metrics and dimensions reference", url: "https://support.google.com/analytics/answer/9212670", provider: "Google Analytics Help", kind: docs, license: "All rights reserved", is_paid: false, verified: true, verified_on: "2026-11-02" }
+    reading-dashboards:
+      - { role: concept, title: "Find your reports in GA4", url: "https://support.google.com/analytics/answer/9304153", provider: "Google Analytics Help", kind: docs, license: "All rights reserved", is_paid: false, verified: true, verified_on: "2026-11-02" }
+    attribution-limits:
+      - { role: concept, title: "Marketing attribution: how to model it", url: "https://www.semrush.com/blog/marketing-attribution/", provider: "Semrush", kind: article, license: "All rights reserved", is_paid: false, verified: true, verified_on: "2026-11-02" }
+    reporting:
+      - { role: practice, title: "HubSpot Academy — Marketing Analytics certification", url: "https://academy.hubspot.com/courses/analytics", provider: "HubSpot Academy", kind: course, license: "All rights reserved", is_paid: false, verified: true, verified_on: "2026-11-02" }
+  experimentation:
+    hypothesis-design:
+      - { role: concept, title: "A/B testing glossary entry", url: "https://www.optimizely.com/optimization-glossary/ab-testing", provider: "Optimizely", kind: article, license: "All rights reserved", is_paid: false, verified: true, verified_on: "2026-11-02" }
+    test-design:
+      - { role: concept, title: "Growth marketing: what it is and how it works", url: "https://blog.hubspot.com/marketing/growth-marketing", provider: "HubSpot", kind: article, license: "All rights reserved", is_paid: false, verified: true, verified_on: "2026-11-02" }
+    reading-results:
+      - { role: concept, title: "Storytelling with Data — blog", url: "https://www.storytellingwithdata.com/blog", provider: "Storytelling with Data", kind: article, license: "All rights reserved", is_paid: false, verified: true, verified_on: "2026-11-02" }
+  short-form-video:
+    video-hooks:
+      - { role: concept, title: "Short-form video: what it is and how to use it", url: "https://buffer.com/resources/short-form-video/", provider: "Buffer", kind: article, license: "All rights reserved", is_paid: false, verified: true, verified_on: "2026-11-02" }
+    retention-editing:
+      - { role: concept, title: "Short-form video strategy: the complete guide", url: "https://blog.hootsuite.com/short-form-video/", provider: "Hootsuite", kind: article, license: "All rights reserved", is_paid: false, verified: true, verified_on: "2026-11-02" }
+    video-metrics:
+      - { role: concept, title: "Social media metrics you should track", url: "https://blog.hootsuite.com/social-media-metrics/", provider: "Hootsuite", kind: article, license: "All rights reserved", is_paid: false, verified: true, verified_on: "2026-11-02" }
+  copywriting:
+    clarity-first:
+      - { role: concept, title: "F-shaped pattern for reading web content", url: "https://www.nngroup.com/articles/f-shaped-pattern-reading-web-content/", provider: "Nielsen Norman Group", kind: article, license: "All rights reserved", is_paid: false, verified: true, verified_on: "2026-11-02" }
+    voice-tone:
+      - { role: practice, title: "HubSpot Academy — Copywriting certification", url: "https://academy.hubspot.com/courses/copywriting", provider: "HubSpot Academy", kind: course, license: "All rights reserved", is_paid: false, verified: true, verified_on: "2026-11-02" }
+  visual-design:
+    layout-basics:
+      - { role: concept, title: "Visual hierarchy: definition and examples", url: "https://www.nngroup.com/articles/visual-hierarchy-ux-definition/", provider: "Nielsen Norman Group", kind: article, license: "All rights reserved", is_paid: false, verified: true, verified_on: "2026-11-02" }
+    asset-systems:
+      - { role: concept, title: "Figma best practices for files and components", url: "https://www.figma.com/best-practices/", provider: "Figma", kind: docs, license: "All rights reserved", is_paid: false, verified: true, verified_on: "2026-11-02" }
+  ai-workflows:
+    tool-selection:
+      - { role: practice, title: "Hugging Face LLM course — chapter 1", url: "https://huggingface.co/learn/llm-course/chapter1/1", provider: "Hugging Face", kind: course, license: "Apache-2.0", is_paid: false, verified: true, verified_on: "2026-11-02" }
+    workflow-automation:
+      - { role: concept, title: "Building effective agents", url: "https://www.anthropic.com/research/building-effective-agents", provider: "Anthropic", kind: article, license: "All rights reserved", is_paid: false, verified: true, verified_on: "2026-11-02" }
+    quality-control:
+      - { role: concept, title: "Prompt engineering guide", url: "https://developers.openai.com/api/docs/guides/prompt-engineering", provider: "OpenAI", kind: docs, license: "All rights reserved", is_paid: false, verified: true, verified_on: "2026-11-02" }

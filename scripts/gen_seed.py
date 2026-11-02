@@ -68,6 +68,34 @@ def build() -> str:
 
     if not skills:
         raise SystemExit("data/taxonomy.yaml has no skills — refusing to write an empty seed")
+    # Referential integrity: a curated entry pointing at a subtopic that does not exist
+    # would fail the FK on paste, after the user had already scrolled through 700 lines.
+    # resources.url is unique in the schema, so a URL reused across two subtopics would
+    # make the whole seed statement fail on paste.
+    seen_urls: dict[str, str] = {}
+    dupes = []
+    for skill_id, by_sub in catalogue.items():
+        for subtopic_id, entries in by_sub.items():
+            for entry in entries:
+                url = entry["url"]
+                if url in seen_urls:
+                    dupes.append(f"{url} ({seen_urls[url]} and {skill_id}/{subtopic_id})")
+                seen_urls[url] = f"{skill_id}/{subtopic_id}"
+    if dupes:
+        raise SystemExit("curated.yaml reuses a URL; resources.url is unique — " + "; ".join(dupes))
+
+    known = {(sk["id"], st["id"]) for sk in skills for st in (sk.get("subtopics") or [])}
+    dangling = [
+        f"{skill_id}/{subtopic_id}"
+        for skill_id, by_sub in catalogue.items()
+        for subtopic_id in by_sub
+        if (skill_id, subtopic_id) not in known
+    ]
+    if dangling:
+        raise SystemExit(
+            "curated.yaml points at subtopics that taxonomy.yaml does not define: "
+            + ", ".join(dangling)
+        )
     missing_subtopics = [s["id"] for s in skills if not (s.get("subtopics") or [])]
     if missing_subtopics:
         raise SystemExit(
@@ -139,7 +167,12 @@ def build() -> str:
         for subtopic_id, entries in by_subtopic.items():
             for entry in entries:
                 verified = entry.get("verified") is True
-                stamp_sql = f"timestamptz '{stamp} 00:00:00+00'" if verified and stamp else "null"
+                # A row may carry its own hand-check date (verified_on) — that is what
+                # happens when the catalogue grows in a later pass than taxonomy.yaml.
+                own_stamp = str(entry.get("verified_on") or "").strip() or stamp
+                stamp_sql = (
+                    f"timestamptz '{own_stamp} 00:00:00+00'" if verified and own_stamp else "null"
+                )
                 rows.append(
                     f"  ({sql_str(entry['url'])}, {sql_str(entry['title'])}, "
                     f"{sql_or_null(entry.get('provider'))}, "

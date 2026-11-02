@@ -46,8 +46,35 @@ def _serve(response: Response, name: str, demo_state: str | None = None) -> dict
     return data
 
 
+def _from_store(builder: str) -> dict[str, Any] | None:
+    """Every read endpoint goes through here, so "database or fixture" is one decision.
+
+    Split out so tests can exercise both paths without a live Postgres. A failing
+    query serves fixtures and logs: a broken read must not take the screen down, and
+    the header still tells the truth about what you are looking at.
+    """
+    if db_status()["state"] != "connected":
+        return None
+    try:
+        with get_session() as session:
+            user_id, _ = store.resolve_user(session)
+            return getattr(store, builder)(session, user_id=user_id)
+    except store.UserUnresolved:
+        return None
+    except Exception:
+        import logging
+
+        logging.getLogger(__name__).exception("%s failed — serving fixtures", builder)
+        return None
+
+
 @router.get("/analytics/dashboard", response_model=Dashboard)
 def dashboard(response: Response, state: str | None = None) -> dict[str, Any]:
+    """Rows when they exist, fixtures otherwise. Same keys either way."""
+    stored = _from_store("dashboard_payload")
+    if stored is not None:
+        response.headers["X-Data-Source"] = "database"
+        return stored
     return _serve(response, "dashboard", state)
 
 
@@ -59,32 +86,19 @@ def skills_profile(response: Response, state: str | None = None) -> dict[str, An
     the frontend does not change; only `X-Data-Source` does, and it is never wrong:
     `database` means these numbers came out of candidate_skills.
     """
-    stored = _profile_from_store()
+    stored = _from_store("profile_payload")
     if stored is not None:
         response.headers["X-Data-Source"] = "database"
         return stored
     return _serve(response, "skill_profile", state)
 
 
-def _profile_from_store() -> dict[str, Any] | None:
-    """Split out so tests can exercise both paths without a live Postgres."""
-    if db_status()["state"] != "connected":
-        return None
-    try:
-        with get_session() as session:
-            user_id, _ = store.resolve_user(session)
-            return store.profile_payload(session, user_id=user_id)
-    except store.UserUnresolved:
-        return None
-    except Exception:
-        import logging
-
-        logging.getLogger(__name__).exception("profile query failed — serving fixtures")
-        return None
-
-
 @router.get("/learning/roadmap", response_model=Roadmap)
 def roadmap(response: Response, state: str | None = None) -> dict[str, Any]:
+    stored = _from_store("roadmap_payload")
+    if stored is not None:
+        response.headers["X-Data-Source"] = "database"
+        return stored
     return _serve(response, "roadmap", state)
 
 

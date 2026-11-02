@@ -50,5 +50,17 @@ def load() -> dict[str, Skill]:
     return skills
 
 
+@lru_cache(maxsize=1)
+def raw_subtopics() -> dict[str, list[dict]]:
+    """skill_id -> its subtopic rows, in the file's order. The roadmap needs titles,
+    levels and objectives, which the Skill dataclass deliberately does not carry."""
+    path = DATA_DIR / "taxonomy.yaml"
+    raw = yaml.safe_load(path.read_text()) or {}
+    return {
+        row["id"]: [dict(sub) for sub in (row.get("subtopics") or [])]
+        for row in raw.get("skills", [])
+    }
+
+
 def categories() -> dict[str, str]:
     return {skill.id: skill.category for skill in load().values()}
