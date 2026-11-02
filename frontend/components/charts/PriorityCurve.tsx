@@ -1,7 +1,4 @@
-"use client";
-
 import type { CandidateSkill } from "../../../contracts/types";
-import { useInView, usePrefersReducedMotion } from "@/lib/useInView";
 
 /**
  * Priority, as a curve rather than a cloud.
@@ -11,14 +8,10 @@ import { useInView, usePrefersReducedMotion } from "@/lib/useInView";
  * overlapping, and no sense of *order*. The question a candidate actually asks is
  * "what first, and how much further ahead is it", and that is a line.
  *
- * So: skills sorted by priority, one node each, joined so the drop from the first to
- * the tenth is visible at a glance. Node colour is the band (same thresholds as the
- * gap map), node size is interview relevance, the number above the top three is the
- * order to work in, and the dashed rule is the critical band's lower edge.
- *
- * The line draws itself when it scrolls into view using `pathLength="1"` plus a
- * dash-offset transition — no animation library, and it finishes in the same frame
- * when the visitor prefers reduced motion.
+ * So: skills sorted by priority, one node each, joined so the drop from the first
+ * to the tenth is visible at a glance. Node colour is the band (same thresholds as
+ * the gap map), node size is interview relevance, the number above the top three is
+ * the order to work in, and the dashed rule is the critical band's lower edge.
  */
 const BAND_COLOR: Record<string, string> = {
   critical: "#dc2626",
@@ -34,12 +27,8 @@ function shorten(name: string): string {
 }
 
 export default function PriorityCurve({ skills }: { skills: CandidateSkill[] }) {
-  const reduced = usePrefersReducedMotion();
-  const { ref, inView } = useInView<HTMLDivElement>("-40px");
-  const shown = inView || reduced;
-
-  // Six, not ten: labels need ~90px each to stay readable, and this chart's job is to
-  // answer "what first", not to be the complete table.
+  // Six, not ten: rotated labels need ~90px each to stay readable, and this chart's
+  // job is to answer "what first", not to be the complete table.
   const ranked = [...skills].sort((a, b) => b.priority - a.priority).slice(0, 6);
 
   if (ranked.length === 0) {
@@ -68,180 +57,139 @@ export default function PriorityCurve({ skills }: { skills: CandidateSkill[] }) 
   const y = (v: number) => plotBottom - (v / max) * plotH;
 
   const points = ranked.map((s, i) => ({ s, cx: x(i), cy: y(s.priority), i }));
-  const lineD = points.map((p, i) => `${i === 0 ? "M" : "L"} ${p.cx.toFixed(1)} ${p.cy.toFixed(1)}`).join(" ");
-  const areaD = `${lineD} L ${points[points.length - 1].cx.toFixed(1)} ${plotBottom} L ${points[0].cx.toFixed(1)} ${plotBottom} Z`;
+  const line = points.map((p) => `${p.cx.toFixed(1)},${p.cy.toFixed(1)}`).join(" ");
+  const area = `M ${points[0].cx},${plotBottom} L ${line.replace(/ /g, " L ")} L ${
+    points[points.length - 1].cx
+  },${plotBottom} Z`;
 
   const criticalY = y(0.55);
   const gridValues: number[] = [];
   for (let v = 0.2; v <= max + 1e-9; v += 0.2) gridValues.push(Number(v.toFixed(2)));
 
   return (
-    <div ref={ref}>
-      <svg
-        viewBox={`0 0 ${W} ${H}`}
-        className="w-full h-auto"
-        role="img"
-        aria-label={`Priority curve across ${ranked.length} skills, highest first: ${ranked
-          .map((s) => `${s.name} ${s.priority.toFixed(2)}`)
-          .join(", ")}`}
-      >
-        <defs>
-          <linearGradient id="ios-priority-fill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="var(--brand)" stopOpacity="0.24" />
-            <stop offset="100%" stopColor="var(--brand)" stopOpacity="0.02" />
-          </linearGradient>
-        </defs>
+    <svg
+      viewBox={`0 0 ${W} ${H}`}
+      className="w-full h-auto"
+      role="img"
+      aria-label={`Priority curve across ${ranked.length} skills, highest first: ${ranked
+        .map((s) => `${s.name} ${s.priority.toFixed(2)}`)
+        .join(", ")}`}
+    >
+      <defs>
+        <linearGradient id="ios-priority-fill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="var(--brand)" stopOpacity="0.24" />
+          <stop offset="100%" stopColor="var(--brand)" stopOpacity="0.02" />
+        </linearGradient>
+      </defs>
 
-        {/* gridlines */}
-        {gridValues.map((v) => (
-          <g key={v}>
-            <line
-              x1={PAD.left}
-              x2={W - PAD.right}
-              y1={y(v)}
-              y2={y(v)}
-              stroke="var(--border)"
-              strokeDasharray="2 4"
-            />
-            <text
-              x={PAD.left - 8}
-              y={y(v) + 3}
-              textAnchor="end"
-              fontSize="10.5"
-              fill="var(--text-dim)"
-              fontFamily="var(--font-mono, monospace)"
-            >
-              {v.toFixed(2)}
-            </text>
-          </g>
-        ))}
-
-        {/* the critical band's lower edge — above this line is where to start */}
-        {criticalY > PAD.top && (
-          <g
-            style={{
-              opacity: shown ? 1 : 0,
-              transition: reduced ? undefined : "opacity 600ms ease 500ms",
-            }}
+      {/* gridlines */}
+      {gridValues.map((v) => (
+        <g key={v}>
+          <line
+            x1={PAD.left}
+            x2={W - PAD.right}
+            y1={y(v)}
+            y2={y(v)}
+            stroke="var(--border)"
+            strokeDasharray="2 4"
+          />
+          <text
+            x={PAD.left - 8}
+            y={y(v) + 3}
+            textAnchor="end"
+            fontSize="10.5"
+            fill="var(--text-dim)"
+            fontFamily="var(--font-mono, monospace)"
           >
-            <line
-              x1={PAD.left}
-              x2={W - PAD.right}
-              y1={criticalY}
-              y2={criticalY}
-              stroke="var(--weak)"
-              strokeOpacity="0.5"
-              strokeDasharray="5 4"
-            />
-            <text
-              x={W - PAD.right}
-              y={criticalY - 6}
-              textAnchor="end"
-              fontSize="10"
-              fill="var(--weak)"
-              letterSpacing="0.06em"
-            >
-              CRITICAL ≥ 0.55
-            </text>
-          </g>
-        )}
+            {v.toFixed(2)}
+          </text>
+        </g>
+      ))}
 
-        <path
-          d={areaD}
-          fill="url(#ios-priority-fill)"
-          style={{
-            opacity: shown ? 1 : 0,
-            transition: reduced ? undefined : "opacity 900ms ease 450ms",
-          }}
-        />
+      {/* the critical band's lower edge — above this line is where to start */}
+      {criticalY > PAD.top && (
+        <g>
+          <line
+            x1={PAD.left}
+            x2={W - PAD.right}
+            y1={criticalY}
+            y2={criticalY}
+            stroke="var(--weak)"
+            strokeOpacity="0.5"
+            strokeDasharray="5 4"
+          />
+          <text
+            x={W - PAD.right}
+            y={criticalY - 6}
+            textAnchor="end"
+            fontSize="10"
+            fill="var(--weak)"
+            letterSpacing="0.06em"
+          >
+            CRITICAL ≥ 0.55
+          </text>
+        </g>
+      )}
 
-        <path
-          d={lineD}
-          fill="none"
-          stroke="var(--brand-strong)"
-          strokeWidth="2.5"
-          strokeLinejoin="round"
-          strokeLinecap="round"
-          // pathLength="1" normalises the geometry, so a dash pattern of "1" is the
-          // whole line whatever its real length — the standard SVG draw-on trick.
-          pathLength={1}
-          strokeDasharray={1}
-          style={{
-            strokeDashoffset: shown ? 0 : 1,
-            transition: reduced ? undefined : "stroke-dashoffset 1150ms ease-in-out",
-          }}
-        />
+      <path d={area} fill="url(#ios-priority-fill)" />
+      <polyline
+        points={line}
+        fill="none"
+        stroke="var(--brand-strong)"
+        strokeWidth="2.5"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
 
-        {points.map(({ s, cx, cy, i }) => {
-          const color = BAND_COLOR[s.priority_band] ?? BAND_COLOR.low;
-          const r = 5.4 + s.interview_relevance * 4;
-          const delay = reduced ? 0 : 250 + i * 90;
-          return (
-            <g key={s.skill_id}>
-              <title>
-                {`${i + 1}. ${s.name} — priority ${s.priority.toFixed(2)} (${s.priority_band}), gap ${s.gap.toFixed(2)}`}
-              </title>
-              <circle
-                cx={cx}
-                cy={cy}
-                r={r}
-                fill={color}
-                stroke="var(--surface)"
-                strokeWidth="2"
-                style={{
-                  opacity: shown ? 1 : 0,
-                  transform: shown ? "scale(1)" : "scale(0.4)",
-                  transformOrigin: `${cx}px ${cy}px`,
-                  transition: reduced
-                    ? undefined
-                    : `opacity 420ms ease ${delay}ms, transform 420ms cubic-bezier(0.34,1.56,0.64,1) ${delay}ms`,
-                }}
-              />
-              {i < 3 && (
-                <text
-                  x={cx}
-                  y={cy - r - 7}
-                  textAnchor="middle"
-                  fontSize="11.5"
-                  fontWeight="700"
-                  fill="var(--text)"
-                  fontFamily="var(--font-mono, monospace)"
-                  style={{
-                    opacity: shown ? 1 : 0,
-                    transition: reduced ? undefined : `opacity 400ms ease ${delay + 150}ms`,
-                  }}
-                >
-                  {i + 1}
-                </text>
-              )}
-              <line
-                x1={cx}
-                x2={cx}
-                y1={plotBottom}
-                y2={plotBottom + 4}
-                stroke="var(--border-strong)"
-              />
+      {points.map(({ s, cx, cy, i }) => {
+        const color = BAND_COLOR[s.priority_band] ?? BAND_COLOR.low;
+        const r = 5.4 + s.interview_relevance * 4;
+        return (
+          <g key={s.skill_id}>
+            <title>
+              {`${i + 1}. ${s.name} — priority ${s.priority.toFixed(2)} (${s.priority_band}), gap ${s.gap.toFixed(2)}`}
+            </title>
+            <circle cx={cx} cy={cy} r={r} fill={color} stroke="var(--surface)" strokeWidth="2" />
+            {i < 3 && (
               <text
                 x={cx}
-                y={plotBottom + (i % 2 === 0 ? 17 : 34)}
+                y={cy - r - 7}
                 textAnchor="middle"
                 fontSize="11.5"
-                fill="var(--text-dim)"
+                fontWeight="700"
+                fill="var(--text)"
+                fontFamily="var(--font-mono, monospace)"
               >
-                {shorten(s.name)}
+                {i + 1}
               </text>
-            </g>
-          );
-        })}
+            )}
+            <line
+              x1={cx}
+              x2={cx}
+              y1={plotBottom}
+              y2={plotBottom + 4}
+              stroke="var(--border-strong)"
+            />
+            <text
+              x={cx}
+              y={plotBottom + (i % 2 === 0 ? 17 : 34)}
+              textAnchor="middle"
+              fontSize="11.5"
+              fill="var(--text-dim)"
+            >
+              {shorten(s.name)}
+            </text>
+          </g>
+        );
+      })}
 
-        <line
-          x1={PAD.left}
-          x2={W - PAD.right}
-          y1={plotBottom}
-          y2={plotBottom}
-          stroke="var(--border-strong)"
-        />
-      </svg>
-    </div>
+      <line
+        x1={PAD.left}
+        x2={W - PAD.right}
+        y1={plotBottom}
+        y2={plotBottom}
+        stroke="var(--border-strong)"
+      />
+    </svg>
   );
 }

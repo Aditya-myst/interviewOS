@@ -1,21 +1,25 @@
 "use client";
 
+import {
+  PolarAngleAxis,
+  PolarGrid,
+  Radar,
+  RadarChart,
+  ResponsiveContainer,
+} from "recharts";
 import Section from "./Section";
 import SectionHeading from "./SectionHeading";
 import Reveal from "./Reveal";
 import IosButton from "@/components/primitives/IosButton";
 import SkillPill, { type SkillStatus } from "@/components/primitives/SkillPill";
-import ReadinessLine from "@/components/charts/ReadinessLine";
 
-/** Verbatim from contracts/fixtures/dashboard.json `readiness_history`, a recorded run. */
-const READINESS = [
-  { date: "2026-10-26", readiness: 26 },
-  { date: "2026-10-27", readiness: 29 },
-  { date: "2026-10-28", readiness: 33 },
-  { date: "2026-10-29", readiness: 42 },
-  { date: "2026-10-30", readiness: 38 },
-  { date: "2026-10-31", readiness: 40 },
-  { date: "2026-11-01", readiness: 42 },
+/** Mirrors contracts/fixtures/dashboard.json `coverage` (values 0-100 for the radar). */
+const COVERAGE = [
+  { category: "Language", verified: 70, developing: 30, unverified: 0 },
+  { category: "Backend", verified: 20, developing: 60, unverified: 20 },
+  { category: "Data", verified: 30, developing: 45, unverified: 25 },
+  { category: "Infra", verified: 0, developing: 25, unverified: 75 },
+  { category: "AI", verified: 25, developing: 40, unverified: 35 },
 ];
 
 const ROWS: Array<{
@@ -127,45 +131,102 @@ export default function SampleReport() {
           </div>
         </Reveal>
 
-        {/* Readiness trend */}
+        {/* Coverage radar */}
         <Reveal delay={120} className="h-full">
           <div className="card-surface p-5 sm:p-6 h-full flex flex-col">
-            <div className="flex items-start justify-between gap-3 mb-3">
+            <div className="flex items-start justify-between gap-3 mb-2">
               <div>
-                <p className="type-micro text-[var(--text-dim)] mb-1">Readiness trend</p>
+                <p className="type-micro text-[var(--text-dim)] mb-1">Skill coverage</p>
                 <p className="type-small text-[var(--text-dim)] m-0">
-                  Every session re-scores the graph, so this line moves for a reason.
+                  Share of skills in each state, by category
                 </p>
               </div>
-              <span className="font-mono text-[12px] tabular-nums whitespace-nowrap rounded-full bg-[var(--brand)]/12 px-2.5 py-1 text-[var(--brand-strong)]">
-                +16 pts · 7 sessions
+              <span className="font-mono text-[13px] text-[var(--text-dim)] tabular-nums">
+                2 / 9 verified
               </span>
             </div>
 
-            <div className="my-1">
-              <ReadinessLine points={READINESS} />
+            <div className="mx-auto w-full max-w-[330px] aspect-square my-2" aria-hidden>
+              <ResponsiveContainer width="100%" height="100%">
+                <RadarChart data={COVERAGE} outerRadius="66%">
+                  <PolarGrid stroke="rgba(13,26,19,0.12)" />
+                  <PolarAngleAxis
+                    dataKey="category"
+                    tick={{ fill: "var(--text-dim)", fontSize: 11 }}
+                  />
+                  <Radar
+                    name="Verified"
+                    dataKey="verified"
+                    stroke="var(--brand-strong)"
+                    fill="var(--brand)"
+                    fillOpacity={0.22}
+                    strokeWidth={2}
+                    animationDuration={900}
+                  />
+                  <Radar
+                    name="Developing"
+                    dataKey="developing"
+                    stroke="var(--developing)"
+                    fill="var(--developing)"
+                    fillOpacity={0.1}
+                    strokeWidth={1.5}
+                    strokeDasharray="4 3"
+                    animationDuration={1100}
+                  />
+                  <Radar
+                    name="Unverified"
+                    dataKey="unverified"
+                    stroke="var(--unverified)"
+                    fill="var(--unverified)"
+                    fillOpacity={0.06}
+                    strokeWidth={1.5}
+                    strokeDasharray="2 3"
+                    animationDuration={1300}
+                  />
+                </RadarChart>
+              </ResponsiveContainer>
             </div>
 
-            <p className="type-small text-[var(--text-dim)] mt-auto pt-4 border-t border-[var(--border)] m-0">
-              Recorded sessions, 26 October to 1 November. The drop on 30 October is a
-              real measurement — an interview session failed to confirm two claimed
-              skills — not a smoothing artefact, and it is left in the line.
+            <ul className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-4 pt-4 border-t border-[var(--border)] list-none p-0 text-xs text-[var(--text-dim)]">
+              {[
+                ["Verified", "var(--brand)"],
+                ["Developing", "var(--developing)"],
+                ["Unverified", "var(--unverified)"],
+              ].map(([label, color]) => (
+                <li key={label} className="flex items-center gap-1.5">
+                  <span
+                    className="size-2 rounded-full"
+                    style={{ background: color }}
+                    aria-hidden
+                  />
+                  {label}
+                </li>
+              ))}
+            </ul>
+
+            <p className="type-small text-[var(--text-dim)] mt-4 pt-4 border-t border-[var(--border)] m-0">
+              Infra is the least proven block: three of its four skills have never
+              been tested.
             </p>
 
             {/* screen-reader equivalent of the chart */}
             <table className="sr-only">
-              <caption>Readiness by session date</caption>
+              <caption>Skill coverage by category</caption>
               <thead>
                 <tr>
-                  <th scope="col">Date</th>
-                  <th scope="col">Readiness</th>
+                  <th scope="col">Category</th>
+                  <th scope="col">Verified</th>
+                  <th scope="col">Developing</th>
+                  <th scope="col">Unverified</th>
                 </tr>
               </thead>
               <tbody>
-                {READINESS.map((r) => (
-                  <tr key={r.date}>
-                    <td>{r.date}</td>
-                    <td>{r.readiness}%</td>
+                {COVERAGE.map((c) => (
+                  <tr key={c.category}>
+                    <td>{c.category}</td>
+                    <td>{c.verified}%</td>
+                    <td>{c.developing}%</td>
+                    <td>{c.unverified}%</td>
                   </tr>
                 ))}
               </tbody>
