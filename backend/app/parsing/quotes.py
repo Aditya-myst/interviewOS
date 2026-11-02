@@ -65,7 +65,9 @@ def verify_all(quotes: list[str], text: str) -> tuple[list[VerifiedQuote], list[
     return kept, rejected
 
 
-SENTENCE_BREAK = re.compile(r"(?<=[.!?])\s+|\n+|(?<=[;•·])\s+|\s{3,}")
+# No ';' boundary: a list item ending in a semicolon is still one claim, and breaking
+# there produced quotes like "Newsletter writing and list growth;".
+SENTENCE_BREAK = re.compile(r"(?<=[.!?])\s+|\n+|(?<=[•·])\s+|\s{3,}")
 
 
 def sentence_around(text: str, start: int, end: int, *, max_chars: int = 240) -> tuple[str, int, int]:

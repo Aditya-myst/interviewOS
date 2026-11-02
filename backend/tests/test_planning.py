@@ -211,3 +211,52 @@ def test_the_content_pair_produces_a_ranked_plan():
     assert by_id["seo"]["gap"] > 0.5
     # nothing is verified without an assessment, on either side
     assert all(s["verified_level"] is None for s in payload["skills"])
+
+
+# ── defects seen on a real JD paste ──────────────────────────────────────────
+def test_windows_line_endings_do_not_reach_the_stored_quotes():
+    """PowerShell hands over CRLF; a quote ending in \\r looks like corruption and
+    breaks exact-string comparisons later."""
+    crlf = CONTENT_JD.replace("\n", "\r\n")
+    parsed = jd_mod.parse(crlf)
+    for requirement in parsed.requirements:
+        for item in requirement.evidence:
+            assert "\r" not in item["quote"]
+            assert item["quote"] == item["quote"].strip()
+
+
+def test_evidence_is_a_list_of_citations_not_of_matches():
+    """The API used to return the same quote twice for one requirement."""
+    parsed = jd_mod.parse(CONTENT_JD)
+    for requirement in parsed.requirements:
+        quotes = [item["quote"] for item in requirement.evidence]
+        assert len(quotes) == len(set(quotes))
+
+
+def test_a_jd_quote_is_labelled_as_a_jd_quote():
+    parsed = jd_mod.parse(CONTENT_JD)
+    types = {item["type"] for r in parsed.requirements for item in r.evidence}
+    assert types == {"jd_requirement"}
+
+
+def test_role_and_company_are_separated_when_the_title_names_both():
+    parsed = jd_mod.parse(CONTENT_JD)
+    assert parsed.role == "Content & Social Growth Lead"
+    assert parsed.company == "Edoofa"
+
+
+def test_a_list_item_ending_in_a_semicolon_is_not_chopped():
+    text = ("Requirements\n- Newsletter writing and list growth; you have owned a list.\n"
+            "- Copywriting across formats.\n")
+    parsed = jd_mod.parse(text)
+    quotes = [i["quote"] for r in parsed.requirements for i in r.evidence]
+    assert any("list growth" in q and len(q) > 30 for q in quotes)
+
+
+def test_a_plus_phrase_governs_only_its_own_segment():
+    """'Experience with Docker; Kubernetes is a plus' — Docker is required, Kubernetes
+    is not, and the segment boundary is what tells them apart."""
+    parsed = jd_mod.parse(JD_TEXT)
+    by_id = {r.skill_id: r for r in parsed.requirements}
+    assert by_id["docker"].requirement_type == "required"
+    assert by_id["kubernetes"].requirement_type == "preferred"

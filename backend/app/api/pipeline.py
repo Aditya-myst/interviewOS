@@ -156,7 +156,7 @@ async def resume_upload(
 @router.post("/jd/analyze")
 def jd_analyze(body: JdRequest, response: Response) -> dict[str, Any]:
     """Parse a job description and rescore against the stored resume."""
-    text_value = body.text.strip()
+    text_value = jd_mod.normalise(body.text)
     if len(text_value) < 80:
         raise HTTPException(
             status_code=422,

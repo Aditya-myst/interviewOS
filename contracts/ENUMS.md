@@ -41,6 +41,11 @@ bands: `>=0.55 critical`, `>=0.35 high`, `>=0.18 medium`, else `low`
 ## 5. EvidenceType
 `resume_skill_list` . `resume_project` . `resume_experience` . `resume_summary` . `assessment_answer` . `interview_answer` . `user_correction`
 
+`jd_requirement` was also added in Phase 5: a requirement's quote comes from the job
+description, and filing it as `resume_skill_list` claimed the candidate had written it.
+Both directions of evidence sit in the same list, so the type is what tells you which
+document the quote came from.
+
 `resume_summary` was added in Phase 5: a skill named only in the candidate's own summary
 is a claim about themselves with no work behind it, and filing it as `resume_project`
 would have overstated it. The four `resume_*` types are ranked by strength —

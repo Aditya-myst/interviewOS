@@ -103,6 +103,24 @@ def _section_index(section_list: list[sections_mod.Section], offset: int) -> int
     return 0
 
 
+def _governed_by_preferred(text: str, mention: matcher.Mention) -> bool:
+    """Does the "…is a plus" belong to THIS mention?
+
+    "Experience with Docker; Kubernetes is a plus" made both skills preferred when
+    the check looked at the whole sentence. A plus-phrase governs only the segment it
+    sits in, and only when it comes after the mention it qualifies.
+    """
+    max(
+        text.rfind(";", 0, mention.start),
+        text.rfind("\n", 0, mention.start),
+        text.rfind("•", 0, mention.start),
+    ) + 1
+    ends = [i for i in (text.find(";", mention.end), text.find("\n", mention.end)) if i != -1]
+    seg_end = min(ends) if ends else len(text)
+    window = text[mention.start : seg_end].lower()
+    return any(signal in window for signal in PREFERRED_INLINE)
+
+
 def _expected_level(quote: str, requirement_type: str) -> str:
     lowered = quote.lower()
     if any(signal in lowered for signal in PREFERRED_INLINE):
@@ -115,6 +133,28 @@ def _expected_level(quote: str, requirement_type: str) -> str:
 
 
 _LEVEL_RANK = {"beginner": 1, "intermediate": 2, "advanced": 3, "expert": 4}
+
+
+def _unique_evidence(group: list[matcher.Mention]) -> list[dict]:
+    """Two mentions of the same alias in one sentence produce the same quote twice.
+    Evidence is a list of citations, not a list of matches."""
+    out: list[dict] = []
+    seen: set[str] = set()
+    for mention in group[:2]:
+        key = " ".join(mention.quote.split())
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(
+            {
+                "type": "jd_requirement",
+                "quote": mention.quote,
+                "section": mention.section,
+                "start": mention.quote_start,
+                "end": mention.quote_end,
+            }
+        )
+    return out
 
 
 def _importance(requirement_type: str, mentions: int) -> float:
@@ -170,7 +210,17 @@ def _topics(text: str, section_list: list[sections_mod.Section], kinds: dict[int
     return topics[:8]
 
 
+def normalise(text: str) -> str:
+    """CRLF in, LF out — before any offset exists.
+
+    A JD pasted from Windows carries \r\n, and quotes stored with a trailing \r look
+    like corruption in the UI and fail an exact-string comparison later.
+    """
+    return text.replace("\r\n", "\n").replace("\r", "\n").strip()
+
+
 def parse(text: str) -> ParsedJD:
+    text = normalise(text)
     section_list = sections_mod.detect(text)
     kinds = _heading_kind(text, section_list)
     mentions = matcher.find_mentions(text, section_list)
@@ -188,9 +238,7 @@ def parse(text: str) -> ParsedJD:
         # appears in "nice to have" — the stronger claim wins, and that is stated
         # section decides first, then the sentence itself gets a veto:
         # "Experience with Docker; Kubernetes is a plus" sits in Requirements
-        says_plus = any(
-            any(signal in m.quote.lower() for signal in PREFERRED_INLINE) for m in group
-        )
+        says_plus = any(_governed_by_preferred(text, m) for m in group)
         if says_plus:
             requirement_type = "preferred"
         elif in_required:
@@ -219,16 +267,7 @@ def parse(text: str) -> ParsedJD:
                 jd_importance=_importance(requirement_type, len(group)),
                 expected_level=expected,
                 mentions=len(group),
-                evidence=[
-                    {
-                        "type": "resume_skill_list",
-                        "quote": m.quote,
-                        "section": m.section,
-                        "start": m.quote_start,
-                        "end": m.quote_end,
-                    }
-                    for m in group[:2]
-                ],
+                evidence=_unique_evidence(group),
             )
         )
 
@@ -238,11 +277,20 @@ def parse(text: str) -> ParsedJD:
     lines = [line.strip() for line in text.split("\n") if line.strip()]
     title = lines[0] if lines and len(lines[0]) <= 90 else None
     company = None
-    for line in lines[:6]:
-        match = re.search(r"\bat\s+([A-Z][\w&.\- ]{2,40})", line)
+    role = title
+    if title:
+        # "Content & Social Growth Lead at Edoofa" is a role and a company, and the
+        # contract has both fields; storing the same string in both is a lie of omission
+        match = re.search(r"\bat\s+([A-Z][\w&.\- ]{2,40})$", title)
         if match:
             company = match.group(1).strip()
-            break
+            role = title[: match.start()].strip(" -–—,|")
+    if company is None:
+        for line in lines[:6]:
+            match = re.search(r"\bat\s+([A-Z][\w&.\- ]{2,40})", line)
+            if match:
+                company = match.group(1).strip()
+                break
 
     seniority = None
     for word, label in SENIORITY_WORDS.items():
@@ -255,7 +303,7 @@ def parse(text: str) -> ParsedJD:
     return ParsedJD(
         title=title,
         company=company,
-        role=title.split("(")[0].strip() if title else None,
+        role=role,
         seniority=seniority,
         min_years_experience=max(years) if years else None,
         requirements=requirements,
