@@ -17,7 +17,7 @@ from app.prep import priority
 from app.prep.profile import build_profile
 
 
-def cmd_parse(path: str, as_json: bool) -> int:
+def cmd_parse(path: str, as_json: bool, show_text: bool = False) -> int:
     file_path = pathlib.Path(path)
     if not file_path.exists():
         print(f"no such file: {path}", file=sys.stderr)
@@ -31,6 +31,11 @@ def cmd_parse(path: str, as_json: bool) -> int:
         return 1
 
     parsed = resume_mod.parse(document)
+    if show_text:
+        # what the parser actually saw — the first thing to check when recall is low
+        print(f"--- extracted text ({len(document.text)} chars, {len(document.pages)} page(s)) ---")
+        print(document.text)
+        print("--- end text ---")
     if as_json:
         print(json.dumps({"parse_status": "ok", "document": {
             "filename": document.filename, "kind": document.kind,
@@ -106,6 +111,7 @@ def main(argv: list[str] | None = None) -> int:
     parse_cmd = sub.add_parser("parse", help="extract + match a resume (no model, no network)")
     parse_cmd.add_argument("path")
     parse_cmd.add_argument("--json", action="store_true")
+    parse_cmd.add_argument("--text", action="store_true", help="print the extracted text first")
 
     analyze = sub.add_parser("analyze", help="resume + JD → scored profile (no model, no network)")
     analyze.add_argument("resume")
@@ -114,7 +120,7 @@ def main(argv: list[str] | None = None) -> int:
 
     args = parser.parse_args(argv)
     if args.command == "parse":
-        return cmd_parse(args.path, args.json)
+        return cmd_parse(args.path, args.json, args.text)
     if args.command == "analyze":
         return cmd_analyze(args.resume, args.jd, args.json)
     return 2

@@ -269,3 +269,22 @@ def test_confidence_separates_listed_from_used():
     used = claims["fastapi"].confidence
     assert used > listed, "a project mention should outrank a skills-list mention"
     assert listed < 0.9 and used <= 0.9
+
+
+def test_a_real_word_only_counts_next_to_the_right_context():
+    """Taken from a real resume: 'rapid hypothesis testing & A/B experimentation'
+    is not a Testing skill, and 'founder positioning architecture' is not System
+    Design. Both matched before this rule existed."""
+    text = ("SKILLS\nGo-to-market strategy, rapid hypothesis testing & A/B experimentation,\n"
+            "automation, founder positioning architecture.\n")
+    claims = {c.skill_id for c in matcher.claims_from(text)}
+    assert "testing" not in claims
+    assert "system-design" not in claims
+
+
+def test_the_qualifier_restores_the_real_meaning():
+    text = ("SKILLS\nPython, unit testing, integration testing, pytest\n"
+            "PROJECTS\nDesigned a distributed system architecture for 10k requests per second.\n")
+    claims = {c.skill_id for c in matcher.claims_from(text)}
+    assert "testing" in claims
+    assert "system-design" in claims

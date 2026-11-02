@@ -43,6 +43,23 @@ WEAK_ALIASES: dict[str, str] = {
     "agent framework": "generic phrase",
 }
 
+# Some aliases are real words that only mean the technology next to certain other
+# words. A real resume said "rapid hypothesis testing & A/B experimentation" and we
+# called that a Testing skill; another said "founder positioning architecture" and we
+# called that System Design. A qualifier window fixes both without a model.
+QUALIFIED_ALIASES: dict[str, tuple[str, ...]] = {
+    "testing": (
+        "unit", "integration", "regression", "e2e", "end-to-end", "automated",
+        "software", "test suite", "pytest", "jest", "qa", "code coverage", "tdd",
+    ),
+    "architecture": (
+        "system", "software", "distributed", "service", "microservice", "backend",
+        "cloud", "scalable", "data", "solution", "software design", "api",
+    ),
+    "design": ("system", "api", "schema", "database", "ui", "ux", "product design"),
+}
+QUALIFIER_WINDOW = 48
+
 MIN_TERM_LEN = 2  # below this nothing is matchable at all
 
 # sections where a bare technology name is credible evidence
@@ -145,6 +162,11 @@ def _same_sentence(text: str, left: tuple[int, int], right: tuple[int, int]) -> 
     return "\n" not in gap and len(gap) < 160
 
 
+def _has_qualifier(text: str, start: int, end: int, qualifiers: tuple[str, ...]) -> bool:
+    window = text[max(0, start - QUALIFIER_WINDOW) : end + QUALIFIER_WINDOW].lower()
+    return any(word in window for word in qualifiers)
+
+
 def find_mentions(text: str, section_list: list[sections_mod.Section] | None = None) -> list[Mention]:
     section_list = section_list or sections_mod.detect(text)
     raw: list[Mention] = []
@@ -153,6 +175,9 @@ def find_mentions(text: str, section_list: list[sections_mod.Section] | None = N
         for match in pattern.finditer(text):
             start, end = match.start(), match.end()
             if _in_noise_token(text, start, end):
+                continue
+            qualifiers = QUALIFIED_ALIASES.get(alias.lower())
+            if qualifiers and not _has_qualifier(text, start, end, qualifiers):
                 continue
             # "capitalised" means the document wrote it with a capital: REST, Next.js,
             # S3. Comparing to the alias string is not enough — a case-insensitive
