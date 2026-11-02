@@ -3,6 +3,7 @@ import MarketingNav from "@/components/marketing/MarketingNav";
 import Hero from "@/components/marketing/Hero";
 import LogoStrip from "@/components/marketing/LogoStrip";
 import ProblemSlab from "@/components/marketing/ProblemSlab";
+import CurriculumBand from "@/components/marketing/CurriculumBand";
 import HowItWorks from "@/components/marketing/HowItWorks";
 import SampleReport from "@/components/marketing/SampleReport";
 import WhyNotChatGPT from "@/components/marketing/WhyNotChatGPT";
@@ -23,6 +24,7 @@ export default function HomePage() {
         <Hero />
         <LogoStrip />
         <ProblemSlab />
+        <CurriculumBand />
         <HowItWorks />
         <SampleReport />
         <WhyNotChatGPT />

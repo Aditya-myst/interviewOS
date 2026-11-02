@@ -1,3 +1,6 @@
+"use client";
+
+import { motion, useReducedMotion } from "motion/react";
 import type { CandidateSkill } from "../../../contracts/types";
 
 /**
@@ -8,10 +11,14 @@ import type { CandidateSkill } from "../../../contracts/types";
  * overlapping, and no sense of *order*. The question a candidate actually asks is
  * "what first, and how much further ahead is it", and that is a line.
  *
- * So: skills sorted by priority, one node each, joined so the drop from the first
- * to the tenth is visible at a glance. Node colour is the band (same thresholds as
- * the gap map), node size is interview relevance, the number above the top three is
- * the order to work in, and the dashed rule is the critical band's lower edge.
+ * So: skills sorted by priority, one node each, joined so the drop from the first to
+ * the tenth is visible at a glance. Node colour is the band (same thresholds as the
+ * gap map), node size is interview relevance, the number above the top three is the
+ * order to work in, and the dashed rule is the critical band's lower edge.
+ *
+ * The line draws itself on mount (Motion's `pathLength`), then the nodes pop in
+ * along it, so the eye is walked from "what matters most" to "what can wait".
+ * Under prefers-reduced-motion it renders the finished chart on the first frame.
  */
 const BAND_COLOR: Record<string, string> = {
   critical: "#dc2626",
@@ -27,8 +34,9 @@ function shorten(name: string): string {
 }
 
 export default function PriorityCurve({ skills }: { skills: CandidateSkill[] }) {
-  // Six, not ten: rotated labels need ~90px each to stay readable, and this chart's
-  // job is to answer "what first", not to be the complete table.
+  const reduced = useReducedMotion();
+  // Six, not ten: labels need ~90px each to stay readable, and this chart's job is to
+  // answer "what first", not to be the complete table.
   const ranked = [...skills].sort((a, b) => b.priority - a.priority).slice(0, 6);
 
   if (ranked.length === 0) {
@@ -65,6 +73,15 @@ export default function PriorityCurve({ skills }: { skills: CandidateSkill[] }) 
   const criticalY = y(0.55);
   const gridValues: number[] = [];
   for (let v = 0.2; v <= max + 1e-9; v += 0.2) gridValues.push(Number(v.toFixed(2)));
+
+  const draw = reduced
+    ? {}
+    : {
+        initial: { pathLength: 0, opacity: 0.2 },
+        whileInView: { pathLength: 1, opacity: 1 },
+        viewport: { once: true, margin: "-40px" },
+        transition: { duration: 1.15, ease: "easeInOut" as const },
+      };
 
   return (
     <svg
@@ -109,7 +126,7 @@ export default function PriorityCurve({ skills }: { skills: CandidateSkill[] }) 
       {/* the critical band's lower edge — above this line is where to start */}
       {criticalY > PAD.top && (
         <g>
-          <line
+          <motion.line
             x1={PAD.left}
             x2={W - PAD.right}
             y1={criticalY}
@@ -117,6 +134,10 @@ export default function PriorityCurve({ skills }: { skills: CandidateSkill[] }) 
             stroke="var(--weak)"
             strokeOpacity="0.5"
             strokeDasharray="5 4"
+            initial={reduced ? undefined : { opacity: 0 }}
+            whileInView={reduced ? undefined : { opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.5 }}
           />
           <text
             x={W - PAD.right}
@@ -131,14 +152,23 @@ export default function PriorityCurve({ skills }: { skills: CandidateSkill[] }) 
         </g>
       )}
 
-      <path d={area} fill="url(#ios-priority-fill)" />
-      <polyline
+      <motion.path
+        d={area}
+        fill="url(#ios-priority-fill)"
+        initial={reduced ? undefined : { opacity: 0 }}
+        whileInView={reduced ? undefined : { opacity: 1 }}
+        viewport={{ once: true, margin: "-40px" }}
+        transition={{ duration: 0.9, delay: 0.45 }}
+      />
+
+      <motion.polyline
         points={line}
         fill="none"
         stroke="var(--brand-strong)"
         strokeWidth="2.5"
         strokeLinejoin="round"
         strokeLinecap="round"
+        {...draw}
       />
 
       {points.map(({ s, cx, cy, i }) => {
@@ -149,9 +179,21 @@ export default function PriorityCurve({ skills }: { skills: CandidateSkill[] }) 
             <title>
               {`${i + 1}. ${s.name} — priority ${s.priority.toFixed(2)} (${s.priority_band}), gap ${s.gap.toFixed(2)}`}
             </title>
-            <circle cx={cx} cy={cy} r={r} fill={color} stroke="var(--surface)" strokeWidth="2" />
+            <motion.circle
+              cx={cx}
+              cy={cy}
+              r={r}
+              fill={color}
+              stroke="var(--surface)"
+              strokeWidth="2"
+              initial={reduced ? undefined : { scale: 0, opacity: 0 }}
+              whileInView={reduced ? undefined : { scale: 1, opacity: 1 }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ type: "spring", stiffness: 320, damping: 22, delay: 0.25 + i * 0.09 }}
+              style={{ transformOrigin: `${cx}px ${cy}px` }}
+            />
             {i < 3 && (
-              <text
+              <motion.text
                 x={cx}
                 y={cy - r - 7}
                 textAnchor="middle"
@@ -159,9 +201,16 @@ export default function PriorityCurve({ skills }: { skills: CandidateSkill[] }) 
                 fontWeight="700"
                 fill="var(--text)"
                 fontFamily="var(--font-mono, monospace)"
+                // Only opacity is animated: `y` here is already the SVG attribute, so
+                // animating a y *transform* on top of it pushed the ranks below their
+                // nodes instead of above them.
+                initial={reduced ? undefined : { opacity: 0 }}
+                whileInView={reduced ? undefined : { opacity: 1 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ duration: 0.4, delay: 0.4 + i * 0.09 }}
               >
                 {i + 1}
-              </text>
+              </motion.text>
             )}
             <line
               x1={cx}
