@@ -49,6 +49,13 @@ def cmd_parse(path: str, as_json: bool, show_text: bool = False) -> int:
     print(f"skills {stats['skills_found']} · quotes {stats['quotes']} · "
           f"levels {stats['by_claimed_level']} · method: {stats['method']}")
     print(f"experience: {parsed.experience_years} ({parsed.experience_basis})")
+    gaps = parsed.stats.get("vocabulary_gaps") or []
+    if gaps:
+        print(f"vocabulary gaps ({len(gaps)}): your skills sections list these and the taxonomy "
+              f"does not know them —")
+        print("  " + " · ".join(gaps[:24]))
+        print("  (a gap here is a taxonomy gap, not a parse failure: tell me the stack and "
+              "I will add it)")
     if document.warnings:
         print("warnings: " + "; ".join(document.warnings))
     print()

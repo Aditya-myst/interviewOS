@@ -168,7 +168,7 @@ be replaced — same keys, real provenance.
 
 ```powershell
 cd backend
-uv run pytest            # 74 tests, no network, no database
+uv run pytest            # 78 tests, no network, no database
 uv run ruff check .
 ```
 

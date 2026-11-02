@@ -288,3 +288,25 @@ def test_the_qualifier_restores_the_real_meaning():
     claims = {c.skill_id for c in matcher.claims_from(text)}
     assert "testing" in claims
     assert "system-design" in claims
+
+
+def test_vocabulary_gaps_are_measured_not_guessed():
+    """A marketing resume against an engineering taxonomy finds nothing — and says
+    which words it did not know, instead of pretending the resume was empty."""
+    text = ("MARKETING LEAD\nNew Delhi | lead@example.com\n\nSKILLS\n"
+            "Languages: English, Hindi\nMarketing: HubSpot, Zoho, SEO\n"
+            "Analytics: Excel, Looker Studio, Python\n\n"
+            "EXPERIENCE\nGrowth Lead - 2024 - 2026\nRan paid acquisition and lifecycle "
+            "campaigns across email and paid social for a consumer app.\n")
+    parsed = resume.parse(extract("resume.txt", text.encode()))
+    gaps = parsed.stats["vocabulary_gaps"]
+    assert {"HubSpot", "SEO", "Excel"} <= set(gaps)
+    assert "Python" not in gaps          # matched, so not a gap
+    assert "Languages:" not in gaps      # a category prefix is not a skill
+    assert parsed.stats["vocabulary_note"].startswith("terms your skills sections")
+
+
+def test_no_gaps_says_so_rather_than_looking_unmeasured():
+    parsed = resume.parse(extract("resume.txt", TEXT.encode()))
+    assert isinstance(parsed.stats["vocabulary_gaps"], list)
+    assert parsed.stats["vocabulary_note"]
