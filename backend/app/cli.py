@@ -10,8 +10,11 @@ import json
 import pathlib
 import sys
 
+from app.parsing import jd as jd_mod
 from app.parsing import resume as resume_mod
 from app.parsing.extract import UnparseableDocument, extract
+from app.prep import priority
+from app.prep.profile import build_profile
 
 
 def cmd_parse(path: str, as_json: bool) -> int:
@@ -56,6 +59,46 @@ def cmd_parse(path: str, as_json: bool) -> int:
     return 0
 
 
+def cmd_analyze(resume_path: str, jd_path: str, as_json: bool) -> int:
+    """resume + JD → scored profile. No model, no database, no network."""
+    try:
+        resume_doc = extract(pathlib.Path(resume_path).name, pathlib.Path(resume_path).read_bytes())
+        jd_text = pathlib.Path(jd_path).read_text()
+    except (OSError, UnparseableDocument) as exc:
+        print(f"cannot read input: {exc}", file=sys.stderr)
+        return 2
+
+    parsed_resume = resume_mod.parse(resume_doc)
+    parsed_jd = jd_mod.parse(jd_text)
+    rows = priority.score(parsed_resume, parsed_jd)
+    payload = build_profile(rows)
+
+    if as_json:
+        print(json.dumps({
+            "resume": {"filename": resume_doc.filename, "sha256": resume_doc.sha256,
+                       "stats": parsed_resume.stats},
+            "jd": parsed_jd.as_json(),
+            "profile": payload,
+        }, indent=2))
+        return 0
+
+    print(f"resume: {resume_doc.filename} · {parsed_resume.stats['skills_found']} skills · "
+          f"{parsed_resume.stats['quotes']} quotes")
+    print(f"jd: {parsed_jd.title or '(untitled)'} · {parsed_jd.stats['requirements_found']} "
+          f"requirements ({parsed_jd.stats['required']} required, "
+          f"{parsed_jd.stats['preferred']} preferred) · rounds {parsed_jd.interview_rounds}"
+          f" (inferred)")
+    print(f"counts: {payload['counts']}")
+    print()
+    print(f"{'#':>2} {'skill':16}{'band':10}{'prio':>6}{'gap':>6}{'jd':>5}{'you':>14}  why")
+    print("-" * 118)
+    for index, row in enumerate(payload["skills"][:14], start=1):
+        print(f"{index:>2} {row['skill_id']:16}{row['priority_band']:10}{row['priority']:>6.3f}"
+              f"{row['gap']:>6}{row['jd_importance']:>5}  {row['claimed_level'] or '-':>12}"
+              f"  {row['explanation'][:64]}")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="app.cli", description="InterviewOS pipelines")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -64,9 +107,16 @@ def main(argv: list[str] | None = None) -> int:
     parse_cmd.add_argument("path")
     parse_cmd.add_argument("--json", action="store_true")
 
+    analyze = sub.add_parser("analyze", help="resume + JD → scored profile (no model, no network)")
+    analyze.add_argument("resume")
+    analyze.add_argument("jd")
+    analyze.add_argument("--json", action="store_true")
+
     args = parser.parse_args(argv)
     if args.command == "parse":
         return cmd_parse(args.path, args.json)
+    if args.command == "analyze":
+        return cmd_analyze(args.resume, args.jd, args.json)
     return 2
 
 

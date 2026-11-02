@@ -26,6 +26,19 @@ SECTION_KEYWORDS: dict[str, tuple[str, ...]] = {
     "education": ("education", "academic background", "academics"),
     "certifications": ("certifications", "certificates", "licenses", "awards", "achievements"),
     "summary": ("summary", "profile", "objective", "about", "about me"),
+    # job descriptions use their own vocabulary, and the same detector handles both:
+    # "Requirements" vs "Nice to have" is what decides required vs preferred
+    "requirements": (
+        "requirements", "required", "qualifications", "must have", "must-haves",
+        "what you'll need", "what you will need", "what we're looking for",
+        "what we are looking for", "minimum qualifications", "you have",
+    ),
+    "preferred": (
+        "nice to have", "nice-to-have", "preferred", "preferred qualifications",
+        "bonus", "bonus points", "good to have", "desired",
+    ),
+    "responsibilities": ("responsibilities", "what you'll do", "what you will do",
+                         "the role", "about the role"),
 }
 
 _ALIASES = {phrase: name for name, phrases in SECTION_KEYWORDS.items() for phrase in phrases}

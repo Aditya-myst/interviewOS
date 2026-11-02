@@ -133,6 +133,20 @@ prompt ──▶ cache ──hit──▶ return (no network, no quota spent)
 - `POST /dev/llm` is a probe for exactly this and returns 404 when `ENV=prod`. Its
   `error.attempts[]` carries one `{provider, error, ms}` row per provider tried.
 
+## 4b. The pipeline, without the API
+
+```powershell
+cd backend
+uv run python -m app.cli parse "C:\Users\you\resume.pdf"      # skills + the line behind each
+uv run python -m app.cli parse resume.pdf --json               # same, machine-readable
+uv run python -m app.cli analyze resume.pdf jd.txt             # scored profile, no DB
+```
+
+No model, no network, no quota: taxonomy aliases and document structure. Every claim it
+makes carries a `quote` you can find with Ctrl-F in the original file. `--json` output is
+the exact shape `/v1/skills/profile` returns, which is how the fixture was always meant to
+be replaced — same keys, real provenance.
+
 ## 5. Routes
 
 | Method | Path | Source today |
@@ -151,7 +165,7 @@ prompt ──▶ cache ──hit──▶ return (no network, no quota spent)
 
 ```powershell
 cd backend
-uv run pytest            # 21 tests, no network, no database
+uv run pytest            # 63 tests, no network, no database
 uv run ruff check .
 ```
 

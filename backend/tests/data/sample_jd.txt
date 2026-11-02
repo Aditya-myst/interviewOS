@@ -1,0 +1,24 @@
+AI Engineer (LLM Applications) at Northwind Labs
+
+We are hiring a mid-level AI engineer to own our retrieval stack end to end.
+
+Requirements
+- 2+ years building Python services, with strong FastAPI or Flask experience
+- Production experience building RAG pipelines with evaluation and guardrails
+- Comfortable with PostgreSQL, including schema design and query tuning
+- Experience with Docker; Kubernetes is a plus
+- Solid understanding of system design and API design tradeoffs
+- pytest and CI/CD hygiene are expected, not optional
+
+Nice to have
+- LangGraph or another agent framework
+- Prompt design for tool-using models
+- React for internal tooling dashboards
+
+What you'll do
+- Design and ship RAG evaluation harnesses for every retrieval change
+- Own latency and cost tradeoffs across the retrieval path
+- Review API contracts with the frontend team
+- Run postmortems when retrieval quality regresses
+
+NOTE: synthetic test document for parser tests.
