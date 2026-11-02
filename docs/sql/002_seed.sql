@@ -2,9 +2,10 @@
 -- InterviewOS — 002_seed.sql
 -- Seeds the global vocabulary and the tier-0 resource catalogue.
 --
--- Source of truth: data/taxonomy.yaml (31 skills / 100 subtopics) and
--- data/curated.yaml (39 hand-curated resources). If you edit either YAML,
--- re-run this file — it upserts, it never duplicates.
+-- GENERATED FILE — do not edit by hand.
+--   source: data/taxonomy.yaml (31 skills / 100 subtopics)
+--           data/curated.yaml  (39 hand-curated resources)
+--   regenerate: python scripts/gen_seed.py
 --
 -- Run AFTER 001_init.sql. Safe to re-run: every insert is an upsert on the
 -- natural key, and nothing user-owned is touched.
@@ -54,7 +55,7 @@ on conflict (id) do update set
   aliases             = excluded.aliases,
   interview_relevance = excluded.interview_relevance;
 
--- ── skill_subtopics (the curriculum graph; 100 rows) ──────────────────────
+-- ── skill_subtopics (the curriculum graph; 100 rows) ──────────────
 insert into public.skill_subtopics (skill_id, subtopic_id, title, level, objective, order_index) values
   ('python', 'syntax-types', 'Syntax and data types', 'beginner'::public.proficiency_level, 'Explain mutability, truthiness and slicing confidently.', 0),
   ('python', 'functions-scope', 'Functions, closures and scope', 'beginner'::public.proficiency_level, 'Reason about LEGB and default-argument pitfalls.', 1),
@@ -165,11 +166,12 @@ on conflict (skill_id, subtopic_id) do update set
 -- ── resources: tier 0, the hand-curated catalogue ────────────────────────
 -- curated_skill_id / curated_subtopic_id record which subtopic each row is the
 -- canonical answer for. verified_at uses the catalogue's own assembly date
--- (taxonomy.yaml `updated: 2026-11-01`) for links marked `verified: true` in
+-- (taxonomy.yaml `updated: {stamp}`) for links marked `verified: true` in
 -- curated.yaml — it is the date the link was hand-checked, not the date this
 -- file ran. Everything else is stamped by the link-check job.
 insert into public.resources
-  (url, title, provider, kind, is_paid, license, tier, curated_skill_id, curated_subtopic_id, verified_at)
+  (url, title, provider, kind, is_paid, license, tier,
+   curated_skill_id, curated_subtopic_id, verified_at)
 values
   ('https://docs.python.org/3/tutorial/introduction.html', 'The Python Tutorial — An Informal Introduction', 'Python Docs', 'docs'::public.resource_kind, false, 'PSF', 0, 'python', 'syntax-types', timestamptz '2026-11-01 00:00:00+00'),
   ('https://exercism.org/tracks/python', 'Python track — hands-on exercises', 'Exercism', 'exercise'::public.resource_kind, false, 'MIT', 0, 'python', 'syntax-types', timestamptz '2026-11-01 00:00:00+00'),
@@ -236,7 +238,12 @@ begin
   select count(*) into n_resources from public.resources;
   raise notice 'seeded: % skills, % subtopics, % resources', n_skills, n_subtopics, n_resources;
   if n_skills <> 31 then
-    raise warning 'expected 31 skills, found % — did taxonomy.yaml change?', n_skills;
+    raise warning 'expected 31 skills, found % — is the seed out of date? '
+      'Run: python scripts/gen_seed.py', n_skills;
+  end if;
+  if n_subtopics < 100 then
+    raise warning 'expected at least 100 subtopics, found % — is the seed out of date?',
+      n_subtopics;
   end if;
 end;
 $do$;

@@ -3,6 +3,10 @@
 Notebook-to-production in four files, in this order. Total run time on a fresh
 Supabase project: about fifteen seconds.
 
+**`002_seed.sql` is generated** from `data/taxonomy.yaml` + `data/curated.yaml`.
+Edit the YAML, then run `python scripts/gen_seed.py` and re-run the SQL (it upserts).
+A test fails the build if the two drift apart.
+
 | file | what it does | Supabase | plain Postgres |
 |---|---|---|---|
 | `001_init.sql` | extensions, 22 enums, **18 tables**, indexes, evidence guard, RLS, new-user trigger | yes | yes, after the stub |
