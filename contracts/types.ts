@@ -13,7 +13,7 @@ export type VerifiedLevel = "none" | "beginner" | "intermediate" | "advanced" | 
 export type PriorityBand = "critical" | "high" | "medium" | "low";
 export type RequirementType = "required" | "preferred";
 export type EvidenceType =
-  | "resume_skill_list" | "resume_project" | "resume_experience"
+  | "resume_skill_list" | "resume_project" | "resume_experience" | "resume_summary"
   | "assessment_answer" | "interview_answer" | "user_correction";
 export type AssessmentLevel = "conceptual" | "practical" | "applied";
 export type QuestionType =

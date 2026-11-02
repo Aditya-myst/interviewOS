@@ -39,7 +39,13 @@ bands: `>=0.55 critical`, `>=0.35 high`, `>=0.18 medium`, else `low`
 `required` . `preferred`
 
 ## 5. EvidenceType
-`resume_skill_list` . `resume_project` . `resume_experience` . `assessment_answer` . `interview_answer` . `user_correction`
+`resume_skill_list` . `resume_project` . `resume_experience` . `resume_summary` . `assessment_answer` . `interview_answer` . `user_correction`
+
+`resume_summary` was added in Phase 5: a skill named only in the candidate's own summary
+is a claim about themselves with no work behind it, and filing it as `resume_project`
+would have overstated it. The four `resume_*` types are ranked by strength —
+`resume_project`/`resume_experience` (used somewhere) > `resume_skill_list` (listed) >
+`resume_summary` (asserted).
 
 ## 6. AssessmentLevel
 `conceptual` . `practical` . `applied`   (the 3-rung ladder per skill)

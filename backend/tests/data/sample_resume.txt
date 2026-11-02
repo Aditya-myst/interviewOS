@@ -1,0 +1,32 @@
+ADITYA KUMAR JHA
+New Delhi, India | aditya@example.com | github.com/example
+
+SUMMARY
+Second-year computer science student building LLM applications. Comfortable with Python,
+FastAPI and SQL, and used to explaining tradeoffs out loud.
+
+TECHNICAL SKILLS
+Languages: Python, JavaScript, SQL
+Backend: FastAPI, PostgreSQL, Redis, REST API design
+AI: LangChain, RAG pipelines, prompt design, pgvector
+Tools: Docker, Git, Linux, GitHub Actions
+
+PROJECTS
+Campus RAG Assistant - Python, FastAPI, pgvector
+Built a RAG chatbot backend in Python with FastAPI over 1,200 college documents. Chunked
+documents by paragraph, stored embeddings in PostgreSQL with pgvector, and served answers
+through a REST API. Never measured retrieval quality, which is the part I want to fix.
+Also documented the rest of the team's onboarding flow.
+
+Interview Prep Tracker - Next.js, PostgreSQL
+Designed a time-tracking dashboard and wrote pytest coverage for the scoring module. The
+next step was deployment, which I did not finish.
+
+EXPERIENCE
+Teaching Assistant, Data Structures - 2025
+Ran weekly tutorials on recursion, hash maps and dynamic programming for 40 students.
+
+EDUCATION
+B.Tech Computer Science, 2023 - 2027
+
+NOTE: synthetic test document for parser tests. Not a real person.

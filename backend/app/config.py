@@ -9,6 +9,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 FIXTURE_DIR = REPO_ROOT / "contracts" / "fixtures"
+DATA_DIR = REPO_ROOT / "data"
 
 
 class Settings(BaseSettings):
