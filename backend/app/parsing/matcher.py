@@ -2,7 +2,7 @@
 
 Every match is a span in the document, so every skill we claim to have found can
 be shown to a human as "here is the line". The model is not trusted for this and
-does not need to be: a taxonomy of 31 skills with aliases covers most of what a
+does not need to be: a taxonomy of 41 skills with aliases covers most of what a
 resume actually says, and what it misses is measured (see `coverage` in the parse
 result) rather than guessed.
 

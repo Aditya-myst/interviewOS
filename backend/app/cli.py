@@ -102,10 +102,11 @@ def cmd_analyze(resume_path: str, jd_path: str, as_json: bool) -> int:
           f" (inferred)")
     print(f"counts: {payload['counts']}")
     print()
-    print(f"{'#':>2} {'skill':16}{'band':10}{'prio':>6}{'gap':>6}{'jd':>5}{'you':>14}  why")
-    print("-" * 118)
+    wid = max([len(row["skill_id"]) for row in payload["skills"]] + [5]) + 2
+    print(f"{'#':>2} {'skill':{wid}}{'band':10}{'prio':>6}{'gap':>6}{'jd':>5}{'you':>14}  why")
+    print("-" * (wid + 118))
     for index, row in enumerate(payload["skills"][:14], start=1):
-        print(f"{index:>2} {row['skill_id']:16}{row['priority_band']:10}{row['priority']:>6.3f}"
+        print(f"{index:>2} {row['skill_id']:{wid}}{row['priority_band']:10}{row['priority']:>6.3f}"
               f"{row['gap']:>6}{row['jd_importance']:>5}  {row['claimed_level'] or '-':>12}"
               f"  {row['explanation'][:64]}")
     return 0

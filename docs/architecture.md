@@ -106,7 +106,7 @@ Every row stores the three factors **and** a server-generated `explanation` sent
 
 The rule that keeps this honest: **you do not search for resources — you resolve subtopics against a curated graph, then verify what you find.**
 
-1. **Subtopics are curated.** `data/taxonomy.yaml` holds 31 skills / 100 subtopics with objectives and levels. The tutor walks this graph instead of inventing a syllabus.
+1. **Subtopics are curated.** `data/taxonomy.yaml` holds 41 skills / 137 subtopics with objectives and levels. The tutor walks this graph instead of inventing a syllabus.
 2. **Trust-ordered ladder**: `curated.yaml` (T0) → official docs slug templates (T1) → free curricula — freeCodeCamp, roadmap.sh, Kaggle Learn, MIT OCW (T2) → GitHub search (T3) → YouTube Data API (T4) → `ddgs`/SearXNG (T5) → labelled search URL, never a fabricated link (T6).
 3. **Verify**: httpx GET (not HEAD), follow redirects, require 200, reject login walls, detect paid platforms, extract title/duration.
 4. **Score**: `0.45·cosine(subtopic, resource via bge-small) + 0.20·authority + 0.15·level match + 0.10·engagement + 0.10·freshness`.

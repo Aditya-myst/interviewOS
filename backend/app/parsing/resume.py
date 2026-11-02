@@ -13,7 +13,7 @@ import datetime
 import re
 from dataclasses import dataclass, field
 
-from app.parsing import matcher
+from app.parsing import matcher, taxonomy
 from app.parsing import sections as sections_mod
 from app.parsing.extract import Document
 
@@ -121,6 +121,10 @@ def vocabulary_gaps(
         if section.name not in ("skills", "requirements"):
             continue
         body = text[section.start : section.end]
+        # A wrapped line is a wrap, not a new item — but only when the next line
+        # continues in lower case. "Marketing: HubSpot" starting a new line is a new
+        # category, and joining it produced the skill "Hindi Marketing: HubSpot".
+        body = re.sub(r"\n(?=\s*[a-z])", " ", body)
         for raw_line in body.split("\n"):
             if raw_line.strip() == section.header.strip():
                 continue                                  # the heading is not a skill
@@ -153,7 +157,9 @@ def parse(document: Document) -> ParsedResume:
     for claim in claims:
         by_level[claim.claimed_level] = by_level.get(claim.claimed_level, 0) + 1
 
-    matched_terms = {m.alias for c in claims for m in c.mentions}
+    # every alias found in the document, not only the mentions kept per skill:
+    # otherwise a term we *did* recognise is reported as a vocabulary gap
+    matched_terms = {m.alias for m in matcher.find_mentions(document.text, section_list)}
     gaps = vocabulary_gaps(document.text, section_list, matched_terms)
 
     quoted = sum(len(c.mentions) for c in claims)
@@ -168,7 +174,8 @@ def parse(document: Document) -> ParsedResume:
         # empty list, not None: "no gaps" and "not measured" must not look alike
         "vocabulary_gaps": gaps,
         "vocabulary_note": (
-            "terms your skills sections list that the 31-skill taxonomy does not know"
+            f"terms your skills sections list that the {len(taxonomy.load())}-skill taxonomy "
+            "does not know"
             if gaps else "every listed term matched the taxonomy"
         ),
     }

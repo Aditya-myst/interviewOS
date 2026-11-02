@@ -325,3 +325,117 @@ skills:
     subtopics:
       - { id: pd-basics, title: "Indexing, groupby and joins", level: beginner, objective: "Reshape data without loops." }
       - { id: pd-performance, title: "Vectorisation and memory", level: intermediate, objective: "Make a slow pipeline fast." }
+
+  # ── content, growth and creator work ───────────────────────────────────────
+  # Added in Phase 5 because a real resume — a final-year CS student targeting a
+  # content-engine role — could not be described by an engineering-only vocabulary.
+  # Every term below is something candidates actually put on a resume, and every
+  # skill carries subtopics, because a skill with no curriculum cannot produce a
+  # plan (scripts/gen_seed.py refuses to generate one).
+
+  - id: content-strategy
+    name: Content Strategy
+    category: Content
+    aliases: [content strategy, hook writing, hooks, storytelling, story frameworks, editorial calendar, content iteration, distribution psychology, content engine, narrative design]
+    interview_relevance: 0.85
+    subtopics:
+      - { id: audience-research, title: "Audience and angle research", level: beginner, objective: "Pick an angle from evidence about who is reading, not from a hunch." }
+      - { id: hook-craft, title: "Hooks and first lines", level: intermediate, objective: "Write five hooks for one idea and defend which one wins." }
+      - { id: storytelling-arcs, title: "Narrative arcs for short content", level: intermediate, objective: "Structure a 200-word post so the payoff lands." }
+      - { id: content-systems, title: "Turning one idea into a week of content", level: advanced, objective: "Build a repeatable calendar instead of writing daily from scratch." }
+
+  - id: social-growth
+    name: Organic Social Growth
+    category: Growth
+    aliases: [audience growth, audience scaling, follower growth, followers, organic growth, personal branding, community building, content creator, linkedin growth, viral]
+    interview_relevance: 0.85
+    subtopics:
+      - { id: profile-funnel, title: "Profile as a landing page", level: beginner, objective: "Turn a profile visit into a follow with one clear promise." }
+      - { id: posting-cadence, title: "Cadence and consistency", level: beginner, objective: "Explain why 4-5 posts a week beats one perfect post." }
+      - { id: distribution-loops, title: "Distribution loops and compounding", level: advanced, objective: "Describe the loop that made growth compound rather than spike." }
+      - { id: audience-metrics, title: "Followers vs. engaged readers", level: intermediate, objective: "Show why follower count alone is a misleading metric." }
+
+  - id: newsletter
+    name: Newsletter & Email
+    category: Growth
+    aliases: [newsletter, email marketing, email list, subscribers, substack, beehiiv, mailchimp, drip campaign, open rate]
+    interview_relevance: 0.8
+    subtopics:
+      - { id: issue-structure, title: "Issue structure and rhythm", level: beginner, objective: "Design a format a reader can recognise in two seconds." }
+      - { id: list-growth, title: "Growing a list without buying one", level: intermediate, objective: "Name the three honest ways subscribers arrive." }
+      - { id: open-click, title: "Open and click metrics", level: intermediate, objective: "Read open/click rates without fooling yourself." }
+      - { id: retention-churn, title: "Retention and unsubscribes", level: advanced, objective: "Explain churn instead of hiding it." }
+
+  - id: seo
+    name: SEO & Search
+    category: Marketing
+    aliases: [seo, search engine optimization, keyword research, on-page seo, serp, semrush, ahrefs, search visibility]
+    interview_relevance: 0.75
+    subtopics:
+      - { id: keyword-intent, title: "Keyword intent", level: beginner, objective: "Separate informational from commercial intent." }
+      - { id: on-page, title: "On-page structure", level: beginner, objective: "Write titles, headings and meta that earn the click." }
+      - { id: topical-authority, title: "Topical coverage", level: advanced, objective: "Explain why ten related pages beat one broad page." }
+      - { id: seo-measurement, title: "Measuring search performance", level: intermediate, objective: "Read impressions, position and CTR together." }
+
+  - id: marketing-analytics
+    name: Marketing Analytics
+    category: Marketing
+    aliases: [analytics, impressions, engagement rate, google analytics, looker studio, cohort tracking, kpi, attribution, performance analysis, sheets dashboards]
+    interview_relevance: 0.8
+    subtopics:
+      - { id: metric-tree, title: "Choosing the metric that matters", level: beginner, objective: "Build a one-sentence metric tree from goal to signal." }
+      - { id: reading-dashboards, title: "Reading a dashboard honestly", level: beginner, objective: "Spot the metric that moved while nobody was looking." }
+      - { id: attribution-limits, title: "Attribution and its limits", level: advanced, objective: "Say what the data cannot tell you." }
+      - { id: reporting, title: "Reporting to a non-marketer", level: intermediate, objective: "Turn a week of numbers into three decisions." }
+
+  - id: experimentation
+    name: Experimentation & A/B Testing
+    category: Growth
+    aliases: [a/b testing, ab testing, split test, experimentation, hypothesis testing, multivariate, test and learn, growth experimentation]
+    interview_relevance: 0.8
+    subtopics:
+      - { id: hypothesis-design, title: "Writing a testable hypothesis", level: beginner, objective: "Turn 'this might work' into a falsifiable statement." }
+      - { id: test-design, title: "Sample size and controls", level: intermediate, objective: "Explain why a 50-post test still proves nothing." }
+      - { id: reading-results, title: "Reading results without rationalising", level: advanced, objective: "Report a flat result as flat." }
+      - { id: iteration-loops, title: "Test-to-decision loops", level: intermediate, objective: "Close the loop from result to the next test." }
+
+  - id: short-form-video
+    name: Short-form Video
+    category: Content
+    aliases: [short-form video, reels, shorts, video editing, capcut, cap cut, premiere pro, vertical video, b-roll, subtitles]
+    interview_relevance: 0.7
+    subtopics:
+      - { id: video-hooks, title: "The first three seconds", level: beginner, objective: "Write an opening that survives the scroll." }
+      - { id: retention-editing, title: "Editing for retention", level: intermediate, objective: "Use cuts, captions and pacing to hold attention." }
+      - { id: mobile-editing, title: "Shipping from a phone", level: beginner, objective: "Produce a publishable cut without a studio." }
+      - { id: video-metrics, title: "Completion rate as the signal", level: intermediate, objective: "Read completion and rewatch rate correctly." }
+
+  - id: visual-design
+    name: Visual Design
+    category: Design
+    aliases: [canva, figma, graphics design, graphic design, visual assets, brand design, layout, design head, design system basics]
+    interview_relevance: 0.6
+    subtopics:
+      - { id: layout-basics, title: "Layout, hierarchy and whitespace", level: beginner, objective: "Make one message win on a crowded slide." }
+      - { id: brand-consistency, title: "Brand consistency across formats", level: intermediate, objective: "Keep a brand recognisable at four different sizes." }
+      - { id: asset-systems, title: "Reusable asset systems", level: intermediate, objective: "Build templates that a non-designer can ship with." }
+
+  - id: copywriting
+    name: Copywriting
+    category: Content
+    aliases: [copywriting, copy editing, copywriting for founders, messaging, value proposition, landing page copy, written english, executive briefs]
+    interview_relevance: 0.75
+    subtopics:
+      - { id: clarity-first, title: "Clarity before cleverness", level: beginner, objective: "Cut a paragraph by half without losing meaning." }
+      - { id: voice-tone, title: "Voice and tone", level: intermediate, objective: "Match voice to audience without sounding like anyone else." }
+      - { id: cta-design, title: "Calls to action that fit the content", level: intermediate, objective: "Write a CTA that does not break the reader's trust." }
+
+  - id: ai-workflows
+    name: AI-assisted Workflows
+    category: AI
+    aliases: [ai tools, ai workflows, chatgpt, claude, gemini, generative ai, ai assisted, copilot, midjourney, prompt library]
+    interview_relevance: 0.7
+    subtopics:
+      - { id: tool-selection, title: "Choosing the right model for the job", level: beginner, objective: "Explain when a cheap model is the correct answer." }
+      - { id: workflow-automation, title: "Automating a repeated task", level: intermediate, objective: "Turn a manual content step into a repeatable pipeline." }
+      - { id: quality-control, title: "Checking AI output before publishing", level: intermediate, objective: "Name the failure modes and the check that catches each." }

@@ -131,7 +131,7 @@ claim it never happens.
   generation (batched per skill group), 1 grading pass, 1 rerank, 0–2 extras.
   At 15 RPM that is one preparation plan in well under a minute.
 
-Embeddings are **not** a runtime model. The 100 subtopics and curated resources
+Embeddings are **not** a runtime model. The 137 subtopics and curated resources
 are embedded once, offline, and the vectors are seeded into Postgres. Similarity
 is then a SQL `<=>` query. That is why nothing on the laptop has to run a model.
 

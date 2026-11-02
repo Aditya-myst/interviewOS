@@ -178,7 +178,7 @@ def test_every_claim_confidence_is_bounded():
 
 def test_vocabulary_comes_from_the_taxonomy_file():
     vocab = taxonomy.load()
-    assert len(vocab) == 31
+    assert len(vocab) >= 41, "engineering plus content/growth — extend the YAML, not the code"
     assert vocab["llm-rag"].interview_relevance == 1.0
     assert "rag" in vocab["llm-rag"].terms
 
@@ -300,13 +300,49 @@ def test_vocabulary_gaps_are_measured_not_guessed():
             "campaigns across email and paid social for a consumer app.\n")
     parsed = resume.parse(extract("resume.txt", text.encode()))
     gaps = parsed.stats["vocabulary_gaps"]
-    assert {"HubSpot", "SEO", "Excel"} <= set(gaps)
+    assert {"HubSpot", "Excel", "Zoho"} <= set(gaps)
+    assert "Looker Studio" not in gaps   # became a skill when the vocabulary grew
     assert "Python" not in gaps          # matched, so not a gap
+    assert "SEO" not in gaps             # became a skill when the vocabulary grew
+    assert "seo" in {c.skill_id for c in parsed.skills}
     assert "Languages:" not in gaps      # a category prefix is not a skill
     assert parsed.stats["vocabulary_note"].startswith("terms your skills sections")
+    assert "taxonomy" in parsed.stats["vocabulary_note"]
 
 
 def test_no_gaps_says_so_rather_than_looking_unmeasured():
     parsed = resume.parse(extract("resume.txt", TEXT.encode()))
     assert isinstance(parsed.stats["vocabulary_gaps"], list)
     assert parsed.stats["vocabulary_note"]
+
+
+# ── the real resume that forced the vocabulary to grow ────────────────────────
+CONTENT_RESUME = (pathlib.Path(__file__).parent / "data" / "content_resume.txt").read_text()
+
+
+def test_a_content_resume_is_described_by_a_content_vocabulary():
+    """This is the author's own resume, redacted. Before the content/growth skills
+    existed it produced 0 matches (after the false positives were removed) — an
+    honest "we do not know your field", not a parse failure."""
+    parsed = resume.parse(extract("resume.txt", CONTENT_RESUME.encode()))
+    found = {c.skill_id for c in parsed.skills}
+    assert {
+        "content-strategy", "social-growth", "newsletter", "marketing-analytics",
+        "experimentation", "short-form-video", "visual-design", "copywriting", "ai-workflows",
+    } <= found
+
+
+def test_the_content_matches_are_evidenced_not_inferred():
+    parsed = resume.parse(extract("resume.txt", CONTENT_RESUME.encode()))
+    flat = " ".join(CONTENT_RESUME.split())
+    for claim in parsed.skills:
+        for item in claim.evidence:
+            assert " ".join(item["quote"].split()) in flat
+
+
+def test_the_engineering_false_positives_stay_dead_on_a_real_resume():
+    """'rapid hypothesis testing' and 'founder positioning architecture' are in this
+    document verbatim and must never become Testing or System Design."""
+    found = {c.skill_id for c in matcher.claims_from(CONTENT_RESUME)}
+    assert "testing" not in found
+    assert "system-design" not in found

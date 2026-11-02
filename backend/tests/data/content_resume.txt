@@ -1,0 +1,56 @@
+ADITYA KUMAR JHA
+Noida, Uttar Pradesh | +91-XXXXXXXXXX | Gmail | LinkedIn | Portfolio
+
+PROFESSIONAL SUMMARY
+Final-year Computer Science student and self-built creator who grew a LinkedIn audience from 1,000 to 12,600 followers in
+6-7 months by posting 4-5 times/week on productivity, AI workflows, and personal building. Run "Builder Log" newsletter
+with 2,109 subscribers. Built and shipped a live AI voice-based study companion used by 25+ real users. Obsessed with
+understanding why content works, distribution psychology, and turning real student stories into trust-building narratives.
+Seeking to build Edoofa's organic Africa-focused content engine from zero - combining storytelling, short-form video, systems
+thinking, and growth experimentation.
+
+CONTENT & GROWTH EXPERIENCE
+Personal Brand & Content Creator June 2025 - Present
+LinkedIn | Newsletter (Builder Log) Remote
+- Grew LinkedIn audience from 1,000 to 12,600 followers in 6-7 months through consistent, high-signal content on AI
+workflows, productivity systems, and founder-style personal building (4-5 posts/week).
+- Achieved top content performance of 71K, 35K, 27K, and 28K impressions; multiple posts crossed 300-400 likes, generating
+significant DM inquiries and 2-3 high-ticket collaboration opportunities.
+- Built and scaled the Builder Log newsletter to 2,109 subscribers over 8-9 months (highly consistent for last 3 months),
+focusing on AI workflows, building in public, and founder lessons; average issues generate 1,000 impressions and 20+
+likes.
+- Leverage Canva for visuals, CapCut for short-form video editing, and AI tools (Gemini, ChatGPT, Claude) daily for rapid
+ideation, scripting, research, and workflow automation.
+- Document and systematically analyze every post's performance to iterate on hook frameworks, visual formats, and
+distribution psychology.
+
+Content Head & Design Head Noida, India
+NSS (National Service Scheme) & IEEE, Bennett University July 2024 - Feb 2025
+- Orchestrated the unified content strategy and design vertical for both tier-1 campus societies simultaneously.
+- Conceptualized and produced visual assets, event promotions, and community storytelling campaigns that significantly
+drove student participation and engagement metrics.
+- Managed the end-to-end creative lifecycle: from trend ideation and graphics design (Canva) to copy editing and
+multi-channel distribution.
+
+BUILDING & TECHNICAL PROJECTS
+Voice Study Companion (Live AI Product) Live
+- Architected and deployed an AI-powered voice conversation companion that enables students to master subjects through
+seamless, natural spoken interaction.
+- Scaled user adoption to 25+ active weekly users; entirely functional, self-maintained, and actively running in production.
+- Demonstrated end-to-end systems thinking and an automation instinct to ship real products solving daily problems.
+
+EDUCATION
+Bennett University Greater Noida, Uttar Pradesh
+B.Tech in Computer Science Expected Graduation: May 2027
+- CGPA: 8.09 / 10.0
+- Class XII (Senior Secondary): 80.5% | Class X (Secondary): 89.0%
+
+SKILLS
+- Content & Distribution: Advanced hook writing, storytelling frameworks, short-form video production (CapCut),
+systematic content iteration, analytics-driven growth infrastructure, psychology of digital attention.
+- Tools & Frameworks: Canva (Advanced Graphics Layout), CapCut, LinkedIn Creator Analytics, Gemini / ChatGPT
+/ Claude (Daily Active Power User), Advanced Google Sheets (Performance Engineering & Cohort Tracking).
+- Growth Engineering: Lead generation via high-signal content, newsletter audience scaling, brand positioning, operations
+automation, founder positioning architecture.
+- Core Strengths: Multidisciplinary written English (student storytelling to executive-level briefs), agile smartphone video
+execution, rapid hypothesis testing & A/B experimentation.

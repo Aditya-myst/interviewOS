@@ -180,3 +180,34 @@ def test_the_explanation_uses_the_word_the_jd_used():
     rows = {r.skill_id: r for r in priority.score(parsed_resume(), parsed_jd())}
     assert "preferred" in rows["kubernetes"].explanation.lower()
     assert "required" in rows["llm-rag"].explanation.lower()
+
+
+CONTENT_RESUME = (DATA / "content_resume.txt").read_text()
+CONTENT_JD = (DATA / "sample_jd_content.txt").read_text()
+
+
+def test_a_content_jd_does_not_get_an_engineering_interview_loop():
+    """The first version matched the word "design" and gave a content role a
+    system-design round. Inventing an interview is worse than saying nothing."""
+    parsed = jd_mod.parse(CONTENT_JD)
+    assert "system_design" not in parsed.interview_rounds
+    assert "coding" not in parsed.interview_rounds
+    assert parsed.interview_rounds[:2] == ["portfolio_review", "content_task"]
+    assert "analytics_case" in parsed.interview_rounds
+
+
+def test_the_content_pair_produces_a_ranked_plan():
+    resume = resume_mod.parse(extract("resume.txt", CONTENT_RESUME.encode()))
+    jd = jd_mod.parse(CONTENT_JD)
+    payload = build_profile(priority.score(resume, jd))
+
+    top = payload["skills"][0]
+    assert top["priority_band"] == "critical"
+    assert top["in_jd"] and top["in_resume"]
+
+    by_id = {s["skill_id"]: s for s in payload["skills"]}
+    # the JD asks for SEO and the resume never mentions it: a real, evidenced gap
+    assert by_id["seo"]["in_resume"] is False
+    assert by_id["seo"]["gap"] > 0.5
+    # nothing is verified without an assessment, on either side
+    assert all(s["verified_level"] is None for s in payload["skills"])

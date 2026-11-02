@@ -123,19 +123,38 @@ def _importance(requirement_type: str, mentions: int) -> float:
     return round(min(0.35 + 0.05 * mentions, 0.65), 2)
 
 
+CONTENT_SKILLS = {
+    "content-strategy", "social-growth", "newsletter", "seo", "marketing-analytics",
+    "experimentation", "short-form-video", "visual-design", "copywriting",
+}
+ENGINEERING_SKILLS = {"system-design", "data-structures", "algorithms", "coding"}
+
+
 def _rounds(text: str, requirements: list[Requirement]) -> tuple[list[str], bool]:
-    """Inferred, and labelled as inferred. 'rounds_inferred: true' is the contract's
-    way of telling the UI not to present this as fact."""
+    """Inferred, and labelled as inferred (`rounds_inferred: true`).
+
+    The first version looked for the word "design" and gave a content JD a
+    system-design round. Rounds follow the role family the JD actually describes.
+    """
     lowered = text.lower()
     skills = {r.skill_id for r in requirements}
-    rounds: list[str] = ["technical"]
-    if "system-design" in skills or "architecture" in lowered or "design" in lowered:
-        rounds.append("system_design")
-    if "data-structures" in skills or "algorithms" in skills or "coding" in lowered:
-        rounds.append("coding")
-    if "behavioral" in lowered or "stakeholder" in lowered or "communication" in lowered:
+    content = bool(skills & CONTENT_SKILLS)
+    engineering = bool(skills & ENGINEERING_SKILLS) or not content
+
+    rounds: list[str] = []
+    if content:
+        rounds += ["portfolio_review", "content_task"]
+        if "marketing-analytics" in skills or "experimentation" in skills:
+            rounds.append("analytics_case")
+    if engineering:
+        rounds.insert(0, "technical")
+        if "system-design" in skills or "architecture" in lowered:
+            rounds.append("system_design")
+        if "data-structures" in skills or "algorithms" in skills or "coding" in lowered:
+            rounds.append("coding")
+    if "behavioral" in lowered or "stakeholder" in lowered or "communication" in lowered or content:
         rounds.append("behavioral")
-    return rounds, True
+    return list(dict.fromkeys(rounds)), True
 
 
 def _topics(text: str, section_list: list[sections_mod.Section], kinds: dict[int, str]) -> list[str]:

@@ -3,7 +3,7 @@
 -- Seeds the global vocabulary and the tier-0 resource catalogue.
 --
 -- GENERATED FILE — do not edit by hand.
---   source: data/taxonomy.yaml (31 skills / 100 subtopics)
+--   source: data/taxonomy.yaml (41 skills / 137 subtopics)
 --           data/curated.yaml  (39 hand-curated resources)
 --   regenerate: python scripts/gen_seed.py
 --
@@ -48,14 +48,24 @@ insert into public.skills (id, name, category, aliases, interview_relevance) val
   ('llm-rag', 'LLM & RAG', 'AI', array['rag', 'llm', 'large language model', 'retrieval augmented generation', 'retrieval-augmented generation', 'langchain', 'gpt']::text[], 1.0),
   ('prompt-engineering', 'Prompt Engineering', 'AI', array['prompting', 'prompt design', 'system prompt', 'few-shot']::text[], 0.8),
   ('langgraph', 'LangGraph', 'AI', array['langchain', 'langgraph', 'agent framework', 'agentic workflow']::text[], 0.6),
-  ('pandas', 'Pandas', 'Data', array['numpy', 'dataframe', 'dataframes']::text[], 0.5)
+  ('pandas', 'Pandas', 'Data', array['numpy', 'dataframe', 'dataframes']::text[], 0.5),
+  ('content-strategy', 'Content Strategy', 'Content', array['content strategy', 'hook writing', 'hooks', 'storytelling', 'story frameworks', 'editorial calendar', 'content iteration', 'distribution psychology', 'content engine', 'narrative design']::text[], 0.85),
+  ('social-growth', 'Organic Social Growth', 'Growth', array['audience growth', 'audience scaling', 'follower growth', 'followers', 'organic growth', 'personal branding', 'community building', 'content creator', 'linkedin growth', 'viral']::text[], 0.85),
+  ('newsletter', 'Newsletter & Email', 'Growth', array['newsletter', 'email marketing', 'email list', 'subscribers', 'substack', 'beehiiv', 'mailchimp', 'drip campaign', 'open rate']::text[], 0.8),
+  ('seo', 'SEO & Search', 'Marketing', array['seo', 'search engine optimization', 'keyword research', 'on-page seo', 'serp', 'semrush', 'ahrefs', 'search visibility']::text[], 0.75),
+  ('marketing-analytics', 'Marketing Analytics', 'Marketing', array['analytics', 'impressions', 'engagement rate', 'google analytics', 'looker studio', 'cohort tracking', 'kpi', 'attribution', 'performance analysis', 'sheets dashboards']::text[], 0.8),
+  ('experimentation', 'Experimentation & A/B Testing', 'Growth', array['a/b testing', 'ab testing', 'split test', 'experimentation', 'hypothesis testing', 'multivariate', 'test and learn', 'growth experimentation']::text[], 0.8),
+  ('short-form-video', 'Short-form Video', 'Content', array['short-form video', 'reels', 'shorts', 'video editing', 'capcut', 'cap cut', 'premiere pro', 'vertical video', 'b-roll', 'subtitles']::text[], 0.7),
+  ('visual-design', 'Visual Design', 'Design', array['canva', 'figma', 'graphics design', 'graphic design', 'visual assets', 'brand design', 'layout', 'design head', 'design system basics']::text[], 0.6),
+  ('copywriting', 'Copywriting', 'Content', array['copywriting', 'copy editing', 'copywriting for founders', 'messaging', 'value proposition', 'landing page copy', 'written english', 'executive briefs']::text[], 0.75),
+  ('ai-workflows', 'AI-assisted Workflows', 'AI', array['ai tools', 'ai workflows', 'chatgpt', 'claude', 'gemini', 'generative ai', 'ai assisted', 'copilot', 'midjourney', 'prompt library']::text[], 0.7)
 on conflict (id) do update set
   name                = excluded.name,
   category            = excluded.category,
   aliases             = excluded.aliases,
   interview_relevance = excluded.interview_relevance;
 
--- ── skill_subtopics (the curriculum graph; 100 rows) ──────────────
+-- ── skill_subtopics (the curriculum graph; 137 rows) ──────────────
 insert into public.skill_subtopics (skill_id, subtopic_id, title, level, objective, order_index) values
   ('python', 'syntax-types', 'Syntax and data types', 'beginner'::public.proficiency_level, 'Explain mutability, truthiness and slicing confidently.', 0),
   ('python', 'functions-scope', 'Functions, closures and scope', 'beginner'::public.proficiency_level, 'Reason about LEGB and default-argument pitfalls.', 1),
@@ -156,7 +166,44 @@ insert into public.skill_subtopics (skill_id, subtopic_id, title, level, objecti
   ('langgraph', 'checkpointing', 'Checkpointing and resumability', 'intermediate'::public.proficiency_level, 'Resume a workflow after failure.', 1),
   ('langgraph', 'control-flow', 'Conditional routing and retries', 'advanced'::public.proficiency_level, 'Keep agents on a controlled path.', 2),
   ('pandas', 'pd-basics', 'Indexing, groupby and joins', 'beginner'::public.proficiency_level, 'Reshape data without loops.', 0),
-  ('pandas', 'pd-performance', 'Vectorisation and memory', 'intermediate'::public.proficiency_level, 'Make a slow pipeline fast.', 1)
+  ('pandas', 'pd-performance', 'Vectorisation and memory', 'intermediate'::public.proficiency_level, 'Make a slow pipeline fast.', 1),
+  ('content-strategy', 'audience-research', 'Audience and angle research', 'beginner'::public.proficiency_level, 'Pick an angle from evidence about who is reading, not from a hunch.', 0),
+  ('content-strategy', 'hook-craft', 'Hooks and first lines', 'intermediate'::public.proficiency_level, 'Write five hooks for one idea and defend which one wins.', 1),
+  ('content-strategy', 'storytelling-arcs', 'Narrative arcs for short content', 'intermediate'::public.proficiency_level, 'Structure a 200-word post so the payoff lands.', 2),
+  ('content-strategy', 'content-systems', 'Turning one idea into a week of content', 'advanced'::public.proficiency_level, 'Build a repeatable calendar instead of writing daily from scratch.', 3),
+  ('social-growth', 'profile-funnel', 'Profile as a landing page', 'beginner'::public.proficiency_level, 'Turn a profile visit into a follow with one clear promise.', 0),
+  ('social-growth', 'posting-cadence', 'Cadence and consistency', 'beginner'::public.proficiency_level, 'Explain why 4-5 posts a week beats one perfect post.', 1),
+  ('social-growth', 'distribution-loops', 'Distribution loops and compounding', 'advanced'::public.proficiency_level, 'Describe the loop that made growth compound rather than spike.', 2),
+  ('social-growth', 'audience-metrics', 'Followers vs. engaged readers', 'intermediate'::public.proficiency_level, 'Show why follower count alone is a misleading metric.', 3),
+  ('newsletter', 'issue-structure', 'Issue structure and rhythm', 'beginner'::public.proficiency_level, 'Design a format a reader can recognise in two seconds.', 0),
+  ('newsletter', 'list-growth', 'Growing a list without buying one', 'intermediate'::public.proficiency_level, 'Name the three honest ways subscribers arrive.', 1),
+  ('newsletter', 'open-click', 'Open and click metrics', 'intermediate'::public.proficiency_level, 'Read open/click rates without fooling yourself.', 2),
+  ('newsletter', 'retention-churn', 'Retention and unsubscribes', 'advanced'::public.proficiency_level, 'Explain churn instead of hiding it.', 3),
+  ('seo', 'keyword-intent', 'Keyword intent', 'beginner'::public.proficiency_level, 'Separate informational from commercial intent.', 0),
+  ('seo', 'on-page', 'On-page structure', 'beginner'::public.proficiency_level, 'Write titles, headings and meta that earn the click.', 1),
+  ('seo', 'topical-authority', 'Topical coverage', 'advanced'::public.proficiency_level, 'Explain why ten related pages beat one broad page.', 2),
+  ('seo', 'seo-measurement', 'Measuring search performance', 'intermediate'::public.proficiency_level, 'Read impressions, position and CTR together.', 3),
+  ('marketing-analytics', 'metric-tree', 'Choosing the metric that matters', 'beginner'::public.proficiency_level, 'Build a one-sentence metric tree from goal to signal.', 0),
+  ('marketing-analytics', 'reading-dashboards', 'Reading a dashboard honestly', 'beginner'::public.proficiency_level, 'Spot the metric that moved while nobody was looking.', 1),
+  ('marketing-analytics', 'attribution-limits', 'Attribution and its limits', 'advanced'::public.proficiency_level, 'Say what the data cannot tell you.', 2),
+  ('marketing-analytics', 'reporting', 'Reporting to a non-marketer', 'intermediate'::public.proficiency_level, 'Turn a week of numbers into three decisions.', 3),
+  ('experimentation', 'hypothesis-design', 'Writing a testable hypothesis', 'beginner'::public.proficiency_level, 'Turn ''this might work'' into a falsifiable statement.', 0),
+  ('experimentation', 'test-design', 'Sample size and controls', 'intermediate'::public.proficiency_level, 'Explain why a 50-post test still proves nothing.', 1),
+  ('experimentation', 'reading-results', 'Reading results without rationalising', 'advanced'::public.proficiency_level, 'Report a flat result as flat.', 2),
+  ('experimentation', 'iteration-loops', 'Test-to-decision loops', 'intermediate'::public.proficiency_level, 'Close the loop from result to the next test.', 3),
+  ('short-form-video', 'video-hooks', 'The first three seconds', 'beginner'::public.proficiency_level, 'Write an opening that survives the scroll.', 0),
+  ('short-form-video', 'retention-editing', 'Editing for retention', 'intermediate'::public.proficiency_level, 'Use cuts, captions and pacing to hold attention.', 1),
+  ('short-form-video', 'mobile-editing', 'Shipping from a phone', 'beginner'::public.proficiency_level, 'Produce a publishable cut without a studio.', 2),
+  ('short-form-video', 'video-metrics', 'Completion rate as the signal', 'intermediate'::public.proficiency_level, 'Read completion and rewatch rate correctly.', 3),
+  ('visual-design', 'layout-basics', 'Layout, hierarchy and whitespace', 'beginner'::public.proficiency_level, 'Make one message win on a crowded slide.', 0),
+  ('visual-design', 'brand-consistency', 'Brand consistency across formats', 'intermediate'::public.proficiency_level, 'Keep a brand recognisable at four different sizes.', 1),
+  ('visual-design', 'asset-systems', 'Reusable asset systems', 'intermediate'::public.proficiency_level, 'Build templates that a non-designer can ship with.', 2),
+  ('copywriting', 'clarity-first', 'Clarity before cleverness', 'beginner'::public.proficiency_level, 'Cut a paragraph by half without losing meaning.', 0),
+  ('copywriting', 'voice-tone', 'Voice and tone', 'intermediate'::public.proficiency_level, 'Match voice to audience without sounding like anyone else.', 1),
+  ('copywriting', 'cta-design', 'Calls to action that fit the content', 'intermediate'::public.proficiency_level, 'Write a CTA that does not break the reader''s trust.', 2),
+  ('ai-workflows', 'tool-selection', 'Choosing the right model for the job', 'beginner'::public.proficiency_level, 'Explain when a cheap model is the correct answer.', 0),
+  ('ai-workflows', 'workflow-automation', 'Automating a repeated task', 'intermediate'::public.proficiency_level, 'Turn a manual content step into a repeatable pipeline.', 1),
+  ('ai-workflows', 'quality-control', 'Checking AI output before publishing', 'intermediate'::public.proficiency_level, 'Name the failure modes and the check that catches each.', 2)
 on conflict (skill_id, subtopic_id) do update set
   title       = excluded.title,
   level       = excluded.level,
@@ -237,12 +284,12 @@ begin
   select count(*) into n_subtopics from public.skill_subtopics;
   select count(*) into n_resources from public.resources;
   raise notice 'seeded: % skills, % subtopics, % resources', n_skills, n_subtopics, n_resources;
-  if n_skills <> 31 then
-    raise warning 'expected 31 skills, found % — is the seed out of date? '
+  if n_skills <> 41 then
+    raise warning 'expected 41 skills, found % — is the seed out of date? '
       'Run: python scripts/gen_seed.py', n_skills;
   end if;
-  if n_subtopics < 100 then
-    raise warning 'expected at least 100 subtopics, found % — is the seed out of date?',
+  if n_subtopics < 137 then
+    raise warning 'expected at least 137 subtopics, found % — is the seed out of date?',
       n_subtopics;
   end if;
 end;

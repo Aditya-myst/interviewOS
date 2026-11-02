@@ -10,7 +10,7 @@ A test fails the build if the two drift apart.
 | file | what it does | Supabase | plain Postgres |
 |---|---|---|---|
 | `001_init.sql` | extensions, 22 enums, **18 tables**, indexes, evidence guard, RLS, new-user trigger | yes | yes, after the stub |
-| `002_seed.sql` | 31 skills, 100 subtopics, 39 curated resources (tier 0) | yes | yes |
+| `002_seed.sql` | 41 skills, 137 subtopics, 39 curated resources (tier 0) | yes | yes |
 | `003_storage.sql` | private `resumes` bucket + per-user folder policies | yes | **no** (needs `storage` schema) |
 | `004_verify.sql` | one SELECT that returns a pass/fail row — the only file that shows you numbers | yes | yes |
 | `000_local_only_stub.sql` | fakes `auth.users` / `auth.uid()` for local testing | **never run** | yes |
@@ -23,7 +23,7 @@ A test fails the build if the two drift apart.
 2. Paste all of `001_init.sql` → **Run**. Expect the notice
    `public tables: 18 (expected 18)` at the bottom.
 3. New query → paste `002_seed.sql` → **Run**. Expect
-   `seeded: 31 skills, 100 subtopics, 39 resources`.
+   `seeded: 41 skills, 137 subtopics, 39 resources`.
 4. New query → paste `003_storage.sql` → **Run**, then check
    **Storage → Buckets** for a private bucket named `resumes`.
 5. **Database → Extensions** should now list `vector`, `pgcrypto`, `pg_trgm`.
@@ -98,7 +98,7 @@ Run against Postgres 17.11 + pgvector, not assumed:
 
 - `001_init.sql` executes with `ON_ERROR_STOP=1`; the closing check prints
   `public tables: 18 (expected 18)`.
-- `002_seed.sql` inserts 31 skills, 100 subtopics, 39 resources; 33 of the 39
+- `002_seed.sql` inserts 41 skills, 137 subtopics, 39 resources; 33 of the 39
   carry `verified_at` from `curated.yaml`'s `verified: true`, the other 6 are
   left null for the link-check job. Re-running it keeps the counts at 31/100/39.
 
@@ -125,7 +125,7 @@ while leaving the shared catalogue intact.
 | check | result |
 |---|---|
 | user 1 sees own `candidate_skills` / `resumes` / `profiles` | 1 / 1 / 1 |
-| user 1 sees the shared catalogue | 31 skills, 39 resources |
+| user 1 sees the shared catalogue | 41 skills, 39 resources |
 | user 1 sees `llm_cache` | 0 — no policy, and prompts can contain resume text |
 | user 1 reads user 2's row by id | 0 rows |
 | user 1 inserts a row into user 2's account | `ERROR: new row violates row-level security policy` |

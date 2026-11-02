@@ -81,7 +81,7 @@ pipeline output and are labelled `X-Data-Source: fixture` on every response — 
 Phase 5 writes rows, the header flips to `database` and no frontend code changes.
 
 That fixture set is itself recorded data: the numbers come from the seeded taxonomy
-(31 skills / 100 subtopics, band thresholds computed in code) and the resource URLs from a
+(41 skills / 137 subtopics, band thresholds computed in code) and the resource URLs from a
 40/40-alive link audit (`scripts/check_links.py`). Phase 5 replaces *authorship*, not shape.
 
 ## Not done, deliberately

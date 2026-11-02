@@ -47,6 +47,13 @@ would have overstated it. The four `resume_*` types are ranked by strength —
 `resume_project`/`resume_experience` (used somewhere) > `resume_skill_list` (listed) >
 `resume_summary` (asserted).
 
+### Interview rounds
+`technical` . `coding` . `system_design` . `take_home` . `behavioral` . `hr` .
+`portfolio_review` . `content_task` . `analytics_case`
+
+The last three were added in Phase 5: a content or growth role is not interviewed with a
+system-design round, and reporting one would have been a fabrication dressed as inference.
+
 ## 6. AssessmentLevel
 `conceptual` . `practical` . `applied`   (the 3-rung ladder per skill)
 

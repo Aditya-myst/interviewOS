@@ -1,7 +1,7 @@
 """The vocabulary, loaded from data/taxonomy.yaml — not from code.
 
 If parsing can only recognise skills listed in a Python file, then adding a skill
-means editing the parser. Here the taxonomy is data: 31 skills, 100 subtopics, and
+means editing the parser. Here the taxonomy is data: 41 skills, 137 subtopics, and
 the aliases that the matcher turns into patterns.
 """
 from __future__ import annotations

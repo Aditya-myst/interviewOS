@@ -7,7 +7,7 @@ skill checks — and produces a preparation plan ordered by *interview impact*, 
 happens to be on your CV. Every priority it shows cites the evidence behind it.
 
 > **Status:** frontend (dashboard, gap map, roadmap) + API service, database verified live
-> (18 tables / 22 enums / 31 skills / 100 subtopics / 39 resources, `GET /dev/db`).
+> (18 tables / 22 enums / 41 skills / 137 subtopics / 39 resources, `GET /dev/db`).
 > `/v1/*` still serves fixtures, labelled `X-Data-Source: fixture`. Resume/JD pipeline next.
 > Backend: [backend/README.md](backend/README.md) · Phase log: [docs/PHASE4.md](docs/PHASE4.md).
 > See [docs/architecture.md](docs/architecture.md) for the full design and
@@ -38,7 +38,7 @@ Everything runs on free tiers. No paid search API, no local GPU, no Ollama.
 
 ```
 contracts/   openapi.yaml, types.ts, ENUMS.md, fixtures/   ← single source of truth
-data/        taxonomy.yaml (31 skills / 100 subtopics), curated.yaml (resource seeds)
+data/        taxonomy.yaml (41 skills / 137 subtopics), curated.yaml (resource seeds)
 docs/        architecture.md, PHASE0.md, sql/ ← the database handover
 scripts/     verify_env.py — environment doctor
 frontend/    Next.js app
@@ -55,7 +55,7 @@ backend/     FastAPI service
 cp .env.example .env         # fill in Supabase, Gemini, Groq keys
 uv run python scripts/verify_env.py
 
-# 2. database — 18 tables, RLS, 31 skills, 100 subtopics, 39 curated resources
+# 2. database — 18 tables, RLS, 41 skills, 137 subtopics, 39 curated resources
 #    paste docs/sql/001_init.sql, then 002_seed.sql, then 003_storage.sql
 #    into the Supabase SQL editor. Full walkthrough: docs/sql/README.md
 

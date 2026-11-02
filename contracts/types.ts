@@ -122,7 +122,10 @@ export interface ParsedJD {
   seniority?: string | null;
   min_years_experience?: number | null;
   requirements: JDRequirement[];
-  interview_rounds: Array<"technical" | "coding" | "system_design" | "take_home" | "behavioral" | "hr">;
+  interview_rounds: Array<
+    | "technical" | "coding" | "system_design" | "take_home" | "behavioral" | "hr"
+    | "portfolio_review" | "content_task" | "analytics_case"
+  >;
   rounds_inferred?: boolean;
   topics?: string[];
   parse_status: ParseStatus;
