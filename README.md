@@ -59,7 +59,8 @@ uv run python scripts/verify_env.py
 #    paste docs/sql/001_init.sql, then 002_seed.sql, then 003_storage.sql
 #    into the Supabase SQL editor. Full walkthrough: docs/sql/README.md
 
-# 3. frontend
+# 3. frontend — pnpm only (packageManager is pinned; npm/yarn will fight the lockfile)
+corepack enable                             # once per machine, gives you pnpm
 cd frontend && pnpm install && pnpm dev     # http://localhost:3000
 
 # 4. backend — boots with no .env; /ready honestly says "degraded, fixture mode"
