@@ -11,7 +11,8 @@ from typing import Any
 
 from fastapi import APIRouter, Response
 
-from app import fixtures
+from app import fixtures, store
+from app.db import db_status, get_session
 from app.schemas import Dashboard, Roadmap, SkillProfile
 
 router = APIRouter(tags=["preparation"])
@@ -52,7 +53,34 @@ def dashboard(response: Response, state: str | None = None) -> dict[str, Any]:
 
 @router.get("/skills/profile", response_model=SkillProfile)
 def skills_profile(response: Response, state: str | None = None) -> dict[str, Any]:
+    """Rows when they exist, fixtures otherwise — and the header says which.
+
+    This is the switch Phase 5 was built for. The payload shape is identical, so
+    the frontend does not change; only `X-Data-Source` does, and it is never wrong:
+    `database` means these numbers came out of candidate_skills.
+    """
+    stored = _profile_from_store()
+    if stored is not None:
+        response.headers["X-Data-Source"] = "database"
+        return stored
     return _serve(response, "skill_profile", state)
+
+
+def _profile_from_store() -> dict[str, Any] | None:
+    """Split out so tests can exercise both paths without a live Postgres."""
+    if db_status()["state"] != "connected":
+        return None
+    try:
+        with get_session() as session:
+            user_id, _ = store.resolve_user(session)
+            return store.profile_payload(session, user_id=user_id)
+    except store.UserUnresolved:
+        return None
+    except Exception:
+        import logging
+
+        logging.getLogger(__name__).exception("profile query failed — serving fixtures")
+        return None
 
 
 @router.get("/learning/roadmap", response_model=Roadmap)

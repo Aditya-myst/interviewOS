@@ -41,6 +41,11 @@ class Settings(BaseSettings):
 
     max_upload_mb: int = 5
 
+    # Auth proper lands later. Until then, which profile owns the data:
+    # empty + exactly one profile in the database => that one, and the response
+    # says `user_source: single_profile` so nobody mistakes it for a real session.
+    demo_user_id: str = ""
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]

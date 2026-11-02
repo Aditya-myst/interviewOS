@@ -17,6 +17,7 @@ dependencies = [
   # document extraction: resumes arrive as PDF, DOCX or pasted text
   "pypdf>=5.0",
   "python-docx>=1.1",
+  "python-multipart>=0.0.9",   # multipart resume upload
 ]
 
 [dependency-groups]

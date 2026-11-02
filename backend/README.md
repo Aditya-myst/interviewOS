@@ -156,7 +156,10 @@ be replaced — same keys, real provenance.
 | GET | `/dev/db` | live: JSON twin of `docs/sql/004_verify.sql` — expected vs actual per check |
 | POST | `/dev/llm` | live: gateway probe |
 | GET | `/v1/analytics/dashboard` | fixture → Phase 5: aggregated from `sessions`, `skill_evidence` |
-| GET | `/v1/skills/profile` | fixture → Phase 5: `skills` join `user_skills` |
+| POST | `/v1/resume/upload` | live: parse a PDF/DOCX/txt; persists when the DB is connected |
+| POST | `/v1/jd/analyze` | live: parse a JD, rescore against the stored resume |
+| GET | `/v1/resume/latest` | live: last stored resume (503 in fixture mode) |
+| GET | `/v1/skills/profile` | **rows from `candidate_skills` when present**, fixtures otherwise |
 | GET | `/v1/learning/roadmap` | fixture → Phase 6: `roadmap_topics` + `resources` |
 | GET | `/v1/preparation/latest` | fixture → Phase 6 |
 | GET | `/v1/interview/{session_id}/report` | fixture → Phase 7: `interview_sessions` + `turns` |
@@ -165,7 +168,7 @@ be replaced — same keys, real provenance.
 
 ```powershell
 cd backend
-uv run pytest            # 63 tests, no network, no database
+uv run pytest            # 74 tests, no network, no database
 uv run ruff check .
 ```
 

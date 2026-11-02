@@ -1,7 +1,8 @@
 # Phase 5 — resume + JD → evidenced skill profile
 
-**Status: steps 1–6 of 7 done (uncommitted→committing locally; push blocked on a token).**
-Step 7 (persistence + the route flip) is next.
+**Status: all 7 steps done.** Steps 1–6 run offline; step 7 writes real rows and flips
+`X-Data-Source` to `database`. The write path needs a live Postgres, so it is verified by
+curl against your project (see §Verify below) rather than in the test suite.
 
 ## The rule everything is built around
 
@@ -18,9 +19,9 @@ Step 7 (persistence + the route flip) is next.
 | 4 | Claim level + confidence (never above "intermediate") | `app/parsing/matcher.py` | 3 tests |
 | 5 | JD parse: required vs preferred, expected level, rounds | `app/parsing/jd.py` | 8 tests |
 | 6 | Merge + priority scoring | `app/prep/priority.py` | 12 tests, incl. reproducibility |
-| 7 | Persist + flip `/v1/skills/profile` | *not built* | — |
+| 7 | Persist + flip `/v1/skills/profile` | `app/store.py`, `app/api/pipeline.py` | 11 API tests, DB path by curl |
 
-**63 tests, no network, no database, no model.** The whole pipeline runs offline:
+**74 tests, no network, no database, no model.** The whole pipeline runs offline:
 `python -m app.cli analyze resume.pdf jd.txt`.
 
 ## Sample run (the synthetic documents in `backend/tests/data/`)
@@ -63,11 +64,36 @@ resume sets `claimed_level` and never `verified_level` — that is a database co
 - "strong experience" scored as expert.
 - The explanation sentence hardcoded "Required" for preferred requirements.
 
-## Next: step 7
+## Verify (needs your database)
 
-- `POST /v1/resume/upload` (multipart) → extract → parse → write `resumes` row
-- `POST /v1/jd/analyze` → write `job_descriptions` row
-- upsert `candidate_skills` (unique on `user_id, skill_id`) with evidence jsonb
-- `/v1/skills/profile` reads rows when present, fixtures otherwise, and says which in
-  `X-Data-Source`
-- one migration-free addition: nothing — the schema already has every column this needs
+One user must exist before rows can be written — `profiles.id` references `auth.users`.
+Supabase → **Authentication → Users → Add user** (auto-confirm), copy the id into `.env`:
+
+```ini
+DEMO_USER_ID=<uuid>
+```
+
+Then, with the API running:
+
+```powershell
+curl.exe -X POST http://localhost:8000/v1/resume/upload -F "file=@C:\path\resume.pdf"
+curl.exe -X POST http://localhost:8000/v1/jd/analyze -H "content-type: application/json" -d '{"text":"…"}'
+curl.exe -i http://localhost:8000/v1/skills/profile        # X-Data-Source: database
+```
+
+What to expect in the first response: `persisted: true`, a `resume_id`, `user_source`,
+and a `merge` block saying how many skills were scored. If it says
+`"persist_error": {"code": "user_unresolved"}` it is telling you `DEMO_USER_ID` is unset
+or wrong — by design, it will not guess whose resume this is.
+
+Rows to look at in the Supabase table editor afterwards: `resumes` (one, with `raw_text`),
+`job_descriptions` (one, with `requirements`), `candidate_skills` (one per skill, every
+`evidence` array non-empty).
+
+## What is deliberately still not done
+
+- No LLM in the pipeline yet: the model pass runs *after* this baseline exists, so its
+  additions can be diffed against it. It will only ever add quotes that pass the gate.
+- No roadmap generation from the profile yet (Phase 6), no assessment (Phase 6), no
+  interview (Phase 7).
+- `/v1/preparation/latest` and `interview/{id}/report` are still fixtures.

@@ -7,6 +7,10 @@ info:
     must never invent fields. All list endpoints are scoped to the authenticated user.
     Paths are relative to the `/v1` base, except `/health`, `/ready` and the `/dev/*`
     probes, which are unprefixed. `/dev/*` answers 404 when ENV=prod.
+
+    Every data response carries `X-Data-Source`: `database` means the numbers came out
+    of Postgres, `pipeline` means they were just computed from the document you sent,
+    `fixture` means neither exists yet. The header is never allowed to be a guess.
 servers:
   - url: http://localhost:8000
     description: local
