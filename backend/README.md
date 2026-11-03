@@ -17,14 +17,60 @@ From the **repo root**:
 
 ```powershell
 cd backend
-uv sync                                    # or: python -m pip install -e .
+uv sync --frozen                           # exact versions from uv.lock
 uv run uvicorn app.main:app --reload --port 8000
 ```
+
+No `uv` yet? `pip install uv` — it is free and MIT-licensed, and it is the only way to
+get the versions this repo was tested against. `python -m pip install -e .` still works,
+but pip resolves fresh versions every time, which is how the environment drifted in the
+first place.
 
 Open <http://localhost:8000/docs> — every route below is there with its schema.
 
 No `.env` needed to boot. With no `DATABASE_URL` and no LLM keys the service starts in
 **fixture mode**, which is the honest, fully-working demo state.
+
+### If an import fails before anything starts
+
+Run the doctor first. It is stdlib-only, so it works when `pydantic` does not:
+
+```powershell
+python scripts\doctor.py
+```
+
+It prints which interpreter is running, which `site-packages` directories are on the path,
+where each dependency actually resolved from, and whether `pydantic` and `pydantic_core`
+come from the same place. Exit code 1 means fix it before starting uvicorn.
+
+Two Windows failures this catches by name:
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| `ModuleNotFoundError: No module named 'psycopg2'` with `DATABASE_URL` set | SQLAlchemy reads a bare `postgresql://` URL as psycopg2; this project ships psycopg 3 | pull latest — the app now rewrites the URL to `postgresql+psycopg://`; `pip install "psycopg[binary]"` if missing |
+| `ImportError: cannot import name 'ArgsKwargs' from 'pydantic_core._pydantic_core' (unknown location)` | `pydantic` and `pydantic_core` disagree — usually a half-written wheel from an interrupted install, or a user-site copy leaking into a venv | `pip install --force-reinstall --no-cache-dir --only-binary=:all: pydantic pydantic-core`; if the doctor lists a suspect copy outside the venv, set `$env:PYTHONNOUSERSITE = "1"` and reinstall |
+
+A clean rebuild is often faster than repairing:
+
+```powershell
+Remove-Item -Recurse -Force .venv
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+$env:PYTHONNOUSERSITE = "1"
+python -m pip install -U pip
+pip install --no-cache-dir -e .
+python scripts\doctor.py
+python -m pytest -q
+```
+
+Or, with uv, skip the guessing entirely:
+
+```powershell
+uv sync --frozen
+uv run python scripts\doctor.py
+uv run python -m pytest -q
+uv run uvicorn app.main:app --reload --port 8000
+```
 
 ## 2. Prove what you are looking at
 
