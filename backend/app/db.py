@@ -22,24 +22,62 @@ from app.config import get_settings
 
 log = logging.getLogger(__name__)
 
+# Module name -> the package that provides it, so the message tells the truth for
+# whichever driver the URL asks for.
+DRIVER_PACKAGES = {
+    "psycopg2": "psycopg2-binary",
+    "psycopg": "psycopg[binary]",
+    "asyncpg": "asyncpg",
+    "pg8000": "pg8000",
+}
+
 _engine = None
 _Session: sessionmaker[Session] | None = None
+# Why the engine could not be built, if it could not. Kept so /ready can say it
+# instead of the process dying during startup.
+_engine_error: dict[str, str] | None = None
 
 
 def engine():
-    """Lazily built so importing the app never opens a socket."""
-    global _engine
-    if _engine is None:
-        settings = get_settings()
-        if not settings.database_configured:
-            return None
+    """Lazily built so importing the app never opens a socket.
+
+    Returns None when the database is absent *or unusable* — a missing driver is a
+    configuration fact, not a reason to refuse to start. The reason lands in
+    `_engine_error` so /ready and the startup log can report it.
+    """
+    global _engine, _engine_error
+    if _engine is not None:
+        return _engine
+    if _engine_error is not None:
+        return None  # already explained once; do not repeat the warning on every request
+    settings = get_settings()
+    if not settings.database_configured:
+        return None
+    try:
         _engine = create_engine(
-            settings.database_url,
+            settings.sqlalchemy_url,
             pool_pre_ping=True,
             pool_size=5,
             max_overflow=5,
             connect_args={"connect_timeout": 8},
         )
+    except ModuleNotFoundError as exc:
+        missing = exc.name or "the configured driver"
+        hint = DRIVER_PACKAGES.get(missing, missing)
+        _engine_error = {
+            "state": "driver_missing",
+            "detail": (
+                f"DATABASE_URL is set but the {missing} driver is not installed — "
+                f'run `pip install "{hint}"` or `uv sync` in backend/. '
+                "Serving fixtures until then."
+            ),
+        }
+        log.warning(_engine_error["detail"])
+        return None
+    except Exception as exc:  # noqa: BLE001 — a bad URL is information, not a crash
+        _engine_error = {"state": "error", "detail": f"{type(exc).__name__}: {exc}"}
+        log.warning("database engine could not be built — %s", _engine_error["detail"])
+        return None
     return _engine
 
 
@@ -77,6 +115,8 @@ def db_status() -> dict:
         }
 
     eng = engine()
+    if eng is None:
+        return {"ok": False, "state": "error", "detail": "engine could not be built", **(_engine_error or {})}
     try:
         with eng.connect() as conn:
             tables = conn.execute(

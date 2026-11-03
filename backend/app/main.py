@@ -40,9 +40,17 @@ def create_app() -> FastAPI:
     settings = get_settings()
     @asynccontextmanager
     async def lifespan(_app: FastAPI):
-        db = "database" if settings.database_configured else "fixture"
-        llm = ", ".join(get_gateway().available_providers()) or "none"
-        log.info("interviewos ready — env=%s data=%s llm=%s", settings.env, db, llm)
+        from app.db import db_status
+
+        status = db_status()
+        data = "database" if status["state"] == "connected" else "fixture"
+        if status["state"] not in ("connected", "unconfigured"):
+            log.warning("database configured but unusable (%s) — serving fixtures", status.get("detail"))
+        try:
+            llm = ", ".join(get_gateway().available_providers()) or "none"
+        except Exception as exc:  # noqa: BLE001 — a key problem is not a startup failure
+            llm = f"unavailable ({type(exc).__name__})"
+        log.info("interviewos ready — env=%s data=%s llm=%s", settings.env, data, llm)
         yield
 
     app = FastAPI(

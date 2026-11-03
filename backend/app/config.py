@@ -55,6 +55,21 @@ class Settings(BaseSettings):
         return bool(self.database_url.strip())
 
     @property
+    def sqlalchemy_url(self) -> str:
+        """The URL the engine is built from, with the driver named.
+
+        pyproject declares psycopg 3, but SQLAlchemy reads a bare ``postgresql://``
+        as psycopg2 and raises ModuleNotFoundError at startup — which is how a
+        correct DATABASE_URL took the whole API down. Naming the driver here means
+        every caller gets one honest URL, however the platform spells it.
+        """
+        url = self.database_url.strip()
+        for prefix in ("postgres://", "postgresql://"):
+            if url.startswith(prefix):
+                return "postgresql+psycopg://" + url[len(prefix) :]
+        return url
+
+    @property
     def llm_configured(self) -> bool:
         return bool(self.gemini_api_key or self.groq_api_key)
 
