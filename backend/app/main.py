@@ -13,6 +13,19 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from starlette.responses import JSONResponse as _StarletteJSON
+
+
+class UTF8JSONResponse(_StarletteJSON):
+    """JSON that declares its encoding.
+
+    RFC 8259 says JSON is UTF-8, so most clients assume it — the browser does, and curl
+    does. Windows PowerShell 5.1 does not: without a charset it decodes the bytes as
+    latin-1, and every curly quote and em dash in a resume quote arrives as "â€œ". The
+    header costs nothing and stops that.
+    """
+
+    media_type = "application/json; charset=utf-8"
 
 from app.api import interview, pipeline, prep, system
 from app.config import get_settings
@@ -34,6 +47,7 @@ def create_app() -> FastAPI:
 
     app = FastAPI(
         title="InterviewOS API",
+        default_response_class=UTF8JSONResponse,
         lifespan=lifespan,
         version=system.VERSION,
         description=(

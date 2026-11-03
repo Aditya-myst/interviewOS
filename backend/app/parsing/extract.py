@@ -16,6 +16,8 @@ import io
 import re
 from dataclasses import dataclass, field
 
+from app.parsing.textfix import repair_mojibake
+
 MAX_BYTES = 10 * 1024 * 1024  # matches the check constraint on resumes.size_bytes
 
 SUPPORTED_EXTENSIONS = {".pdf", ".docx", ".txt", ".md"}
@@ -147,6 +149,12 @@ def extract(filename: str, data: bytes) -> Document:
             raw = data.decode("latin-1")
             warnings.append("decoded as latin-1 — not valid UTF-8")
         kind = "text"
+
+    # Somewhere between the PDF and here, UTF-8 can arrive as cp1252. Fix it before
+    # anything downstream stores a "verbatim" quote in the wrong alphabet.
+    raw, repaired = repair_mojibake(raw)
+    if repaired:
+        warnings.append("repaired mojibake — text had been decoded as a legacy codepage")
 
     text = _normalise(raw)
     if not pages:
