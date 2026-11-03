@@ -27,7 +27,7 @@ class UTF8JSONResponse(_StarletteJSON):
 
     media_type = "application/json; charset=utf-8"
 
-from app.api import assessment, interview, pipeline, prep, system
+from app.api import assessment, interview, pipeline, prep, system, tutor
 from app.config import get_settings
 from app.fixtures import FixtureMissing
 from app.llm import LLMUnavailable, get_gateway
@@ -78,6 +78,7 @@ def create_app() -> FastAPI:
     app.include_router(pipeline.router, prefix="/v1")
     app.include_router(interview.router, prefix="/v1")
     app.include_router(assessment.router, prefix="/v1")
+    app.include_router(tutor.router, prefix="/v1")
 
     @app.exception_handler(LLMUnavailable)
     async def _llm_unavailable(_: Request, exc: LLMUnavailable) -> JSONResponse:

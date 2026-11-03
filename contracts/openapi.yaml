@@ -197,6 +197,22 @@ paths:
         "200": { description: current state, content: { application/json: { schema: { $ref: "#/components/schemas/AssessmentState" } } } }
         "404": { description: unknown assessment }
 
+  /tutor/ask:
+    post:
+      tags: [tutor]
+      summary: One question in, one composed answer out — from rows, with citations
+      parameters:
+        - name: state
+          in: query
+          required: false
+          schema: { type: string, enum: [empty] }
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: "#/components/schemas/TutorRequest" } } }
+      responses:
+        "200": { description: composed answer, content: { application/json: { schema: { $ref: "#/components/schemas/TutorAnswer" } } } }
+        "422": { description: question shorter than 4 characters }
+
   /assessment/answer:
     post:
       tags: [assessment]
@@ -797,6 +813,72 @@ components:
         report:
           allOf: [{ $ref: "#/components/schemas/InterviewReport" }]
           nullable: true
+    TutorRequest:
+      type: object
+      required: [question]
+      properties:
+        question: { type: string, minLength: 1, maxLength: 1000 }
+        skill_id: { type: string, nullable: true }
+    TutorAnswer:
+      type: object
+      required: [question, matched, focus, citations]
+      properties:
+        question: { type: string }
+        matched:
+          type: boolean
+          description: false means "not in my sources" — never a guess dressed as an answer
+        scope:
+          type: object
+          nullable: true
+          properties:
+            skill_id: { type: string }
+            name: { type: string }
+            category: { type: string }
+            in_profile: { type: boolean }
+            source: { type: string, enum: [profile, curriculum] }
+        standing: { type: string, nullable: true, description: levels + band + the candidate's own quote }
+        lead: { type: string, nullable: true }
+        focus:
+          type: array
+          items:
+            type: object
+            required: [subtopic_id, title, level, objective, why]
+            properties:
+              subtopic_id: { type: string }
+              title: { type: string }
+              level: { type: string, enum: [beginner, intermediate, advanced, expert] }
+              objective: { type: string, description: verbatim from data/taxonomy.yaml }
+              why: { type: string }
+              resources:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    role: { type: string }
+                    title: { type: string }
+                    url: { type: string, format: uri }
+                    provider: { type: string }
+                    is_paid: { type: boolean }
+        limits: { type: string, nullable: true }
+        citations:
+          type: array
+          items:
+            type: object
+            required: [kind, label]
+            properties:
+              kind: { type: string, enum: [profile, subtopic, resource, resume_project, resume_quote, assessment_answer] }
+              label: { type: string }
+              detail: { type: string, nullable: true }
+              url: { type: string, format: uri, nullable: true }
+              subtopic_id: { type: string, nullable: true }
+        unknown:
+          type: object
+          nullable: true
+          properties:
+            reason: { type: string }
+            can_answer: { type: array, items: { type: string } }
+            next: { type: string }
+        suggestions: { type: array, items: { type: string } }
     InterviewFeedback:
       type: object
       required: [skill_name, score, status_after, matched, missing, why]

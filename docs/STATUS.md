@@ -1,6 +1,6 @@
 # Where InterviewOS stands
 
-Last updated: 2026-11-03 · `main` at the onboarding-wired commit
+Last updated: 2026-11-03 · `main` at the tutor commit
 
 This file is the honest inventory. Anything not marked done does not exist yet — the
 UI says "SOON" rather than showing a mock of it.
@@ -27,9 +27,10 @@ UI says "SOON" rather than showing a mock of it.
 
 | Assessment ladder | 3 rungs per skill, curriculum rubrics, consistency-gated verification | `assessment/`, `api/assessment.py` |
 | Onboarding | resume upload → JD analysis → parsed skills, requirements and quotes on screen | `/onboarding`, `api/pipeline/[...path]` |
+| Tutor | per-skill answers composed from profile rows + curriculum + catalogue, every claim cited | `tutor/`, `api/tutor.py`, `/tutor` |
 | Interview engine | sessions, questions from priority skills, quote-gated scoring, report | `interview/`, `api/interview.py` |
 
-Backend: **179 tests**, ruff clean, schema checker ("17 queries / 18 tables"). Frontend:
+Backend: **195 tests**, ruff clean, schema checker ("17 queries / 18 tables"). Frontend:
 tsc + eslint + `pnpm build` clean.
 
 ---
@@ -156,9 +157,24 @@ pre-render the fixed interviewer lines to audio at session start.
   `candidate_skills` (confidence halfway, verified level, the quoted answer appended to
   `evidence`); without one the response says `persisted: false`
 
-### 4. Tutor chat
-Per-skill chat scoped to the candidate's own gaps and the curated resources for that
-skill; answers must cite a row or say it does not know.
+### 4. Tutor chat — **done**
+`POST /v1/tutor/ask {question, skill_id?}` → the answer is *composed*, not generated: the
+candidate's skill row (levels, band, their own quote), the three most relevant curriculum
+subtopics (verbatim objectives from `data/taxonomy.yaml`), and the curated catalogue entries
+for those subtopics (free links first, `is_paid` shown). Every claim carries a citation —
+a profile row, an evidence quote, a subtopic id or a catalogue URL — and `test_tutor.py`
+fails if a focus row arrives without one.
+
+Why no model writes it: asked "how do I get better at RAG", a model produces a confident
+course that may not exist. Here an unknown question returns `matched: false` with the reason
+and the topics that *can* be answered, and a skill with no catalogue still returns curriculum
+steps while saying the links are missing. Deterministic, so it works with no key, no network
+and no database — and the same question twice gives the same answer.
+
+Scope resolution: explicit `skill_id` → an alias named in the question → a subtopic's words →
+the highest-priority skill on the profile. The last fallback is refused when the question
+contains words the skill does not cover, so "what is the salary at Google?" is a refusal, not
+the user's own gap dressed up as comprehension.
 
 ### 5. LLM extension pass
 For the 22 skills with no curated resource: propose a link, verify it with an HTTP
