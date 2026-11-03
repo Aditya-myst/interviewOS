@@ -50,7 +50,19 @@ Two Windows failures this catches by name:
 | `ModuleNotFoundError: No module named 'psycopg2'` with `DATABASE_URL` set | SQLAlchemy reads a bare `postgresql://` URL as psycopg2; this project ships psycopg 3 | pull latest — the app now rewrites the URL to `postgresql+psycopg://`; `pip install "psycopg[binary]"` if missing |
 | `ImportError: cannot import name 'ArgsKwargs' from 'pydantic_core._pydantic_core' (unknown location)` | `pydantic` and `pydantic_core` disagree — usually a half-written wheel from an interrupted install, or a user-site copy leaking into a venv | `pip install --force-reinstall --no-cache-dir --only-binary=:all: pydantic pydantic-core`; if the doctor lists a suspect copy outside the venv, set `$env:PYTHONNOUSERSITE = "1"` and reinstall |
 
-A clean rebuild is often faster than repairing:
+A clean rebuild is often faster than repairing — and on Windows the one-liner is:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\fix_windows_env.ps1
+```
+
+It closes anything running out of the venv, deletes (or renames away) a half-removed
+`.venv`, clears a stale `VIRTUAL_ENV`, rebuilds from `uv.lock`, then runs the doctor and
+the test suite. "failed to locate pyvenv.cfg" and "Access is denied … uvicorn.exe" are
+both symptoms of a half-deleted venv, and both are what it fixes.
+
+Or by hand:
+
 
 ```powershell
 Remove-Item -Recurse -Force .venv

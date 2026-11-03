@@ -92,6 +92,20 @@ def check_interpreter() -> None:
     else:
         warn("not inside a virtual environment — installs land in a shared Python")
 
+    # A half-deleted venv has no pyvenv.cfg, which is what makes uv and venv both
+    # report "failed to locate pyvenv.cfg" while still pretending to be activated.
+    cfg = Path(sys.prefix) / "pyvenv.cfg"
+    real_venv = sys.prefix != sys.base_prefix
+    if real_venv and not cfg.exists():
+        bad(f"{sys.prefix} looks like a virtual environment but has no pyvenv.cfg — it is "
+            "half-deleted; delete it and rebuild (scripts/fix_windows_env.ps1)")
+    elif real_venv:
+        ok(f"pyvenv.cfg present in {sys.prefix}")
+    stale = os.environ.get("VIRTUAL_ENV")
+    if stale and not (Path(stale) / "pyvenv.cfg").exists():
+        bad(f"VIRTUAL_ENV points at {stale}, which is not a usable venv — close that terminal "
+            "or run: Remove-Item Env:VIRTUAL_ENV")
+
     if hasattr(sys, "flags") and sys.flags.no_user_site == 0:
         user = user_site()
         if user and os.path.isdir(user):
