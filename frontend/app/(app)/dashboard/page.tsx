@@ -12,7 +12,7 @@ import InterviewTable from "@/components/app/InterviewTable";
 import DataSourceBadge from "@/components/app/DataSourceBadge";
 import StateNotice from "@/components/app/StateNotice";
 import Skeleton from "@/components/app/Skeleton";
-import { describeReason, loadDashboard, loadRoadmap, loadSkillProfile } from "@/lib/api";
+import { loadDashboard, loadRoadmap, loadSkillProfile } from "@/lib/api";
 import { parseState, type DemoState } from "@/lib/fixtures";
 import type {
   CandidateSkill,
@@ -143,18 +143,13 @@ function ProvenanceStrip({
 }: {
   payloads: { source: Parameters<typeof DataSourceBadge>[0]["source"]; endpoint: string; reason: string | null }[];
 }) {
-  const anyFixture = payloads.some((p) => p.source !== "database");
-
+  // Each badge already carries its own reason. A sentence repeating it after the third
+  // badge just dangled there ("the API has no database configured"), outside any pill.
   return (
     <div className="mt-6 flex flex-wrap items-center gap-2">
       {payloads.map((p) => (
         <DataSourceBadge key={p.endpoint} source={p.source} endpoint={p.endpoint} reason={p.reason} />
       ))}
-      {anyFixture && (
-        <span className="type-small text-[var(--text-dim)]">
-          {describeReason(payloads.find((p) => p.source !== "database")?.reason ?? null)}
-        </span>
-      )}
     </div>
   );
 }
