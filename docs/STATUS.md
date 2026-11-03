@@ -25,6 +25,7 @@ UI says "SOON" rather than showing a mock of it.
 | LLM gateway | Groq + Gemini, cached, schema-validated, no-proficiency rule | `llm/` |
 | Landing | marketing page, real sample report | `/` |
 
+| Assessment ladder | 3 rungs per skill, curriculum rubrics, consistency-gated verification | `assessment/`, `api/assessment.py` |
 | Interview engine | sessions, questions from priority skills, quote-gated scoring, report | `interview/`, `api/interview.py` |
 
 Backend: **141 tests**, ruff clean, schema checker ("17 queries / 18 tables"). Frontend:
@@ -85,9 +86,25 @@ Five paths from the spec that already existed, now implemented rather than imagi
   needs a quote. Communication is reported as transcript-derived only — accent, pace
   and confidence are not measured and are not claimed
 
-### 3. Assessment ladder
-Short checkpoints per subtopic (3–5 items) that flip `provisional: true` skills into
-verified ones, so `candidate_skills` has more than one source of truth.
+### 3. Assessment ladder — **done**
+- `POST /v1/assessment/start {skill_id}` → three rungs: conceptual, then practical, then
+  applied, each drawn from a different subtopic in `data/taxonomy.yaml`
+- `POST /v1/assessment/answer {assessment_id, answer}` → graded rung, next rung, or the
+  result; `GET /v1/assessment/{id}` resumes
+- **The rubric ignores instruction words.** "Use verbs and status codes *correctly*" gives
+  rubric points for verbs, status, codes — not for "correctly", which a perfect answer
+  never says
+- **The score is the ladder's own, and says why.** `0.85 × coverage + 0.15 × concreteness`,
+  where coverage is zero without a quotable sentence. The interview's caps (which reward
+  measured outcomes) would have pinned a flawless HTTP answer at 0.70, so no ladder could
+  ever verify anything
+- **Verification needs consistency:** mean ≥ 0.75 *and* no rung below 0.50. One strong
+  answer cannot carry a weak one, and the level is conservative — 0.90+ for "expert"
+- Screen at `/assessment?skill=<id>`, linked from every gap-map row and from the roadmap's
+  empty "Prove it" cells, which used to read "no checkpoint yet — nothing to pass"
+- With a database it writes `assessments`, `assessment_answers` and moves
+  `candidate_skills` (confidence halfway, verified level, the quoted answer appended to
+  `evidence`); without one the response says `persisted: false`
 
 ### 4. Tutor chat
 Per-skill chat scoped to the candidate's own gaps and the curated resources for that

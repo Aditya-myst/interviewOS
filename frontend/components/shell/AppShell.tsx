@@ -11,6 +11,7 @@ import {
   Mic2,
   FileText,
   ChevronRight,
+  ClipboardCheck,
   PanelLeftClose,
   PanelLeftOpen,
 } from "lucide-react";
@@ -54,6 +55,7 @@ const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, ready: true },
   { href: "/gap-map", label: "Gap Map", icon: Map, ready: true },
   { href: "/roadmap", label: "Roadmap", icon: Route, ready: true },
+  { href: "/assessment", label: "Assess", icon: ClipboardCheck, ready: true },
   { href: "/tutor", label: "Tutor", icon: GraduationCap, ready: false },
   { href: "/interview", label: "Interview", icon: Mic2, ready: true },
   { href: "/report", label: "Report", icon: FileText, ready: true },

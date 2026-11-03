@@ -245,15 +245,56 @@ export interface AssessmentState {
   skill_name?: string;
   level: AssessmentLevel;
   status: "in_progress" | "completed";
+  /** 1-based position of the rung being asked; equals question_total when finished. */
   question_index?: number;
   question_total?: number;
-  question?: { text: string; question_type: QuestionType; hint?: string | null } | null;
-  feedback?: { scores: RubricScores; missing_concepts: string[]; summary: string } | null;
+  question?: {
+    text: string;
+    question_type: QuestionType;
+    hint?: string | null;
+    /** Display name of the skill, for the question header. */
+    skill_name?: string;
+    /** Rubric points this checkpoint is scored against. */
+    rubric_size?: number;
+    level?: AssessmentLevel;
+    /** The curriculum subtopic this rung probes — the reason the question exists. */
+    subtopic?: string;
+  } | null;
+  feedback?: {
+    scores: RubricScores;
+    missing_concepts: string[];
+    summary: string;
+    /** The sentence that earned the score, verbatim, or null when nothing was quotable. */
+    quote?: string | null;
+    matched?: string[];
+    scored_by?: string;
+  } | null;
   result?: {
     inferred_level: VerifiedLevel;
     status_after: "weak" | "developing" | "verified" | "needs_revision";
     confidence: number;
+    /** Additive fields the API returns; all optional so the contract stays compatible. */
+    mean_score?: number;
+    lowest_score?: number;
+    checkpoints?: number;
+    verified?: boolean;
+    why?: string;
+    redo?: Array<{ question: string; score: number; quote?: string | null; why: string }>;
   } | null;
+  /** false when the ladder lived in memory and will not survive a restart. */
+  persisted?: boolean;
+  /** Every rung answered so far, in order — the audit trail behind the result. */
+  answers?: Array<{
+    index: number;
+    level: AssessmentLevel;
+    question: string;
+    score: number;
+    status_after: "weak" | "developing" | "verified" | "needs_revision";
+    quote?: string | null;
+    why: string;
+    matched?: string[];
+    missing?: string[];
+  }>;
 }
 
 export interface TutorReply {

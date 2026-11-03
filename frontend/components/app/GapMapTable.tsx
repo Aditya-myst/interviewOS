@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useMemo, useState } from "react";
+import Link from "next/link";
 import { ChevronDown, Quote } from "lucide-react";
 import type { CandidateSkill, PriorityBand } from "../../../contracts/types";
 import SkillPill from "@/components/primitives/SkillPill";
@@ -233,6 +234,13 @@ export default function GapMapTable({ skills }: { skills: CandidateSkill[] }) {
                 <span className="font-mono text-[11px] text-[var(--text-dim)] tabular-nums">
                   priority {s.priority.toFixed(2)}
                 </span>
+                {/* The ladder is how a claim becomes evidence without a full mock interview. */}
+                <Link
+                  href={`/assessment?skill=${s.skill_id}`}
+                  className="type-small font-medium text-[var(--brand-strong)] hover:underline"
+                >
+                  {s.status === "verified" ? "Re-assess" : "Assess in 3 questions"} →
+                </Link>
                 {s.evidence.length > 0 ? (
                   <button
                     type="button"

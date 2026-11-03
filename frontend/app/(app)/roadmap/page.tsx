@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import { CheckCircle2, Clock, CircleDashed, ExternalLink, TriangleAlert } from "lucide-react";
 import PageHeader from "@/components/shell/PageHeader";
 import IosButton from "@/components/primitives/IosButton";
@@ -221,9 +222,23 @@ function TopicCard({ topic }: { topic: LearningTopic }) {
               )}
             </p>
             {items.length === 0 ? (
-              <p className="type-small text-[var(--developing)] m-0">
-                {GAP_TEXT[role] ?? "Not in the catalogue yet"}
-              </p>
+              role === "checkpoint" && topic.skill_id ? (
+                // The catalogue has no "prove it" row for this topic — but the ladder does,
+                // so this is a link instead of a dead end.
+                <p className="type-small m-0 text-[var(--text-dim)]">
+                  No catalogue row — prove it with three questions.{" "}
+                  <Link
+                    href={`/assessment?skill=${topic.skill_id}`}
+                    className="font-medium text-[var(--brand-strong)] hover:underline"
+                  >
+                    Start the ladder →
+                  </Link>
+                </p>
+              ) : (
+                <p className="type-small text-[var(--developing)] m-0">
+                  {GAP_TEXT[role] ?? "Not in the catalogue yet"}
+                </p>
+              )
             ) : (
               <ul className="list-none m-0 p-0 space-y-3">
                 {items.map((res) => (

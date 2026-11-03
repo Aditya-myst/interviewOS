@@ -184,6 +184,19 @@ paths:
       responses:
         "200": { description: first question, content: { application/json: { schema: { $ref: "#/components/schemas/AssessmentState" } } } }
 
+  /assessment/{assessment_id}:
+    get:
+      tags: [assessment]
+      summary: Resume a ladder — the state, including the rungs answered so far
+      parameters:
+        - name: assessment_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200": { description: current state, content: { application/json: { schema: { $ref: "#/components/schemas/AssessmentState" } } } }
+        "404": { description: unknown assessment }
+
   /assessment/answer:
     post:
       tags: [assessment]
