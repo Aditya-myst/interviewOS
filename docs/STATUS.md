@@ -101,6 +101,9 @@ always taken, reviewed but not run.
   listen to
 
 ### 2. Voice interviewer
+> Full plan with the latency table: **`docs/VOICE_PLAN.md`**. Not built — waiting on the
+> hosted-vs-local decision.
+
 - **Recording:** browser `MediaRecorder` (opus/webm), no plugin
 - **Transcription:** Groq `whisper-large-v3` on the existing Groq key (free tier:
   2,000 requests/day), stored as an `interview_message` of role `candidate`, with the
