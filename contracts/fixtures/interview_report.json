@@ -1,17 +1,80 @@
 {
   "session_id": "66666666-6666-4666-8666-666666666661",
-  "overall_scores": { "overall": 58, "technical": 52, "problem_solving": 61, "communication_transcript_based": 66 },
+  "overall_scores": {
+    "overall": 0.58,
+    "technical": 0.52,
+    "problem_solving": 0.61,
+    "communication_transcript_based": 0.66
+  },
   "per_skill": [
-    { "skill_id": "llm-rag", "name": "LLM & RAG", "score": 55, "status_after": "developing", "comment": "Explained chunking but could not describe how you would measure retrieval quality — the exact gap the JD probes." },
-    { "skill_id": "fastapi", "name": "FastAPI", "score": 45, "status_after": "weak", "comment": "Dependency injection answer was circular; no mention of overrides in tests." },
-    { "skill_id": "python", "name": "Python", "score": 72, "status_after": "needs_revision", "comment": "Strong on the event loop; drifted on cancellation semantics." }
+    {
+      "skill_id": "llm-rag",
+      "name": "LLM & RAG",
+      "score": 0.55,
+      "status_after": "developing",
+      "comment": "Explained chunking but could not describe how you would measure retrieval quality — the exact gap the JD probes.",
+      "scored_by": "rubric",
+      "quote": "I chunked the PDFs at about 800 tokens and embedded them, but I never built an eval set to check whether the right passage came back."
+    },
+    {
+      "skill_id": "fastapi",
+      "name": "FastAPI",
+      "score": 0.45,
+      "status_after": "weak",
+      "comment": "Dependency injection answer was circular; no mention of overrides in tests.",
+      "scored_by": "rubric",
+      "quote": "I used dependency injection so the database session is created per request and closed when the request finishes."
+    },
+    {
+      "skill_id": "python",
+      "name": "Python",
+      "score": 0.72,
+      "status_after": "developing",
+      "comment": "Strong on the event loop; drifted on cancellation semantics.",
+      "scored_by": "rubric",
+      "quote": "I used asyncio to run the document parse concurrently, and I cancelled the tasks when the client disconnected."
+    }
   ],
-  "strengths": ["Concrete project examples from CampusRAG", "Clear, well-structured verbal answers", "Honest about what you have not measured"],
-  "gaps": ["RAG evaluation metrics", "FastAPI dependency injection depth", "System design vocabulary (caching, rate limiting)"],
+  "strengths": [
+    "Concrete project examples from CampusRAG",
+    "Clear, well-structured verbal answers",
+    "Honest about what you have not measured"
+  ],
+  "gaps": [
+    "RAG evaluation metrics",
+    "FastAPI dependency injection depth",
+    "System design vocabulary (caching, rate limiting)"
+  ],
   "weak_answers": [
-    { "question": "How do you know your RAG pipeline is working?", "why_weak": "Answered with 'it gives good answers' — no metric, no eval set, no failure analysis.", "better_answer_outline": ["Build a labelled eval set of 30 questions", "Measure retrieval recall@k separately from answer faithfulness", "Track regressions per prompt/model change", "Add a refusal path for low-confidence retrievals"] },
-    { "question": "What does Depends actually give you?", "why_weak": "Described it as 'automatic injection' without mentioning testability or overriding.", "better_answer_outline": ["Shared logic and resource lifecycle", "Declarative validation via type hints", "app.dependency_overrides in tests", "Lifespan for DB connections"] }
+    {
+      "question": "How do you know your RAG pipeline is working?",
+      "why_weak": "Answered with 'it gives good answers' — no metric, no eval set, no failure analysis.",
+      "better_answer_outline": [
+        "Build a labelled eval set of 30 questions",
+        "Measure retrieval recall@k separately from answer faithfulness",
+        "Track regressions per prompt/model change",
+        "Add a refusal path for low-confidence retrievals"
+      ],
+      "score": 0.3
+    },
+    {
+      "question": "What does Depends actually give you?",
+      "why_weak": "Described it as 'automatic injection' without mentioning testability or overriding.",
+      "better_answer_outline": [
+        "Shared logic and resource lifecycle",
+        "Declarative validation via type hints",
+        "app.dependency_overrides in tests",
+        "Lifespan for DB connections"
+      ],
+      "score": 0.3
+    }
   ],
-  "next_actions": ["Finish the RAG evaluation topic (2 of 3 resources done)", "Re-assess FastAPI at practical level before the next mock", "Start the system design topic — currently unverified and high priority"],
-  "created_at": "2026-10-30T17:05:00Z"
+  "next_actions": [
+    "Finish the RAG evaluation topic (2 of 3 resources done)",
+    "Re-assess FastAPI at practical level before the next mock",
+    "Start the system design topic — currently unverified and high priority"
+  ],
+  "created_at": "2026-10-30T17:05:00Z",
+  "persisted": false,
+  "scored_by": "rubric"
 }

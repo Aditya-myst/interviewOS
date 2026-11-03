@@ -180,3 +180,18 @@ def test_the_report_works_for_a_role_with_no_engineering_skills():
     core = service.core_skill_ids(marketing)
     assert core == {"content-strategy", "newsletter", "seo"}  # the three the JD cares most about
     assert "visual-design" not in core
+
+
+def test_the_recorded_fixture_uses_the_same_score_scale_as_the_api():
+    """A fixture on 0-100 next to an API on 0-1 renders "5500/100". One scale, asserted."""
+    import json
+    from pathlib import Path
+
+    report = json.loads(
+        (Path(__file__).resolve().parents[2] / "contracts" / "fixtures" / "interview_report.json").read_text()
+    )
+    numbers = list(report["overall_scores"].values())
+    numbers += [row["score"] for row in report["per_skill"]]
+    numbers += [row["score"] for row in report.get("weak_answers", []) if "score" in row]
+    assert numbers, "fixture has no scores to check"
+    assert all(0.0 <= n <= 1.0 for n in numbers), numbers
