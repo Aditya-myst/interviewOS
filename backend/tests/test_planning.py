@@ -260,3 +260,40 @@ def test_a_plus_phrase_governs_only_its_own_segment():
     by_id = {r.skill_id: r for r in parsed.requirements}
     assert by_id["docker"].requirement_type == "required"
     assert by_id["kubernetes"].requirement_type == "preferred"
+
+
+# ── evidence provenance ───────────────────────────────────────────────────────
+def test_jd_quotes_are_not_relabelled_as_resume_evidence():
+    """A JD line on the candidate's evidence list is the product lying.
+
+    It used to be retyped as resume_skill_list, so "followers alone are not the metric"
+    showed up as proof of the candidate's own work.
+    """
+    rows = priority.score(parsed_resume(), parsed_jd())
+    jd_items = [item for row in rows for item in row.evidence if item.get("document") == "jd"]
+    assert jd_items, "the JD side should contribute evidence of its own"
+    assert all(item["type"] == "jd_requirement" for item in jd_items)
+
+
+def test_resume_evidence_says_it_is_from_the_resume():
+    rows = priority.score(parsed_resume(), parsed_jd())
+    resume_items = [item for row in rows for item in row.evidence if item.get("document") == "resume"]
+    assert resume_items
+    assert all(str(item["type"]).startswith("resume_") for item in resume_items)
+
+
+def test_the_same_quote_never_appears_twice():
+    """PDF line wrapping used to produce the same sentence twice, which reads as padding."""
+    rows = priority.score(parsed_resume(), parsed_jd())
+    for row in rows:
+        quotes = [" ".join(str(item.get("quote") or "").split()) for item in row.evidence]
+        keys = [(item.get("type"), q) for item, q in zip(row.evidence, quotes) if q]
+        assert len(keys) == len(set(keys)), f"{row.name} repeats {row.evidence}"
+
+
+def test_duplicate_detection_ignores_how_a_line_wrapped():
+    items = [
+        {"type": "resume_summary", "quote": "built a content engine\nfrom zero", "start": 1, "end": 9},
+        {"type": "resume_summary", "quote": "built a content engine from zero", "start": 1, "end": 9},
+    ]
+    assert len(priority._dedupe_evidence(items)) == 1

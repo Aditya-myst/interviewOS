@@ -60,6 +60,8 @@ export interface ProfileUpdate {
 export interface Evidence {
   type: EvidenceType;
   quote: string;
+  /** Which document the span points into. A jd_requirement without this is ambiguous. */
+  document?: "resume" | "jd";
   section?: string | null;
   start?: number | null;
   end?: number | null;

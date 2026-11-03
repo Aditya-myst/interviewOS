@@ -31,6 +31,29 @@ LEVEL_ORDER = ["none", "listed", "beginner", "intermediate", "advanced", "expert
 BANDS = ((0.55, "critical"), (0.35, "high"), (0.18, "medium"), (0.0, "low"))
 
 
+def _dedupe_evidence(items: list[dict]) -> list[dict]:
+    """One entry per (type, quote, span), ignoring how the line happened to wrap.
+
+    A PDF that breaks a sentence across lines produces the same sentence twice with
+    different newlines; the profile then showed the candidate the same proof twice, which
+    reads like padding.
+    """
+    seen: set[tuple] = set()
+    out: list[dict] = []
+    for item in items:
+        quote = " ".join(str(item.get("quote") or "").split())
+        key = (item.get("type"), quote, item.get("start"), item.get("end"))
+        loose = (item.get("type"), quote)
+        if key in seen or (not quote and loose in seen):
+            continue
+        if any(existing[1] == loose[1] and existing[0] == loose[0] for existing in seen):
+            continue
+        seen.add(key)
+        seen.add(loose)
+        out.append(item)
+    return out
+
+
 def band(priority: float) -> str:
     for threshold, name in BANDS:
         if priority >= threshold:
@@ -158,9 +181,19 @@ def score(resume: ParsedResume, jd: ParsedJD, *, verified: dict[str, dict] | Non
 
         evidence = list(claim.evidence) if claim else []
         if requirement is not None:
-            evidence += [dict(item, type="resume_skill_list") for item in requirement.evidence]
+            # A JD quote is not resume evidence. This used to be retyped as
+            # resume_skill_list, which put "followers alone are not the metric" on the
+            # candidate's own evidence list — the exact opposite of what this product
+            # promises. It keeps its own type and gains the document it came from.
+            evidence += [
+                dict(item, type="jd_requirement", document="jd")
+                for item in requirement.evidence
+            ]
         if verification.get("evidence"):
             evidence += verification["evidence"]
+        for item in evidence:
+            item.setdefault("document", "resume")
+        evidence = _dedupe_evidence(evidence)
 
         rows.append(
             ScoredSkill(
