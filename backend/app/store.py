@@ -385,6 +385,15 @@ def _scored_rows(session: Session, user_id: str) -> list:
     return out
 
 
+def scored_skills(session: Session, *, user_id: str) -> list[dict]:
+    """The candidate's skill rows as plain dicts — the shape the interview asks from.
+
+    Same query as the dashboard, so a question can only be about a skill the dashboard
+    is willing to show. Empty list means "this user has no scored graph yet".
+    """
+    return [row.as_json() for row in _scored_rows(session, user_id)]
+
+
 def dashboard_payload(session: Session, *, user_id: str) -> dict | None:
     """None when this user has no scored skills — the caller serves fixtures."""
     rows = _scored_rows(session, user_id)

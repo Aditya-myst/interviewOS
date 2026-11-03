@@ -269,7 +269,37 @@ export interface InterviewState {
   question?: {
     text: string; question_type: QuestionType; skill_id?: string | null;
     source: "jd" | "resume_project" | "weak_skill" | "verified_skill" | "general";
+    /** Display name of the skill the question came from. */
+    skill_name?: string;
+    /** How many rubric points the answer is scored against. */
+    rubric_size?: number;
   } | null;
+}
+
+/**
+ * Per-answer scoring. `quote` is a verbatim substring of what the candidate said, or
+ * null — and null means the answer earned no credit, not that the quote was omitted.
+ */
+export interface InterviewFeedback {
+  skill_id?: string | null;
+  skill_name: string;
+  score: number;
+  status_after: "weak" | "developing" | "verified" | "needs_revision";
+  quote?: string | null;
+  matched: string[];
+  missing: string[];
+  why: string;
+  /** "rubric" today: the score came from the taxonomy rubric, not a model. */
+  scored_by?: string;
+  flags?: string[];
+}
+
+/** One turn of the loop: where the session stands, what the last answer earned. */
+export interface InterviewAnswerResult {
+  state: InterviewState;
+  feedback: InterviewFeedback;
+  /** Present only on the answer that closes the session. */
+  report?: InterviewReport | null;
 }
 
 export interface Transcript {
@@ -284,6 +314,9 @@ export interface Transcript {
 
 export interface InterviewReport {
   session_id: string;
+  /** false when the session lived in memory and will not survive a restart. */
+  persisted?: boolean;
+  scored_by?: string;
   overall_scores: {
     overall?: number; technical?: number; problem_solving?: number;
     /** transcript-derived only — the UI must label it as such */

@@ -1,6 +1,6 @@
 # Where InterviewOS stands
 
-Last updated: 2026-11-02 · `main` at `78e285d`
+Last updated: 2026-11-02 · `main` at the interview-engine commit
 
 This file is the honest inventory. Anything not marked done does not exist yet — the
 UI says "SOON" rather than showing a mock of it.
@@ -25,39 +25,44 @@ UI says "SOON" rather than showing a mock of it.
 | LLM gateway | Groq + Gemini, cached, schema-validated, no-proficiency rule | `llm/` |
 | Landing | marketing page, real sample report | `/` |
 
-Backend: **120 tests**, ruff clean, schema checker ("17 queries / 18 tables"). Frontend:
+| Interview engine | sessions, questions from priority skills, quote-gated scoring, report | `interview/`, `api/interview.py` |
+
+Backend: **141 tests**, ruff clean, schema checker ("17 queries / 18 tables"). Frontend:
 tsc + eslint + `pnpm build` clean.
 
 ---
 
-## Provisioned but empty
+## Interview engine — done (backend)
 
-The database already has `interview_sessions`, `interview_messages`,
-`interview_reports`. `contracts/types.ts` already defines `InterviewState`,
-`Transcript`, `InterviewReport`. **Nothing writes to them yet.** The one interview
-endpoint that exists (`GET /v1/interview/{id}/report`) serves a recorded fixture, not a
-live session.
+Five paths from the spec that already existed, now implemented rather than imagined:
+`POST /interview/start` · `POST /interview/answer` · `GET /interview/{id}/transcript` ·
+`POST /interview/{id}/evaluate` · `GET /interview/{id}/report`.
+
+- questions are generated from the candidate's **priority skills** and carry a rubric
+  built from real subtopic objectives in `data/taxonomy.yaml`
+- `source` (jd / resume_project / weak_skill / verified_skill / general) is kept separate
+  from `question_type` (fundamentals / advanced / project_deep_dive / …), as the contract
+  always intended
+- scoring is deterministic and labelled `scored_by: "rubric"`. Coverage of the rubric
+  plus a **specificity** check: numbers, first-person actions, a place or time. A fluent
+  paragraph that name-drops every keyword scores 0.45 and cannot reach verified
+- no quote, no credit: an answer with nothing quotable is capped at 0.25 and flagged
+- `evaluate` re-scores from the transcript, so the report is reproducible and auditable
+- with a database the session persists and the score is written back to
+  `candidate_skills` (confidence moves halfway, one answer is one measurement); without
+  one it lives in memory and every report says `persisted: false`
 
 ---
 
 ## Not built — in the order it will be built
 
-### 1. Interview engine (backend) — next
-- `POST /v1/interview/sessions` → session, N questions chosen from priority skills
-- question mix from `contracts/types.ts`: `jd` / `resume_project` / `weak_skill` /
-  `verified_skill` / `general`, each labelled in the UI with where it came from
-- `POST /v1/interview/{id}/answer` → per-answer score **with quote evidence**, no score
-  without a quote
-- writeback: `candidate_skills` confidence + `status_after`, and `assessment_answers`
-- refusal path: an answer with no evidence scores as evidence-free, not as zero
-
-### 2. Interview + report screens
+### 1. Interview + report screens — next
 - `/interview`: one question at a time, timer, transcript, "why this question"
 - `/report`: overall + per-skill scores, strengths, gaps, weakest answers with a better
   answer outline, next actions. `communication_transcript_based` labelled as
   transcript-only, exactly as the contract says
 
-### 3. Voice interviewer
+### 2. Voice interviewer
 - **Recording:** browser `MediaRecorder` (opus/webm), no plugin
 - **Transcription:** Groq `whisper-large-v3` on the existing Groq key (free tier:
   2,000 requests/day), stored as an `interview_message` of role `candidate`, with the
@@ -69,19 +74,19 @@ live session.
   needs a quote. Communication is reported as transcript-derived only — accent, pace
   and confidence are not measured and are not claimed
 
-### 4. Assessment ladder
+### 3. Assessment ladder
 Short checkpoints per subtopic (3–5 items) that flip `provisional: true` skills into
 verified ones, so `candidate_skills` has more than one source of truth.
 
-### 5. Tutor chat
+### 4. Tutor chat
 Per-skill chat scoped to the candidate's own gaps and the curated resources for that
 skill; answers must cite a row or say it does not know.
 
-### 6. LLM extension pass
+### 5. LLM extension pass
 For the 22 skills with no curated resource: propose a link, verify it with an HTTP
 check, mark `generated: true`. A link that fails the check is dropped, not shown.
 
-### 7. Polish that is already known to be missing
+### 6. Polish that is already known to be missing
 - onboarding does not upload yet ("Files stay in this browser until the parsing API
   ships") — wire it to `POST /v1/resume/upload`
 - fixture world lacks `missing_roles`, live world shows all three gaps: align
@@ -96,6 +101,7 @@ mobile app, payments.
 
 ## The 15-day shape
 
-Days 1–8 are spent (blocks 0–2). Remaining: interview engine → screens → voice →
-assessment → tutor → extension pass. Voice is deliberately after the text engine
-because it reuses all of it: same session, same scoring, one extra transcription step.
+The engine is done and the loop closes on the backend. Remaining: the two screens that
+show it, then voice — which reuses the same session and the same scoring, with one
+Transcription step in front. The `audio_url` field already exists in the answer body and
+`channel: "voice"` in the start body, because the contract carried them from day one.

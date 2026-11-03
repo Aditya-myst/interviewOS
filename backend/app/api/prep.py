@@ -1,5 +1,11 @@
 """Read endpoints for the preparation screens.
 
+The interview report endpoint moved to app/api/interview.py when live sessions arrived:
+two routers claiming GET /v1/interview/{id}/report meant the *fixture* one won (it was
+registered first), so a finished session returned a recorded report instead of its own.
+One owner per path.
+
+
 Phase 4 serves them from contracts/fixtures and says so in the `X-Data-Source`
 header. Phase 5 replaces the bodies with SQL against candidate_skills,
 learning_paths and learning_topics — the response models do not change, so the
@@ -122,8 +128,3 @@ def roadmap(response: Response, state: str | None = None) -> dict[str, Any]:
 @router.get("/preparation/latest")
 def preparation_latest(response: Response) -> dict[str, Any]:
     return _serve(response, "preparation_plan")
-
-
-@router.get("/interview/{session_id}/report")
-def interview_report(session_id: str, response: Response) -> dict[str, Any]:
-    return _serve(response, "interview_report")

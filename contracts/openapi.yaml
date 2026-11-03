@@ -243,7 +243,14 @@ paths:
         required: true
         content: { application/json: { schema: { $ref: "#/components/schemas/InterviewAnswerInput" } } }
       responses:
-        "200": { description: next question or finish, content: { application/json: { schema: { $ref: "#/components/schemas/InterviewState" } } } }
+        "200":
+          description: |
+            The session state plus what the last answer earned. `feedback.quote` is a
+            verbatim substring of the answer, or null — null means the answer was worth
+            no credit, not that the quote was left out. `report` appears only on the
+            answer that closes the session.
+          content: { application/json: { schema: { $ref: "#/components/schemas/InterviewAnswerResult" } } }
+        "409": { description: session already closed }
 
   /interview/{session_id}/transcript:
     get:
@@ -592,6 +599,8 @@ components:
           nullable: true
           properties:
             text: { type: string }
+            skill_name: { type: string, description: display name of the skill asked about }
+            rubric_size: { type: integer, description: rubric points this answer is scored against }
             question_type: { type: string, enum: [fundamentals, advanced, coding, debugging, project_deep_dive, scenario, system_design, behavioral] }
             hint: { type: string, nullable: true }
         feedback:
@@ -661,6 +670,8 @@ components:
           nullable: true
           properties:
             text: { type: string }
+            skill_name: { type: string, description: display name of the skill asked about }
+            rubric_size: { type: integer, description: rubric points this answer is scored against }
             question_type: { type: string, enum: [fundamentals, advanced, coding, debugging, project_deep_dive, scenario, system_design, behavioral] }
             skill_id: { type: string, nullable: true }
             source: { type: string, enum: [jd, resume_project, weak_skill, verified_skill, general] }
@@ -764,3 +775,29 @@ components:
               score: { type: number, nullable: true }
               duration_minutes: { type: integer, nullable: true }
               created_at: { type: string, format: date-time }
+    InterviewAnswerResult:
+      type: object
+      required: [state, feedback]
+      properties:
+        state: { $ref: "#/components/schemas/InterviewState" }
+        feedback: { $ref: "#/components/schemas/InterviewFeedback" }
+        report:
+          allOf: [{ $ref: "#/components/schemas/InterviewReport" }]
+          nullable: true
+    InterviewFeedback:
+      type: object
+      required: [skill_name, score, status_after, matched, missing, why]
+      properties:
+        skill_id: { type: string, nullable: true }
+        skill_name: { type: string }
+        score: { type: number, minimum: 0, maximum: 1 }
+        status_after: { type: string, enum: [weak, developing, verified, needs_revision] }
+        quote:
+          type: string
+          nullable: true
+          description: Verbatim substring of the candidate answer, or null when nothing was evidenced
+        matched: { type: array, items: { type: string } }
+        missing: { type: array, items: { type: string } }
+        why: { type: string }
+        scored_by: { type: string, description: rubric today; llm only if a model really scored it }
+        flags: { type: array, items: { type: string } }

@@ -14,7 +14,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.api import pipeline, prep, system
+from app.api import interview, pipeline, prep, system
 from app.config import get_settings
 from app.fixtures import FixtureMissing
 from app.llm import LLMUnavailable, get_gateway
@@ -54,6 +54,7 @@ def create_app() -> FastAPI:
     app.include_router(system.router)
     app.include_router(prep.router, prefix="/v1")
     app.include_router(pipeline.router, prefix="/v1")
+    app.include_router(interview.router, prefix="/v1")
 
     @app.exception_handler(LLMUnavailable)
     async def _llm_unavailable(_: Request, exc: LLMUnavailable) -> JSONResponse:
