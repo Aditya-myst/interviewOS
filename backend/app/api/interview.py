@@ -25,7 +25,7 @@ from fastapi import APIRouter, HTTPException, Response
 from pydantic import BaseModel, Field
 
 from app import fixtures, store
-from app.db import db_status, get_session
+from app.db import db_status, session_factory
 from app.interview import service
 from app.interview.store import NotFound
 from app.interview.store import memory_store as _memory
@@ -62,24 +62,37 @@ def _backend(response: Response) -> Iterator[tuple[list[dict[str, Any]], Any, An
     One decision point for "where does this live", used by every endpoint, so the header
     can never disagree with the store that actually answered.
     """
+    # The setup is inside the try; the yield is NOT. A context manager that yields inside a
+    # try/except turns an endpoint's own HTTPException into `RuntimeError: generator didn't
+    # stop after throw()` — a 404 for "skill not in your profile" arrived as a 500, and the
+    # handler then went on to yield the fixture fallback, which is how a live request can
+    # quietly answer from fixtures.
+    db = None
+    skills: list[dict[str, Any]] | None = None
+    user_id: str | None = None
     if db_status()["state"] == "connected":
         try:
-            with get_session() as db:
-                user_id, _ = store.resolve_user(db)
-                skills = store.scored_skills(db, user_id=user_id)
-                if skills:
-                    response.headers["X-Data-Source"] = "database"
-                    yield skills, service.store_for(db_session=db, user_id=user_id), db, user_id
-                    return
-                response.headers["X-Fallback-Reason"] = "no_rows"
+            db = session_factory()()
+            user_id, _ = store.resolve_user(db)
+            skills = store.scored_skills(db, user_id=user_id)
         except store.UserUnresolved:
             response.headers["X-Fallback-Reason"] = "no_profile"
         except Exception:
             log.exception("interview backend read failed — using memory")
             response.headers["X-Fallback-Reason"] = "db_error"
 
+    if skills and db is not None and user_id:
+        response.headers["X-Data-Source"] = "database"
+        try:
+            yield skills, service.store_for(db_session=db, user_id=user_id), db, user_id
+        finally:
+            db.close()
+        return
+
+    if db is not None:
+        db.close()
+    response.headers.setdefault("X-Fallback-Reason", "no_rows" if skills is not None else "no_db")
     response.headers["X-Data-Source"] = "memory"
-    response.headers.setdefault("X-Fallback-Reason", "no_db")
     yield _fixture_skills(), _memory(), None, None
 
 
@@ -111,9 +124,9 @@ def answer(response: Response, body: InterviewAnswerInput) -> dict[str, Any]:
         writeback = None
         if db is not None and user_id:
 
-            def writeback(skill_id, result):
+            def writeback(skill_id, result, level=None):
                 service.writeback_to_candidate_skills(
-                    db, user_id=user_id, skill_id=skill_id, result=result
+                    db, user_id=user_id, skill_id=skill_id, result=result, level=level
                 )
 
         try:

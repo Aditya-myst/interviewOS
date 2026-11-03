@@ -23,6 +23,7 @@ from dataclasses import dataclass
 
 from app.interview.questions import Question, RubricItem, _content_terms
 from app.parsing import taxonomy
+from app.prep.lexicon import INSTRUCTION_WORDS
 
 # Ladder level -> the taxonomy level whose subtopic it draws from.
 LEVEL_SUBTOPIC = {
@@ -36,13 +37,30 @@ LEVELS = tuple(LEVEL_SUBTOPIC)
 # codes correctly"). Words that describe the *question*, not the concept, are removed
 # before a rubric is built — otherwise a perfect answer stays "missing: correctly,
 # without, explain" and can never clear the bar.
-NON_CONCEPT = frozenset(
+# Words that instruct the *candidate*, not describe the *concept*. A rubric built from
+# these punishes a correct answer for not parroting the syllabus: "explain generation limits
+# without mysticism" used to demand the word "mysticism" (and "work"), so a genuinely good
+# answer scored 22/100. Concept terms have to be things an answer would say.
+NON_CONCEPT = INSTRUCTION_WORDS | frozenset(
     {
-        "correctly", "properly", "cleanly", "quickly", "without", "explain", "explains",
-        "describe", "identify", "state", "list", "know", "understand", "fundamentals",
-        "basics", "concepts", "must", "should", "able", "also", "basic", "simple",
-        "common", "typical", "following", "given", "enough", "really", "actually",
-        "correct", "right", "better", "proper", "clear", "thing", "things",
+        # adverbs and qualifiers
+        "correctly", "properly", "cleanly", "quickly", "without", "really", "actually",
+        "enough", "given", "following", "also", "only", "ever", "never", "always",
+        # instruction verbs: what to do with knowledge, not the knowledge
+        "explain", "explains", "describe", "identify", "state", "list", "know", "understand",
+        "use", "uses", "using", "make", "makes", "take", "takes", "give", "gives", "get",
+        "run", "runs", "write", "writes", "read", "reads", "build", "builds", "design",
+        "designs", "test", "tests", "choose", "chooses", "pick", "picks", "keep", "keeps",
+        "apply", "applies", "ensure", "avoid", "handle", "handles", "manage", "manages",
+        "measure", "measures", "plan", "plans", "compare", "evaluate", "decide", "turn", "turns", "work", "works", "go", "goes", "put", "set", "sets", "show",
+        # empty nouns
+        "fundamentals", "basics", "concepts", "basic", "simple", "common", "typical",
+        "correct", "right", "better", "proper", "clear", "thing", "things", "way", "ways",
+        "part", "parts", "point", "points", "level", "levels", "kind", "kinds", "sort",
+        "job", "jobs", "problem", "problems", "case", "cases", "example", "examples",
+        "first", "next", "last", "small", "large", "good", "bad", "new", "old", "own",
+        "actual", "real", "same", "different", "others", "someone", "something",
+        "must", "should", "able", "need", "needs", "want", "wants", "start", "starts",
     }
 )
 
@@ -71,19 +89,33 @@ def _root(term: str) -> str:
     alongside the term. The quote requirement is unchanged.
     """
     for suffix in ("ing", "ed", "es", "s"):
-        if term.endswith(suffix) and len(term) - len(suffix) >= 4:
+        # Three characters is enough for a plural: "llms" must reach "llm", or an answer that
+        # says "the LLM's context window" is scored as if it never mentioned LLMs.
+        floor = 3 if suffix in ("s", "es") else 4
+        if term.endswith(suffix) and len(term) - len(suffix) >= floor:
             return term[: -len(suffix)]
     return term
 
 
 def _concept_terms(subtopic: dict) -> tuple[str, ...]:
-    """The words a good answer would actually have to contain."""
+    """The words a good answer would actually have to contain.
+
+    Title first: it names the concept ("tokens, context, temperature"), while the objective
+    is the instruction ("explain generation limits without mysticism"). If filtering leaves
+    fewer than two terms the raw title words are kept, because a rubric with no reachable
+    term scores every answer zero — worse than an imperfect one.
+    """
     words: list[str] = []
-    for source in (str(subtopic.get("objective") or ""), str(subtopic.get("title") or "")):
+    for source in (str(subtopic.get("title") or ""), str(subtopic.get("objective") or "")):
         for term in _content_terms(source):
             if term in NON_CONCEPT or term in words:
                 continue
             words.append(term)
+    if len(words) < 2:
+        fallback = [t for t in _content_terms(str(subtopic.get("title") or "")) if len(t) > 3]
+        for term in fallback:
+            if term not in words:
+                words.append(term)
     return tuple(words)
 
 

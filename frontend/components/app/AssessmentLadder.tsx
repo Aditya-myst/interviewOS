@@ -107,9 +107,12 @@ export default function AssessmentLadder({
             ? `${total} of ${total} checkpoints`
             : `checkpoint ${Math.min(done + 1, total)} of ${total}`}
         </span>
+        {/* `persisted` is false while the ladder is still running: nothing is written
+            until the last checkpoint, so "demo mode" was wrong mid-ladder and alarming at
+            the end. The badge now says which of the two it is. */}
         {state?.persisted === false && (
           <span className="type-micro rounded-full bg-[var(--developing)]/10 px-2 py-0.5 text-[var(--developing)]">
-            not saved — demo mode
+            {phase === "done" ? "not saved — the write failed" : "saves when you finish"}
           </span>
         )}
       </div>

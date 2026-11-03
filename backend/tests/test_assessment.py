@@ -220,3 +220,28 @@ def test_an_empty_answer_is_rejected_before_it_reaches_the_scorer():
 
 def test_levels_are_the_three_the_contract_names():
     assert set(LEVELS) == {"conceptual", "practical", "applied"}
+
+
+@pytest.fixture
+def client():
+    from fastapi.testclient import TestClient
+
+    from app.main import app
+
+    return TestClient(app)
+
+
+def test_an_unknown_skill_is_a_404_not_a_500(client):
+    """Regression: the status was raised inside a context manager that yielded in its try,
+    so FastAPI saw `RuntimeError: generator didn't stop after throw()` and answered 500 —
+    after which the handler went on to yield fixture data."""
+    response = client.post("/v1/assessment/start", json={"skill_id": "definitely-not-a-skill"})
+    assert response.status_code == 404
+    assert "not in this profile" in str(response.json().get("detail"))
+
+
+def test_an_endpoint_error_does_not_flip_the_data_source(client):
+    """A refused request must not claim to be served from the database or from memory."""
+    response = client.post("/v1/assessment/start", json={"skill_id": "definitely-not-a-skill"})
+    assert response.status_code == 404
+    assert response.headers.get("x-data-source") in (None, "fixture", "memory")

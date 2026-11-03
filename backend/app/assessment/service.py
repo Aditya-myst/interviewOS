@@ -368,10 +368,10 @@ def writeback(db_session, *, user_id: str, record: AssessmentRecord) -> bool:
             # Halfway, same as the interview: one measurement does not overwrite a profile.
             skill.confidence = Decimal(str(round(current + (new_conf - current) / 2, 2)))
             skill.verified_level = record.result["inferred_level"]
-            if record.result["status_after"] == "verified":
-                skill.status = "verified"
-            elif skill.status in ("unverified", "claimed"):
-                skill.status = "developing"
+            # Same table the interview uses: the ladder proposes, the schema decides.
+            from app.prep.status import reconcile
+
+            skill.status = reconcile(skill.status, record.result["status_after"])
             evidence = list(skill.evidence or [])
             for a in record.answers:
                 if a.quote:

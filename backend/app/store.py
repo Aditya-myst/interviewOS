@@ -17,6 +17,7 @@ from __future__ import annotations
 import json
 import logging
 import uuid as uuid_mod
+from datetime import UTC, datetime
 
 from sqlalchemy import text
 from sqlalchemy.orm import Session
@@ -463,6 +464,53 @@ def scored_skills(session: Session, *, user_id: str) -> list[dict]:
     return [row.as_json() for row in _scored_rows(session, user_id)]
 
 
+def _now_iso() -> str:
+    return datetime.now(UTC).isoformat().replace("+00:00", "Z")
+
+
+def preparation_payload(session: Session, *, user_id: str) -> dict | None:
+    """The preparation plan, assembled from the same rows the other screens read.
+
+    `/v1/preparation/latest` was the last endpoint that answered from a fixture even with a
+    live database — the plan on it described somebody else's profile. It is a composition of
+    three queries that already exist, so it costs one extra read, not new logic: readiness
+    from the dashboard, skills from the profile, topics from the roadmap.
+
+    None when there is nothing scored, so the caller can fall back and say so in the header.
+    """
+    dashboard = dashboard_payload(session, user_id=user_id)
+    profile = profile_payload(session, user_id=user_id)
+    roadmap = roadmap_payload(session, user_id=user_id)
+    if not dashboard or not profile or not roadmap:
+        return None
+
+    topics = list(roadmap.get("topics") or [])
+    next_action = None
+    for topic in topics:
+        if topic.get("status") == "done":
+            continue
+        objective = str(topic.get("objective") or "").rstrip(".")
+        next_action = (
+            f"{topic.get('title')} ({topic.get('skill_name')}) — {objective}."
+            if objective
+            else f"Start {topic.get('title')} ({topic.get('skill_name')})."
+        )
+        break
+    if next_action is None:
+        next_action = "Every topic in your plan is done. Run a mock interview to re-verify."
+
+    return {
+        "id": roadmap.get("id") or dashboard.get("id") or user_id,
+        "readiness": dashboard.get("readiness"),
+        "readiness_label": dashboard.get("readiness_label"),
+        "next_best_action": next_action,
+        "generated_at": _now_iso(),
+        "parse_status": "ok",
+        "skill_profile": profile,
+        "roadmap": roadmap,
+    }
+
+
 def dashboard_payload(session: Session, *, user_id: str) -> dict | None:
     """None when this user has no scored skills — the caller serves fixtures."""
     rows = _scored_rows(session, user_id)
@@ -498,13 +546,28 @@ def dashboard_payload(session: Session, *, user_id: str) -> dict | None:
                 "s.started_at "
                 "from public.interview_sessions s "
                 "left join public.interview_reports r on r.session_id = s.id "
-                "where s.user_id = cast(:user_id as uuid) order by s.started_at desc limit 10"
+                # Completed only: a session abandoned after two answers is not "a mock
+                # interview you did", and listing it with a dash inflated the count.
+                "where s.user_id = cast(:user_id as uuid) and s.status = 'completed' "
+                "order by s.started_at desc limit 10"
             ),
             {"user_id": user_id},
         ).mappings().all()
     ]
 
-    return build_dashboard(rows, target_role=role, interviews=interviews)
+    # The roadmap is derived from these same rows, so count its topics the same way: the
+    # dashboard used to print "0 of 0 topics done" while the roadmap screen showed five.
+    skill_ids = sorted({row.skill_id for row in rows if row.priority_band != "low"})
+    catalogue = catalogue_for(session, skill_ids=skill_ids) if skill_ids else {}
+    plan = build_roadmap(rows, catalogue, target_role=role)
+    topics = list(plan.get("topics") or [])
+    return build_dashboard(
+        rows,
+        target_role=role,
+        interviews=interviews,
+        topics_done=sum(1 for t in topics if t.get("status") == "done"),
+        topics_total=len(topics),
+    )
 
 
 def roadmap_payload(session: Session, *, user_id: str) -> dict | None:

@@ -127,4 +127,9 @@ def roadmap(response: Response, state: str | None = None) -> dict[str, Any]:
 
 @router.get("/preparation/latest")
 def preparation_latest(response: Response) -> dict[str, Any]:
-    return _serve(response, "preparation_plan")
+    """The plan for *this* candidate: readiness, skills and topics from the database."""
+    stored, reason = _from_store("preparation_payload")
+    if stored is not None:
+        response.headers["X-Data-Source"] = "database"
+        return stored
+    return _serve(response, "preparation_plan", None, reason)

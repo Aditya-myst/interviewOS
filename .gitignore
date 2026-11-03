@@ -39,3 +39,8 @@ Thumbs.db
 # ── local data ───────────────────────────────────────────
 *.db
 *.sqlite3
+
+# ── python tooling ───────────────────────────────────────
+.pytest_cache/
+__pycache__/
+.ruff_cache/

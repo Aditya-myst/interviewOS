@@ -15,6 +15,7 @@ Evidence rules that the API must not break:
 """
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 from app.interview import questions as engine
@@ -106,13 +107,16 @@ def answer(
     store.advance(session_id)
 
     if writeback is not None:
-        writeback(question.skill_id, result)
+        writeback(question.skill_id, result, question.expected_level)
 
     record = store.get(session_id) or record
     if record.asked >= len(plan):
-        store.complete(session_id, score=None)
-        record = store.get(session_id) or record
+        # Build the report first: the session row should carry the same overall score the
+        # report shows. It used to be completed with score=None and never updated, so
+        # `interview_sessions.score` was NULL for every finished interview.
         report = build_report(store, session_id=session_id, plan=plan, skills=skills)
+        store.complete(session_id, score=(report.get("overall_scores") or {}).get("overall"))
+        record = store.get(session_id) or record
         store.save_report(session_id, report)
         return {
             "state": state_of(store, record, plan),
@@ -327,8 +331,17 @@ def store_for(*, db_session=None, user_id: str | None = None):
 
     return memory_store()
 
+log = logging.getLogger(__name__)
 
-def writeback_to_candidate_skills(db_session, *, user_id: str, skill_id: str | None, result: engine.AnswerScore):
+
+def writeback_to_candidate_skills(
+    db_session,
+    *,
+    user_id: str,
+    skill_id: str | None,
+    result: engine.AnswerScore,
+    level: str | None = None,
+):
     """Record what the interview proved, in the same table the dashboard reads."""
     if not skill_id:
         return None
@@ -347,6 +360,8 @@ def writeback_to_candidate_skills(db_session, *, user_id: str, skill_id: str | N
     if row is None:
         return None
 
+    from app.prep.status import reconcile
+
     evidence = list(row.evidence or [])
     if result.quote:
         evidence.append(
@@ -358,12 +373,27 @@ def writeback_to_candidate_skills(db_session, *, user_id: str, skill_id: str | N
             }
         )
     row.evidence = evidence
-    row.status = result.status_after
+    # The schema's guard only accepts some moves: `claimed -> needs_revision` is a CHECK
+    # violation, and raising it here killed the whole answer mid-interview. A low score on
+    # a skill that was never verified is `weak`, not "needs revision".
+    row.status = reconcile(row.status, result.status_after)
+    # The schema will not accept `verified` without a level (`verified_needs_level`), and it
+    # is right not to: "verified" with no level says nothing. The rung's own level is what
+    # the answer demonstrated, so that is what gets recorded — never invented.
+    if row.status == "verified" and not row.verified_level:
+        row.verified_level = level if level in {"beginner", "intermediate", "advanced", "expert"} else "intermediate"
     # Confidence moves toward the score, but slowly: one answer is one measurement.
     previous = float(row.confidence or 0)
     row.confidence = round(previous + (result.score - previous) * 0.5, 2)
     row.last_assessed_at = datetime.now(UTC)
-    db_session.commit()
+    try:
+        db_session.commit()
+    except Exception:
+        # The answer still counts — it is scored, quoted and returned. Losing the write is
+        # a persistence problem, not a reason to throw away what the candidate just said.
+        log.exception("interview writeback failed for %s — the answer was not stored", skill_id)
+        db_session.rollback()
+        return None
     return row
 
 

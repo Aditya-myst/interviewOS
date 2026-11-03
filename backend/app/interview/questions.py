@@ -19,6 +19,7 @@ import re
 from dataclasses import dataclass, field
 
 from app.parsing import taxonomy
+from app.prep.lexicon import INSTRUCTION_WORDS
 
 # Words that appear in every objective and therefore discriminate nothing.
 STOPWORDS = frozenset(
@@ -88,18 +89,22 @@ def _words(text: str) -> list[str]:
 
 
 def _content_terms(text: str, *, keep: tuple[str, ...] = ()) -> tuple[str, ...]:
-    """Discriminative words from a sentence, in the order they appear."""
+    """Discriminative words from a sentence, in the order they appear.
+
+    `keep` used to be appended verbatim, so a subtopic title became one "term" — the phrase
+    "how llms work: tokens, context, temperature" — which no answer can contain. Titles are
+    now split into words, and instruction words ("explain", "measure", "without") are
+    dropped: they tell the candidate what to do, they are not what an answer says.
+    """
     seen: list[str] = []
+    for source in keep:
+        text = f"{source} {text}"
     for word in _words(text):
         bare = word.strip(".")
-        if len(bare) < 4 or bare in STOPWORDS:
+        if len(bare) < 4 or bare in STOPWORDS or bare in INSTRUCTION_WORDS:
             continue
         if bare not in seen:
             seen.append(bare)
-    for extra in keep:
-        low = extra.lower()
-        if low and low not in seen:
-            seen.append(low)
     return tuple(seen)
 
 

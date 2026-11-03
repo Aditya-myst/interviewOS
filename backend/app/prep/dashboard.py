@@ -88,11 +88,10 @@ def build_dashboard(
     today: date | None = None,
 ) -> dict:
     interviews = interviews or []
-    score = (
-        round(sum(i.get("score") or 0 for i in interviews) / len(interviews), 1)
-        if interviews
-        else None
-    )
+    # Only interviews that produced a score. Counting an unfinished session as 0.0 dragged
+    # the average down — ten sessions, three scored, printed "avg interview score 0.1".
+    scored = [i["score"] for i in interviews if i.get("score") is not None]
+    score = round(sum(scored) / len(scored), 2) if scored else None
     readiness_value = readiness(rows)
     day = (today or date.today()).isoformat()
 
