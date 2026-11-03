@@ -35,11 +35,12 @@ def test_windows_scripts_parse_if_powershell_is_available():
     import shutil
     import subprocess
 
-    pwsh = shutil.which("pwsh")
-    if pwsh is None:
+    # Windows ships Windows PowerShell 5.1 as powershell.exe; PowerShell 7 is pwsh.
+    shell = shutil.which("pwsh") or shutil.which("powershell")
+    if shell is None:
         import pytest
 
-        pytest.skip("pwsh not installed")
+        pytest.skip("no PowerShell on this machine")
 
     for path in REPO.rglob("*.ps1"):
         if any(part in {".venv", "node_modules", ".git"} for part in path.parts):
@@ -49,5 +50,5 @@ def test_windows_scripts_parse_if_powershell_is_available():
             f"[System.Management.Automation.Language.Parser]::ParseFile('{path}',[ref]$t,[ref]$e)|Out-Null;"
             "if($e.Count){$e|%{$_.Message};exit 1}else{exit 0}"
         )
-        result = subprocess.run([pwsh, "-NoProfile", "-Command", cmd], capture_output=True, text=True, check=False)
+        result = subprocess.run([shell, "-NoProfile", "-Command", cmd], capture_output=True, text=True, check=False)
         assert result.returncode == 0, f"{path.name}: {result.stdout}{result.stderr}"
