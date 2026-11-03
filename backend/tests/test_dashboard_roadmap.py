@@ -14,7 +14,11 @@ from app.parsing.extract import extract
 from app.prep import priority
 from app.prep.dashboard import attainment, build_dashboard, coverage, readiness, readiness_label
 from app.prep.roadmap import build_roadmap
-from tests.test_planning import JD_TEXT, RESUME_TEXT  # reuse the same synthetic pair
+
+from .test_planning import JD_TEXT, RESUME_TEXT  # reuse the same synthetic pair
+
+# Relative on purpose: an absolute `tests.` import can be hijacked by any installed
+# distribution that ships a `tests` package (bitcoinlib does). See tests/__init__.py.
 
 
 def scored_rows(verified: dict | None = None):

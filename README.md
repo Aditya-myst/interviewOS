@@ -68,6 +68,26 @@ cd backend && uv sync; uv run uvicorn app.main:app --reload --port 8000
 #    http://localhost:8000/docs     full API map: backend/README.md
 ```
 
+## Verify it
+
+One command, whole repo, plain verdict:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1
+```
+
+It runs the backend suite, lint on both sides, and a production build of the frontend, then
+prints a PASS/FAIL table and exits non-zero if anything failed. No database and no API key
+needed. Add `-SkipBuild` to stop after lint.
+
+The backend suite runs without Postgres by default. The one test that proves status moves
+match the database trigger only runs when you point it at a database:
+
+```powershell
+$env:INTERVIEWOS_TEST_DATABASE_URL="postgresql+psycopg://postgres:postgres@localhost:5432/postgres"
+python -m pytest tests/test_status_transitions.py
+```
+
 ## Design system
 
 Cream canvas, ink slabs for contrast, one green accent. Green `#22C55E` is used for
@@ -78,12 +98,13 @@ contrast-corrected variants, not the decorative tones.
 
 - [x] Contract pack, taxonomy, curated resources, environment doctor
 - [x] Design system, marketing page
-- [x] Dashboard, gap map, roadmap (roadmap is still card-based)
+- [x] Dashboard, gap map, roadmap
 - [x] API service: /health, /ready, honest degraded mode, LLM gateway with fallback + cache
-- [ ] Interview room, report screen
-- [ ] Resume + JD intelligence (deterministic-first parsing)
-- [ ] Skill verification engine (3-level ladder + rubric)  ← the pipeline that replaces fixtures
-- [ ] Resource resolver with URL verification
+- [x] Interview room, report screen
+- [x] Resume + JD intelligence (deterministic-first parsing)
+- [x] Skill verification engine (3-level ladder + rubric)
+- [x] Tutor
+- [ ] Resource resolver with URL verification (role gaps are named, not filled)
 - [ ] Voice interviews (Whisper STT + local TTS)
 
 ## Licence
