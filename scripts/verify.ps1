@@ -46,23 +46,44 @@ Write-Host ""
 # ---------------------------------------------------------------- python
 Push-Location (Join-Path $repo "backend")
 try {
+    # Prefer uv: ruff and pytest-asyncio live in uv.lock, so `uv run` gives the same
+    # environment the lockfile describes. Bare `python -m pytest` on a machine that never
+    # ran `uv sync` skips lint entirely, which is how a lint failure ships unnoticed.
+    $uv = Get-Command uv -ErrorAction SilentlyContinue
+    if ($uv) { $py = "uv"; $pyArgs = @("run", "python") } else { $py = "python"; $pyArgs = @() }
+    if (-not $uv) {
+        Write-Host "  note  uv not found, using whatever python is on PATH (pip install uv to match the lockfile)" -ForegroundColor Yellow
+    }
+
     Write-Host "[1/4] backend tests" -ForegroundColor Cyan
-    python -m pytest -q
-    Show-Result "backend tests" $LASTEXITCODE "python -m pytest"
+    & $py @pyArgs -m pytest -q
+    Show-Result "backend tests" $LASTEXITCODE ($py + " -m pytest")
 
     Write-Host "[2/4] backend lint" -ForegroundColor Cyan
-    $ruffExe = Get-Command ruff -ErrorAction SilentlyContinue
-    if ($ruffExe) {
+    # Ask whether the module exists before running it. `python -m ruff` when ruff is absent
+    # exits 1 with "No module named ruff", which is the same code as "found violations" -- so
+    # the naive version reported a lint failure on a clean tree.
+    & $py @pyArgs -c "import ruff" 2>$null
+    $lintRan = $false
+    $lintCode = 0
+    $lintDetail = ""
+    if ($LASTEXITCODE -eq 0) {
+        $lintRan = $true
+        $lintDetail = $py + " -m ruff check"
+        & $py @pyArgs -m ruff check .
+        $lintCode = $LASTEXITCODE
+    } elseif ($ruffExe) {
+        $lintRan = $true
+        $lintDetail = "ruff check"
         ruff check .
-        Show-Result "backend lint" $LASTEXITCODE "ruff check"
+        $lintCode = $LASTEXITCODE
+    }
+
+    if ($lintRan) {
+        Show-Result "backend lint" $lintCode $lintDetail
     } else {
-        python -m ruff check . 2>$null
-        if ($LASTEXITCODE -eq 0) {
-            Show-Result "backend lint" 0 "python -m ruff check"
-        } else {
-            Write-Host "  SKIP  backend lint (ruff not installed: pip install ruff)" -ForegroundColor Yellow
-            Add-Result "backend lint" "SKIP" "ruff not installed"
-        }
+        Write-Host "  SKIP  backend lint (install it: pip install ruff, or use uv)" -ForegroundColor Yellow
+        Add-Result "backend lint" "SKIP" "ruff not installed"
     }
 } finally {
     Pop-Location
@@ -83,14 +104,18 @@ try {
             pnpm install --frozen-lockfile
         }
 
+        # `pnpm typecheck` is `next typegen && tsc --noEmit`. The typegen step is not
+        # decoration: .next/types/validator.ts is generated, and one left over from a build
+        # before a route was deleted keeps pointing at that route, so a plain `tsc` fails on
+        # a file nobody wrote, pointing at a page that no longer exists.
         Write-Host "[3/4] frontend typecheck and lint" -ForegroundColor Cyan
-        pnpm exec tsc --noEmit
+        pnpm run typecheck
         $tsc = $LASTEXITCODE
         if ($tsc -eq 0) {
             pnpm exec eslint .
-            Show-Result "frontend typecheck and lint" $LASTEXITCODE "tsc --noEmit; eslint ."
+            Show-Result "frontend typecheck and lint" $LASTEXITCODE "pnpm typecheck; eslint ."
         } else {
-            Show-Result "frontend typecheck" $tsc "tsc --noEmit"
+            Show-Result "frontend typecheck" $tsc "pnpm typecheck"
         }
 
         if ($SkipBuild) {

@@ -70,15 +70,19 @@ cd backend && uv sync; uv run uvicorn app.main:app --reload --port 8000
 
 ## Verify it
 
-One command, whole repo, plain verdict:
+One command, whole repo, plain verdict. Run it from the repo root:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\verify.ps1
+powershell -ExecutionPolicy Bypass -File .\verify.ps1
 ```
+
+(There is a copy in `backend/` too, so `cd backend` then the same command also works.)
 
 It runs the backend suite, lint on both sides, and a production build of the frontend, then
 prints a PASS/FAIL table and exits non-zero if anything failed. No database and no API key
-needed. Add `-SkipBuild` to stop after lint.
+needed. Add `-SkipBuild` to stop after lint. If `uv` is installed it runs the backend through
+`uv run`, so the versions match `uv.lock`; without it, whatever `python` is on PATH is used and
+lint is skipped if ruff is missing there.
 
 The backend suite runs without Postgres by default. The one test that proves status moves
 match the database trigger only runs when you point it at a database:
