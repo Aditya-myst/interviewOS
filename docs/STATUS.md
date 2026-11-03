@@ -1,6 +1,6 @@
 # Where InterviewOS stands
 
-Last updated: 2026-11-03 · `main` at the tutor commit
+Last updated: 2026-11-03 · `main` at the upsert-ownership fix
 
 This file is the honest inventory. Anything not marked done does not exist yet — the
 UI says "SOON" rather than showing a mock of it.
@@ -30,7 +30,7 @@ UI says "SOON" rather than showing a mock of it.
 | Tutor | per-skill answers composed from profile rows + curriculum + catalogue, every claim cited | `tutor/`, `api/tutor.py`, `/tutor` |
 | Interview engine | sessions, questions from priority skills, quote-gated scoring, report | `interview/`, `api/interview.py` |
 
-Backend: **195 tests**, ruff clean, schema checker ("17 queries / 18 tables"). Frontend:
+Backend: **198 tests**, ruff clean, schema checker ("17 queries / 18 tables"). Frontend:
 tsc + eslint + `pnpm build` clean.
 
 ---
@@ -79,6 +79,49 @@ does not exist. With a database connected the same panel shows the scored-skill 
 links to `/dashboard` and `/gap-map`. **The persisted branch is not exercised in this
 sandbox — there is no Postgres here**; it is the same code path the upload endpoint has
 always taken, reviewed but not run.
+
+---
+
+## Fixed after the first real-database run
+
+`POST /v1/resume/upload` returned 500 on a real Supabase project:
+
+```
+psycopg.errors.CheckViolation: skill content-strategy: illegal transition weak -> unverified
+PL/pgSQL function enforce_skill_transition() line 31 at RAISE
+```
+
+**Cause.** The recompute's upsert had `on conflict do update set status = excluded.status`.
+The resume/JD pass always computes a *score*, and a fresh score is `unverified` — so every
+re-upload tried to reset a skill that an interview had already graded `weak`. The schema's
+guard refused the downgrade, correctly, and the exception escaped as a 500.
+
+**The guard was right and the storage layer was wrong.** `status` is verification state,
+owned by the assessment and interview paths; the pipeline measures `gap`/`priority`/
+`importance` and must not touch it. The fix is in `store.upsert_skills`:
+
+- `status` is no longer in the conflict branch at all — scores still update, verification
+  stays put
+- `claimed_level` is now `coalesce(...)` like `verified_level`, so a null no longer erases
+  what an assessment recorded
+- `evidence` is **appended**, not replaced — re-uploading a resume was also deleting the
+  assessment quote that justified a verified row, which would have left "verified" with
+  nothing behind it
+
+**Second half of the fix: never a 500 for a write the schema refused.** Both pipeline
+endpoints catch `SQLAlchemyError` and return `200` with `persisted: false` and
+`persist_error: {code: "persist_failed", message: "<one line from the driver>"}` — the parse
+is still real and still worth showing. `persisted: true` is now set only *after* the
+transaction commits, so a rollback can no longer leave a `resume_id` for a row that is gone.
+
+**Verified against a real PostgreSQL 16.4**, not fixtures: seeded the failing state (a
+`weak` skill with an interview quote), ran the upload, and got `200 / persisted: true` with
+the skill still `weak`/`beginner`, its assessment evidence intact, and 23 skills scored after
+the JD analyse. Zero tracebacks in the API log. Tests: `tests/test_store_upsert.py` (a text
+assertion that runs everywhere plus a live-database test gated on
+`INTERVIEWOS_TEST_DATABASE_URL`) and `test_a_database_rejection_is_a_stated_failure_not_a_500`.
+
+**Nothing to run in SQL** — the schema was already correct; the fix is application code.
 
 ---
 

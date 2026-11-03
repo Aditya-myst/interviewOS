@@ -167,3 +167,46 @@ def test_the_database_path_carries_no_fallback_reason(client, monkeypatch):
     response = client.get("/v1/analytics/dashboard")
     assert response.headers["x-data-source"] == "database"
     assert "x-fallback-reason" not in response.headers
+
+
+def test_a_database_rejection_is_a_stated_failure_not_a_500(client, monkeypatch):
+    """The upload that crashed on a real Postgres.
+
+    A resume re-upload tried to reset a graded skill's status; the schema's transition
+    guard raised, and the exception escaped as a 500 — the user saw "the API answered 500"
+    with no idea which half failed. The document parses either way, so a rejected write is
+    a 200 that says `persisted: false` and names the reason.
+    """
+    from sqlalchemy.exc import IntegrityError
+
+    monkeypatch.setattr("app.api.pipeline._db_ready", lambda: True)
+
+    class BrokenSession:
+        def execute(self, *args, **kwargs):
+            raise IntegrityError(
+                "insert into candidate_skills", {}, Exception("illegal transition weak -> unverified")
+            )
+
+    class FakeContext:
+        def __enter__(self):
+            return BrokenSession()
+
+        def __exit__(self, *exc):
+            return False
+
+    monkeypatch.setattr("app.api.pipeline.get_session", lambda: FakeContext())
+    monkeypatch.setattr("app.api.pipeline.store.resolve_user", lambda session: ("u", "demo"))
+    monkeypatch.setattr(
+        "app.api.pipeline.store.save_resume", lambda *a, **k: "11111111-1111-4111-8111-111111111111"
+    )
+
+    response = client.post(
+        "/v1/resume/upload", files={"file": ("resume.txt", RESUME, "text/plain")}
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["parse_status"] == "ok", "the parse is still real and still returned"
+    assert body["persisted"] is False, "a rejected write must never claim to be saved"
+    assert body["persist_error"]["code"] == "persist_failed"
+    assert "illegal transition" in body["persist_error"]["message"]
+    assert response.headers["x-data-source"] == "pipeline"

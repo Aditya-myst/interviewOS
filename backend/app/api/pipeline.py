@@ -12,11 +12,13 @@ Three rules this file encodes:
 """
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 from fastapi import APIRouter, File, HTTPException, Response, UploadFile
 from pydantic import BaseModel
 from sqlalchemy import text as sql_text
+from sqlalchemy.exc import SQLAlchemyError
 
 from app import store
 from app.config import get_settings
@@ -26,9 +28,18 @@ from app.parsing import resume as resume_mod
 from app.parsing.extract import Document, Page, UnparseableDocument, extract
 from app.prep import priority
 
+log = logging.getLogger(__name__)
+
 router = APIRouter(tags=["preparation"])
 
 MAX_BYTES = 10 * 1024 * 1024
+
+
+def _db_reason(exc: SQLAlchemyError) -> str:
+    """One readable line from a driver exception — enough to act on, short enough to show."""
+    raw = str(getattr(exc, "orig", exc)).strip().splitlines()
+    line = raw[0] if raw else exc.__class__.__name__
+    return line[:240]
 
 
 def _db_ready() -> bool:
@@ -132,22 +143,36 @@ async def resume_upload(
 
     if _db_ready():
         try:
+            # Nothing is marked persisted until the whole transaction has committed. A
+            # write that is rolled back after the resume row (the merge, for instance) must
+            # not leave `persisted: true` and a resume_id pointing at a row that is gone.
             with get_session() as session:
                 user_id, user_source = store.resolve_user(session)
-                result["resume_id"] = store.save_resume(
+                resume_id = store.save_resume(
                     session,
                     user_id=user_id,
                     document=document,
                     parsed=parsed,
                     mime_type=file.content_type,
                 )
-                result["persisted"] = True
-                result["user_source"] = user_source
-                result["merge"] = _recompute(session, user_id)
+                merge = _recompute(session, user_id)
+            result["resume_id"] = resume_id
+            result["persisted"] = True
+            result["user_source"] = user_source
+            result["merge"] = merge
         except store.UserUnresolved as exc:
             result["persist_error"] = {"code": "user_unresolved", "message": exc.detail}
         except store.EvidenceRequired as exc:
             result["persist_error"] = {"code": "evidence_required", "message": str(exc)}
+        except SQLAlchemyError as exc:
+            # The schema refused the write (a guard, a constraint, a bad column). The
+            # document still parsed, so the caller gets the parse plus a reason instead of
+            # a 500 that hides which of the two things went wrong.
+            log.exception("resume upload parsed but could not be stored")
+            result["persist_error"] = {
+                "code": "persist_failed",
+                "message": _db_reason(exc),
+            }
 
     response.headers["X-Data-Source"] = "database" if result["persisted"] else "pipeline"
     return result
@@ -184,14 +209,17 @@ def jd_analyze(body: JdRequest, response: Response) -> dict[str, Any]:
         try:
             with get_session() as session:
                 user_id, user_source = store.resolve_user(session)
-                result["jd_id"] = store.save_jd(
-                    session, user_id=user_id, body=text_value, parsed=parsed
-                )
-                result["persisted"] = True
-                result["user_source"] = user_source
-                result["merge"] = _recompute(session, user_id)
+                jd_id = store.save_jd(session, user_id=user_id, body=text_value, parsed=parsed)
+                merge = _recompute(session, user_id)
+            result["jd_id"] = jd_id
+            result["persisted"] = True
+            result["user_source"] = user_source
+            result["merge"] = merge
         except store.UserUnresolved as exc:
             result["persist_error"] = {"code": "user_unresolved", "message": exc.detail}
+        except SQLAlchemyError as exc:
+            log.exception("JD analysed but could not be stored")
+            result["persist_error"] = {"code": "persist_failed", "message": _db_reason(exc)}
 
     response.headers["X-Data-Source"] = "database" if result["persisted"] else "pipeline"
     return result

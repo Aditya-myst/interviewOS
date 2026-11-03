@@ -187,8 +187,12 @@ UPSERT_SKILL = text(
        cast(:priority as numeric(4,3)), cast(:priority_band as public.priority_band),
        :explanation, :in_resume, :in_jd, cast(:evidence as jsonb))
     on conflict (user_id, skill_id) do update set
-      status = excluded.status,
-      claimed_level = excluded.claimed_level,
+      -- `status` is deliberately absent. A resume/JD recompute measures how a skill
+      -- *scores*, not whether it has been *verified*: that state belongs to the
+      -- assessment and interview paths, and the schema's transition guard
+      -- (enforce_skill_transition) refuses downgrades like weak -> unverified. Writing it
+      -- here meant every re-upload tried to reset a graded skill and died on the trigger.
+      claimed_level = coalesce(excluded.claimed_level, public.candidate_skills.claimed_level),
       verified_level = coalesce(excluded.verified_level, public.candidate_skills.verified_level),
       expected_level = excluded.expected_level,
       confidence = excluded.confidence,
@@ -200,7 +204,18 @@ UPSERT_SKILL = text(
       explanation = excluded.explanation,
       in_resume = excluded.in_resume,
       in_jd = excluded.in_jd,
-      evidence = excluded.evidence,
+      -- Evidence is append-only: a re-upload must not delete the assessment quote that
+      -- verified this skill, or the row would read "verified" with nothing behind it.
+      evidence = (
+        select coalesce(jsonb_agg(elem), '[]'::jsonb)
+        from (
+          select distinct on (elem::text) elem
+          from jsonb_array_elements(
+                 coalesce(public.candidate_skills.evidence, '[]'::jsonb) || excluded.evidence
+               ) as t(elem)
+          order by elem::text
+        ) merged
+      ),
       updated_at = now()
     """
 )

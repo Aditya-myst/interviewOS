@@ -278,6 +278,11 @@ create trigger trg_candidate_skills_touch
 -- Guard: every status change must carry evidence, and only legal edges of the
 -- state machine are allowed. This is the rule the whole product claim rests on,
 -- so it lives in the database rather than in one service method.
+-- Ownership rule this guard enforces: `status` belongs to the assessment and interview
+-- paths. A resume or JD upload measures how a skill *scores* (gap, priority, importance)
+-- and must never move a verification state — re-uploading a resume is not evidence of
+-- anything new. `store.upsert_skills` therefore omits `status` from its conflict branch,
+-- and this trigger exists to catch it (or any future caller) if that is ever forgotten.
 create or replace function public.enforce_skill_transition()
 returns trigger
 language plpgsql
