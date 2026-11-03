@@ -56,11 +56,22 @@ Five paths from the spec that already existed, now implemented rather than imagi
 
 ## Not built — in the order it will be built
 
-### 1. Interview + report screens — next
-- `/interview`: one question at a time, timer, transcript, "why this question"
-- `/report`: overall + per-skill scores, strengths, gaps, weakest answers with a better
-  answer outline, next actions. `communication_transcript_based` labelled as
-  transcript-only, exactly as the contract says
+### 1. Interview + report screens — **done**
+- `/interview`: one question at a time, progress bar, Ctrl+Enter, live word count,
+  feedback panel (score, verbatim quote, covered vs missing rubric points), session
+  summary. Questions are ranked by `priority` from the candidate's own profile, so the
+  room works for a marketing or a design candidate exactly as it does for an engineer
+- `/report`: `?session=<id>` renders the live session; without an id it renders the
+  recorded fixture so the screen is reviewable cold. Hero (radial score, role core,
+  communication, scored-by), per-skill rows with quotes, weak answers with the outline a
+  strong answer would follow, next three moves
+- Browsers talk to FastAPI through `app/api/interview/[...path]/route.ts`, a server-side
+  proxy, so the API URL never reaches the client and there is no CORS surface. The
+  `x-data-source` header decides whether the room says "saved to your account" or
+  "not saved — demo mode"
+- `communication_transcript_based` is capped at 0.92: a transcript can show someone
+  answered at length and in full sentences, and cannot show that they were clear to
+  listen to
 
 ### 2. Voice interviewer
 - **Recording:** browser `MediaRecorder` (opus/webm), no plugin

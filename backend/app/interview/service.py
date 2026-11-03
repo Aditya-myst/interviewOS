@@ -201,6 +201,7 @@ def build_report(store, *, session_id: str, plan: list[engine.Question], skills:
             weak.append(
                 {
                     "question": question.text,
+                    "score": result.score,
                     "why_weak": result.why,
                     "better_answer_outline": _outline(question),
                 }
@@ -215,11 +216,11 @@ def build_report(store, *, session_id: str, plan: list[engine.Question], skills:
         "overall_scores": {
             "overall": overall,
             "technical": round(
-                sum(r["score"] for r in per_skill if r["skill_id"] in _technical_ids(skills))
-                / max(1, len([r for r in per_skill if r["skill_id"] in _technical_ids(skills)])),
+                sum(r["score"] for r in per_skill if r["skill_id"] in core_skill_ids(skills))
+                / max(1, len([r for r in per_skill if r["skill_id"] in core_skill_ids(skills)])),
                 2,
             )
-            if any(r["skill_id"] in _technical_ids(skills) for r in per_skill)
+            if any(r["skill_id"] in core_skill_ids(skills) for r in per_skill)
             else None,
             # Transcript-derived only: word count and structure, nothing about accent,
             # pace or confidence. The field name is the disclaimer.
@@ -268,8 +269,25 @@ def _next_actions(per_skill: list[dict[str, Any]]) -> list[str]:
     return actions
 
 
-def _technical_ids(skills: list[dict]) -> set[str]:
-    return {str(s["skill_id"]) for s in skills if s.get("category") in ("Backend", "Data", "Infra", "AI")}
+# Categories that used to define "technical". Kept only as a note: a marketing candidate,
+# a designer or a teacher has no skills in this set, and their report then showed
+# `technical: null` — the product quietly assuming every user is an engineer.
+TECH_CATEGORIES = ("Backend", "Data", "Infra", "AI")
+
+
+def core_skill_ids(skills: list[dict], *, limit: int = 3) -> set[str]:
+    """The skills this *role* is actually about: its highest JD-importance demands.
+
+    Role-agnostic on purpose. A content lead's core is content strategy and distribution;
+    a backend engineer's is their stack. The report's "technical" line means "how you did
+    on the things this job most cares about", which is a fair question for every role.
+    """
+    ranked = sorted(
+        [s for s in skills if s.get("skill_id")],
+        key=lambda s: float(s.get("jd_importance") or 0),
+        reverse=True,
+    )
+    return {str(s["skill_id"]) for s in ranked[:limit]}
 
 
 def _outline(question: engine.Question) -> list[str]:
@@ -292,7 +310,11 @@ def _communication(asked: list[dict], said: list[dict]) -> float | None:
         return None
     lengths = [len(m["content"].split()) for m in said]
     answered = sum(1 for n in lengths if n >= 25)
-    return round(min(1.0, 0.5 * answered / max(1, len(asked)) + 0.5 * min(1.0, sum(lengths) / (len(lengths) * 90))), 2)
+    # The ceiling is 0.92 on purpose: words on a page can show that someone answered
+    # at length and in full sentences, and cannot show that they were clear to listen
+    # to. A transcript score of 100 would claim something we never measured.
+    raw = 0.5 * answered / max(1, len(asked)) + 0.5 * min(1.0, sum(lengths) / (len(lengths) * 90))
+    return round(min(0.92, raw), 2)
 
 
 def store_for(*, db_session=None, user_id: str | None = None):

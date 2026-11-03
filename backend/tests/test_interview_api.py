@@ -156,3 +156,27 @@ def test_answer_to_a_finished_session_is_a_conflict_not_a_second_score():
             "/v1/interview/answer", json={"session_id": state["session_id"], "answer": ANSWER}
         )
         assert again.status_code == 409
+
+
+def test_the_report_works_for_a_role_with_no_engineering_skills():
+    """A content, design or education profile must get a full report.
+
+    "Technical" used to be computed from Backend/Data/Infra/AI categories, so anyone
+    preparing for a non-engineering role saw technical: null and an empty line where
+    their domain score should be.
+    """
+    from app.interview import service
+
+    marketing = [
+        {"skill_id": "content-strategy", "name": "Content Strategy", "category": "Content",
+         "priority": 0.57, "jd_importance": 0.95, "priority_band": "critical"},
+        {"skill_id": "seo", "name": "SEO & Search", "category": "Marketing",
+         "priority": 0.41, "jd_importance": 0.72, "priority_band": "high"},
+        {"skill_id": "newsletter", "name": "Newsletter & Email", "category": "Growth",
+         "priority": 0.14, "jd_importance": 0.86, "priority_band": "low"},
+        {"skill_id": "visual-design", "name": "Visual Design", "category": "Design",
+         "priority": 0.0, "jd_importance": 0.5, "priority_band": "low"},
+    ]
+    core = service.core_skill_ids(marketing)
+    assert core == {"content-strategy", "newsletter", "seo"}  # the three the JD cares most about
+    assert "visual-design" not in core

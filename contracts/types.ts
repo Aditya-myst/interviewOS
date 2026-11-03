@@ -327,10 +327,18 @@ export interface InterviewReport {
   per_skill: Array<{
     skill_id: string; name: string; score: number;
     status_after: "weak" | "developing" | "verified" | "needs_revision"; comment: string;
+    /** The sentence that earned the score, verbatim, or null when nothing was quotable. */
+    quote?: string | null;
+    scored_by?: string;
   }>;
   strengths: string[];
   gaps: string[];
-  weak_answers?: Array<{ question: string; why_weak: string; better_answer_outline: string[] }>;
+  weak_answers?: Array<{
+    question: string;
+    score?: number;
+    why_weak: string;
+    better_answer_outline: string[];
+  }>;
   next_actions: string[];
   created_at?: string;
 }

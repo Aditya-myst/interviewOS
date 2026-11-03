@@ -55,8 +55,8 @@ const NAV_ITEMS = [
   { href: "/gap-map", label: "Gap Map", icon: Map, ready: true },
   { href: "/roadmap", label: "Roadmap", icon: Route, ready: true },
   { href: "/tutor", label: "Tutor", icon: GraduationCap, ready: false },
-  { href: "/interview", label: "Interview", icon: Mic2, ready: false },
-  { href: "/report", label: "Report", icon: FileText, ready: false },
+  { href: "/interview", label: "Interview", icon: Mic2, ready: true },
+  { href: "/report", label: "Report", icon: FileText, ready: true },
 ] as const;
 
 /* ─── NavLink ─────────────────────────────────────────────────── */

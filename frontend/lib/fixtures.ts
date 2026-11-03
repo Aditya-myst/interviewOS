@@ -12,7 +12,7 @@
  */
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import type { Dashboard, SkillProfile, Roadmap } from "../../contracts/types";
+import type { Dashboard, InterviewReport, SkillProfile, Roadmap } from "../../contracts/types";
 
 const CANDIDATES = [
   path.join(process.cwd(), "..", "contracts", "fixtures"),
@@ -42,6 +42,7 @@ function loadFixture<T>(name: string): T {
 export const dashboardFixture = loadFixture<Dashboard>("dashboard.json");
 export const skillProfileFixture = loadFixture<SkillProfile>("skill_profile.json");
 export const roadmapFixture = loadFixture<Roadmap>("roadmap.json");
+export const interviewReportFixture = loadFixture<InterviewReport>("interview_report.json");
 
 /**
  * The clock every fixture is written against. Relative labels ("assessed 3d

@@ -17,8 +17,13 @@
  * which is the difference between a demo and a claim.
  */
 import { cache } from "react";
-import type { Dashboard, Roadmap, SkillProfile } from "../../contracts/types";
-import { dashboardFixture, roadmapFixture, skillProfileFixture } from "./fixtures";
+import type { Dashboard, InterviewReport, Roadmap, SkillProfile } from "../../contracts/types";
+import {
+  dashboardFixture,
+  interviewReportFixture,
+  roadmapFixture,
+  skillProfileFixture,
+} from "./fixtures";
 
 export type DataSource = "database" | "fixture" | "unreachable";
 
@@ -120,4 +125,18 @@ export const loadSkillProfile = cache(
 export const loadRoadmap = cache(
   (state?: string): Promise<ApiPayload<Roadmap>> =>
     getJson<Roadmap>(`/v1/learning/roadmap${demoQuery(state)}`, roadmapFixture)
+);
+
+/**
+ * The report is the one screen that can be reached two ways: from a session that just
+ * ended (`?session=<id>`, live) or from the nav with nothing in hand (recorded fixture).
+ * The API decides, and says which it did in `X-Data-Source` — the page prints that
+ * rather than implying a live session exists.
+ */
+export const loadInterviewReport = cache(
+  (sessionId: string): Promise<ApiPayload<InterviewReport>> =>
+    getJson<InterviewReport>(
+      `/v1/interview/${encodeURIComponent(sessionId)}/report`,
+      interviewReportFixture,
+    ),
 );

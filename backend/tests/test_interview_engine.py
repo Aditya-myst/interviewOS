@@ -131,3 +131,14 @@ def test_scoring_is_deterministic():
 
 def test_scores_are_labelled_with_who_scored_them():
     assert engine.score_answer(plan_for()[0], EXPERT).scored_by == "rubric"
+
+
+def test_communication_never_claims_a_perfect_score():
+    """Words on a page cannot prove delivery, so the transcript proxy is capped below 1."""
+    from app.interview.service import _communication
+
+    asked = [{"content": "q"}] * 3
+    said = [{"content": " ".join(["word"] * 400)}] * 3
+    score = _communication(asked, said)
+    assert score == 0.92
+    assert score < 1.0
