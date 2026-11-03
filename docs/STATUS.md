@@ -1,6 +1,6 @@
 # Where InterviewOS stands
 
-Last updated: 2026-11-03 · `main` at the upsert-ownership fix
+Last updated: 2026-11-03 · `main` at the roadmap-scope fix
 
 This file is the honest inventory. Anything not marked done does not exist yet — the
 UI says "SOON" rather than showing a mock of it.
@@ -30,7 +30,7 @@ UI says "SOON" rather than showing a mock of it.
 | Tutor | per-skill answers composed from profile rows + curriculum + catalogue, every claim cited | `tutor/`, `api/tutor.py`, `/tutor` |
 | Interview engine | sessions, questions from priority skills, quote-gated scoring, report | `interview/`, `api/interview.py` |
 
-Backend: **200 tests**, ruff clean, schema checker ("17 queries / 18 tables"). Frontend:
+Backend: **204 tests**, ruff clean, schema checker ("17 queries / 18 tables"). Frontend:
 tsc + eslint + `pnpm build` clean.
 
 ---
@@ -128,6 +128,35 @@ no longer mention, but **only** `claimed`/`unverified` ones: a `weak`/`developin
 row is evidence someone demonstrated something, and losing the bullet that mentioned it does
 not erase that. The merge payload reports `{"scored": 7, "pruned": 1}` so the UI and the logs
 can see both numbers.
+
+### The roadmap taught a skill the new resume never mentioned
+
+Reported after switching from a marketing resume to a technical one: the plan still opened
+with newsletter and social-growth topics.
+
+Cause: the recompute reconciled rows with the new documents only by **deleting** the
+`claimed`/`unverified` ones. A graded row (`weak`, `developing`, `verified`) correctly
+survived — it holds earned evidence — but it kept the *old* posting's `jd_importance` and
+`priority`, so it outranked every skill the new documents actually mention. The roadmap
+plans by priority, so it taught the stale skill first.
+
+The two states now have two fates, because they mean different things:
+
+| Row | Fate |
+|---|---|
+| `claimed` / `unverified`, not mentioned any more | **deleted** — nothing was ever demonstrated |
+| graded, not mentioned any more | **retired** — status, level and evidence stay; `in_resume`/`in_jd` go false and `jd_importance`/`priority` go to 0, so it can lead nothing |
+
+Retired rows drop out of the roadmap (`build_roadmap` skips rows in neither document), the
+dashboard's coverage panel and readiness (which weights by `jd_importance`), while the gap
+map still shows them with their evidence and the explanation "Graded in an earlier session —
+the current resume and posting no longer mention it."
+
+Replayed on PostgreSQL 16.4: marketing resume+JD → plan teaches Copywriting and Marketing
+Analytics; grade two of those `weak`; switch to the backend resume+JD → merge reports
+`{scored: 23, pruned: 3, retired: 2}`, the plan is LLM & RAG / System Design / REST API, and
+the dashboard lists nine technical categories with readiness 48.8. Marketing topics leaking
+into the plan: none. Tests: `tests/test_roadmap_scope.py`.
 
 **Nothing to run in SQL** — the schema was already correct; the fix is application code.
 

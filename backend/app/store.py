@@ -234,19 +234,45 @@ PRUNE_STALE = text(
 )
 
 
-def prune_stale_skills(session: Session, *, user_id: str, keep: list[str]) -> int:
-    """Drop rows the newest resume+JD no longer mention.
+RETIRE_STALE = text(
+    """
+    update public.candidate_skills
+    set in_resume = false,
+        in_jd = false,
+        jd_importance = 0,
+        priority = 0,
+        priority_band = 'low',
+        explanation = 'Graded in an earlier session — the current resume and posting '
+                      'no longer mention it.',
+        updated_at = now()
+    where user_id = cast(:user_id as uuid)
+      and skill_id <> all(:keep)
+      and status not in ('claimed', 'unverified')
+    """
+)
 
-    Without this, uploading a second resume leaves the first one's skills on the dashboard
-    for ever — a marketing candidate ended up with "LLM & RAG" at the top of their priority
-    curve because an earlier upload had mentioned it. Graded rows are never pruned.
+
+def prune_stale_skills(session: Session, *, user_id: str, keep: list[str]) -> dict[str, int]:
+    """Reconcile rows with the newest resume + posting. Returns `{pruned, retired}`.
+
+    Two different fates, because the two states mean different things:
+
+    - `claimed`/`unverified` rows the documents no longer mention are **deleted**. Nothing
+      was ever demonstrated, so there is nothing to keep.
+    - graded rows (`weak`/`developing`/`verified`/`needs_revision`) are **retired**: the
+      status, level and evidence stay, but the JD-derived fields go to zero so the row can
+      no longer lead the dashboard, the gap map or the roadmap. A marketing resume followed
+      by a backend one used to leave "Newsletter & Email" at the top of the backend plan,
+      because the old row kept the old posting's `jd_importance` and `priority`.
     """
     if not keep:
         # an empty keep list would delete everything; a recompute that scored nothing is a
         # bug upstream, not a reason to wipe the profile
-        return 0
-    result = session.execute(PRUNE_STALE, {"user_id": user_id, "keep": list(keep)})
-    return int(result.rowcount or 0)
+        return {"pruned": 0, "retired": 0}
+    params = {"user_id": user_id, "keep": list(keep)}
+    pruned = int(session.execute(PRUNE_STALE, params).rowcount or 0)
+    retired = int(session.execute(RETIRE_STALE, params).rowcount or 0)
+    return {"pruned": pruned, "retired": retired}
 
 
 def upsert_skills(session: Session, *, user_id: str, rows: list[ScoredSkill]) -> int:

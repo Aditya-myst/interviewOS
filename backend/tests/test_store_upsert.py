@@ -161,7 +161,10 @@ def test_prune_refuses_an_empty_keep_list():
         def execute(self, *a, **k):
             raise AssertionError("an empty keep list must not reach the database")
 
-    assert store.prune_stale_skills(Exploding(), user_id="u", keep=[]) == 0
+    assert store.prune_stale_skills(Exploding(), user_id="u", keep=[]) == {
+        "pruned": 0,
+        "retired": 0,
+    }
 
 
 @pytest.mark.skipif(not DSN, reason="set INTERVIEWOS_TEST_DATABASE_URL to run against Postgres")
@@ -205,9 +208,9 @@ def test_prune_against_a_real_database():
             )
 
     with Session(engine) as session:
-        pruned = store.prune_stale_skills(session, user_id=USER, keep=["content-strategy"])
+        result = store.prune_stale_skills(session, user_id=USER, keep=["content-strategy"])
         session.commit()
-    assert pruned == 1, "only the ungraded stale row should be removed"
+    assert result["pruned"] == 1, "only the ungraded stale row should be removed"
 
     with engine.connect() as conn:
         left = {

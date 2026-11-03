@@ -57,9 +57,15 @@ def readiness(rows: list) -> float:
 
 
 def coverage(rows: list) -> list[dict]:
-    """Same three buckets the profile screen uses, counted per category."""
+    """Same three buckets the profile screen uses, counted per category.
+
+    Retired rows (neither in the resume nor in the posting) are left out: a backend
+    candidate should not see a "Marketing 0/2" bar left over from a resume they replaced.
+    """
     buckets: dict[str, dict[str, int]] = {}
     for row in rows:
+        if not (getattr(row, "in_resume", True) or getattr(row, "in_jd", True)):
+            continue
         entry = buckets.setdefault(
             row.category, {"category": row.category, "verified": 0, "developing": 0, "unverified": 0}
         )

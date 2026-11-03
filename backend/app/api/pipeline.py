@@ -85,10 +85,10 @@ def _recompute(session, user_id: str) -> dict:
     parsed_jd = jd_mod.parse(jd_body)
     rows = priority.score(parsed_resume, parsed_jd)
     written = store.upsert_skills(session, user_id=user_id, rows=rows)
-    pruned = store.prune_stale_skills(
+    reconciled = store.prune_stale_skills(
         session, user_id=user_id, keep=[row.skill_id for row in rows]
     )
-    return {"scored": written, "pruned": pruned, "reason": None}
+    return {"scored": written, **reconciled, "reason": None}
 
 
 class JdRequest(BaseModel):

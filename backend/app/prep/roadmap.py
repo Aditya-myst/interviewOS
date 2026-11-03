@@ -4,7 +4,12 @@ Two rules shape this file:
 
 1. **Every topic is a subtopic that exists in `data/taxonomy.yaml`.** The plan cannot
    invent a syllabus, which is the whole reason the taxonomy is curated.
-2. **A missing resource is a named gap, not an empty space.** The design calls for
+2. **Only skills the current documents mention get planned.** `in_resume`/`in_jd` are
+   recomputed from the newest resume and posting, so a skill graded in an earlier session
+   and no longer mentioned cannot sit at the top of the plan. Without this, a candidate who
+   switched from a marketing resume to a backend one still got taught newsletter growth —
+   the row survived (correctly, it holds earned evidence) but its priority was stale.
+3. **A missing resource is a named gap, not an empty space.** The design calls for
    three roles per topic — concept, practice, checkpoint. When the catalogue has no
    row for a role, the payload says `missing_roles: ["checkpoint"]` so the UI can
    render an honest gap instead of a card that looks finished.
@@ -102,6 +107,8 @@ def build_roadmap(
     for row in rows:
         if len(topics) >= limit:
             break
+        if not (getattr(row, "in_resume", True) or getattr(row, "in_jd", True)):
+            continue                       # this posting neither asks for it nor shows it
         if row.priority_band == "low" and row.gap < 0.2:
             continue                       # nothing to teach and nothing to prove
         skill = vocabulary.get(row.skill_id)
