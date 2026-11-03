@@ -2,10 +2,16 @@
 
 import { useRef, useState } from "react";
 import Link from "next/link";
-import { FileText, Upload, X } from "lucide-react";
+import { Check, CircleAlert, FileText, Loader2, Upload, X } from "lucide-react";
 import IosButton from "@/components/primitives/IosButton";
+import { adviceFor, analyzeJd, uploadResume, type JdAnalysis, type ResumeUpload } from "@/lib/pipeline";
 
 const STEPS = ["Documents", "Assessment", "Roadmap"];
+
+function shorten(text: string, limit: number) {
+  const clean = text.replace(/\s+/g, " ").trim();
+  return clean.length <= limit ? clean : `${clean.slice(0, limit - 1).trimEnd()}…`;
+}
 
 function formatSize(bytes: number) {
   if (bytes < 1024) return `${bytes} B`;
@@ -13,13 +19,57 @@ function formatSize(bytes: number) {
   return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 }
 
+type Phase = "idle" | "working" | "done" | "error";
+
 export default function OnboardingPage() {
   const [file, setFile] = useState<File | null>(null);
   const [dragging, setDragging] = useState(false);
   const [jd, setJd] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const ready = Boolean(file) && jd.trim().length > 80;
+  const [phase, setPhase] = useState<Phase>("idle");
+  const [step, setStep] = useState<string | null>(null);
+  const [error, setError] = useState<{ text: string; code?: string } | null>(null);
+  const [resume, setResume] = useState<ResumeUpload | null>(null);
+  const [analysis, setAnalysis] = useState<JdAnalysis | null>(null);
+
+  const ready = Boolean(file) && jd.trim().length > 80 && phase !== "working";
+
+  /**
+   * Upload, then analyse the JD. Order matters: the backend rescores the stored resume
+   * against the JD it just received, so the JD step is what produces the skill rows.
+   *
+   * Neither call invents success. If the API answers `persisted: false` the parse is real
+   * but nothing was stored, and the screen says exactly that instead of sending the user to
+   * a dashboard that would show fixture data.
+   */
+  async function analyze() {
+    if (!file) return;
+    setPhase("working");
+    setError(null);
+    setStep(`Reading ${file.name}…`);
+
+    const uploaded = await uploadResume(file);
+    if (!uploaded.ok) {
+      setPhase("error");
+      setError({ text: adviceFor(uploaded.code, uploaded.message), code: uploaded.code });
+      setStep(null);
+      return;
+    }
+    setResume(uploaded.data);
+
+    setStep("Matching it against the job description…");
+    const jdResult = await analyzeJd(jd.trim());
+    if (!jdResult.ok) {
+      setPhase("error");
+      setError({ text: adviceFor(jdResult.code, jdResult.message), code: jdResult.code });
+      setStep(null);
+      return;
+    }
+    setAnalysis(jdResult.data);
+    setStep(null);
+    setPhase("done");
+  }
 
   return (
     <main className="min-h-screen bg-[var(--canvas)] text-[var(--text)]">
@@ -148,8 +198,8 @@ export default function OnboardingPage() {
         </div>
 
         <div className="mt-8 flex flex-wrap items-center gap-3">
-          <IosButton variant="primary" size="lg" arrow disabled={!ready}>
-            Analyze my fit
+          <IosButton variant="primary" size="lg" arrow disabled={!ready} onClick={analyze}>
+            {phase === "working" ? "Analysing…" : "Analyze my fit"}
           </IosButton>
           <Link
             href="/"
@@ -159,12 +209,170 @@ export default function OnboardingPage() {
           </Link>
         </div>
 
-        <p className="type-small text-[var(--text-dim)] mt-6 max-w-[52ch]">
-          {ready
-            ? "Both documents are ready. The parsing and assessment pipeline is the next build — this screen is wired to it, not faking it."
-            : "Files stay in this browser until the parsing API ships. Nothing is uploaded yet."}
-        </p>
+        {phase === "working" && (
+          <p className="type-small mt-6 flex items-center gap-2 text-[var(--text-dim)]" role="status">
+            <Loader2 size={15} className="animate-spin" aria-hidden />
+            {step ?? "Working…"}
+          </p>
+        )}
+
+        {phase === "error" && error && (
+          <div className="mt-6 flex items-start gap-2.5 rounded-[12px] border border-[var(--weak)]/40 bg-[var(--weak)]/[0.06] p-4">
+            <CircleAlert size={17} className="mt-0.5 shrink-0 text-[var(--weak)]" aria-hidden />
+            <div>
+              <p className="type-small m-0 font-medium text-[var(--text)]">That did not go through</p>
+              <p className="type-small m-0 text-[var(--text-dim)]">{error.text}</p>
+              <p className="type-small mt-1.5 mb-0 text-[var(--text-dim)]">
+                Nothing was stored.
+                {error.code && (
+                  <span className="ml-1.5 font-mono text-[11px] text-[var(--text-dim)]">{error.code}</span>
+                )}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {phase === "done" && resume && <Result resume={resume} analysis={analysis} />}
+
+        {phase === "idle" && (
+          <p className="type-small text-[var(--text-dim)] mt-6 max-w-[52ch]">
+            {ready
+              ? "Both documents are ready. The resume is parsed in this request — nothing is stored until you have seen what it found."
+              : "Your file is not uploaded yet — it is sent only when you press Analyse."}
+          </p>
+        )}
       </div>
     </main>
+  );
+}
+
+function Result({ resume, analysis }: { resume: ResumeUpload; analysis: JdAnalysis | null }) {
+  const skills = resume.skills ?? [];
+  const requirements = analysis?.parsed?.requirements ?? [];
+  const saved = resume.persisted && (analysis?.persisted ?? false);
+  const scored = analysis?.merge?.scored ?? resume.merge?.scored;
+  const blocked = analysis?.merge?.reason ?? resume.merge?.reason ?? null;
+
+  return (
+    <section className="mt-8 rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-6">
+      <div className="flex flex-wrap items-center gap-3">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--brand)]/12 px-2.5 py-1 type-micro font-medium text-[var(--brand-strong)]">
+          <Check size={13} aria-hidden /> {resume.parse_status === "ok" ? "Parsed" : resume.parse_status}
+        </span>
+        <span className="type-micro text-[var(--text-dim)]">
+          {resume.document?.kind?.toUpperCase()} · {resume.document?.pages ?? 1} page
+          {(resume.document?.pages ?? 1) === 1 ? "" : "s"} · {resume.document?.chars ?? 0} characters
+        </span>
+        <span className="type-micro text-[var(--text-dim)]">
+          {resume.experience_years != null
+            ? `${resume.experience_years} years experience`
+            : "experience not stated"}
+        </span>
+      </div>
+
+      <div className="mt-5 grid gap-5 sm:grid-cols-2">
+        <div>
+          <p className="type-micro m-0 text-[var(--text-dim)]">Skills found on the resume</p>
+          <p className="mt-1 mb-2 font-mono text-[26px] leading-none tabular-nums text-[var(--text)]">
+            {skills.length}
+          </p>
+          <ul className="m-0 flex list-none flex-wrap gap-1.5 p-0">
+            {skills.slice(0, 10).map((skill, index) => (
+              <li
+                key={`${skill.skill_id ?? skill.name ?? index}`}
+                className="rounded-full border border-[var(--border-strong)] px-2.5 py-1 type-micro text-[var(--text-dim)]"
+              >
+                {skill.name ?? skill.skill_id}
+              </li>
+            ))}
+            {skills.length > 10 && (
+              <li className="type-micro self-center text-[var(--text-dim)]">+{skills.length - 10} more</li>
+            )}
+          </ul>
+        </div>
+
+        <div>
+          <p className="type-micro m-0 text-[var(--text-dim)]">Requirements read from the posting</p>
+          <p className="mt-1 mb-2 font-mono text-[26px] leading-none tabular-nums text-[var(--text)]">
+            {requirements.length}
+          </p>
+          <ul className="m-0 grid list-none gap-1.5 p-0">
+            {requirements.slice(0, 4).map((row) => (
+              <li key={row.skill_id} className="type-small text-[var(--text-dim)]">
+                <span className="text-[var(--text)]">{row.name ?? row.skill_id}</span>
+                {row.jd_importance != null && (
+                  <span className="ml-2 font-mono text-[11px] tabular-nums">
+                    {Math.round(row.jd_importance * 100)}
+                  </span>
+                )}
+                {row.evidence?.[0]?.quote && (
+                  // The JD's own words, cut to fit: a full paragraph in a list row
+                  // overflows the card and pushes the page wider than the viewport.
+                  <span className="type-small mt-0.5 block italic text-[var(--text-dim)] line-clamp-2">
+                    “{shorten(row.evidence[0].quote, 110)}”
+                  </span>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      {saved ? (
+        <div className="mt-5 rounded-[12px] border border-[var(--verified)]/35 bg-[var(--brand-soft)] p-4">
+          <p className="type-small m-0 font-medium text-[var(--text)]">
+            Saved to your profile{typeof scored === "number" ? ` — ${scored} skills scored` : ""}.
+          </p>
+          <p className="type-small mt-1 mb-0 text-[var(--text-dim)]">
+            Your dashboard, gap map and roadmap now read these rows, not fixtures.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Link
+              href="/dashboard"
+              className="inline-flex h-10 items-center rounded-[10px] bg-[var(--brand)] px-3.5 text-sm font-semibold text-[var(--ink-950)]"
+            >
+              Open my dashboard →
+            </Link>
+            <Link
+              href="/gap-map"
+              className="inline-flex h-10 items-center rounded-[10px] border border-[var(--border-strong)] px-3.5 text-sm text-[var(--text-dim)]"
+            >
+              See the gaps
+            </Link>
+          </div>
+        </div>
+      ) : (
+        <div className="mt-5 rounded-[12px] border border-[var(--developing)]/35 bg-[var(--developing)]/[0.07] p-4">
+          <p className="type-small m-0 font-medium text-[var(--text)]">
+            Parsed, but not saved — no database is configured.
+          </p>
+          <p className="type-small mt-1 mb-0 text-[var(--text-dim)]">
+            The parsing above is real: {skills.length} skills and {requirements.length} requirements were
+            read out of your two documents. Writing them to your profile needs `DATABASE_URL` in
+            `backend/.env` and the schema from `docs/sql/001_init.sql`. Until then the dashboard shows
+            fixtures and says so in its provenance strip.
+            {blocked ? ` (${blocked})` : ""}
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Link
+              href="/dashboard"
+              className="inline-flex h-10 items-center rounded-[10px] border border-[var(--border-strong)] px-3.5 text-sm text-[var(--text-dim)]"
+            >
+              Continue to the dashboard (demo data) →
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {!!resume.warnings?.length && (
+        <ul className="mt-4 grid list-none gap-1 p-0">
+          {resume.warnings.slice(0, 3).map((warning) => (
+            <li key={warning} className="type-micro text-[var(--developing)]">
+              {warning}
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }

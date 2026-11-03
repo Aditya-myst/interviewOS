@@ -1,6 +1,6 @@
 # Where InterviewOS stands
 
-Last updated: 2026-11-02 · `main` at the interview-engine commit
+Last updated: 2026-11-03 · `main` at the onboarding-wired commit
 
 This file is the honest inventory. Anything not marked done does not exist yet — the
 UI says "SOON" rather than showing a mock of it.
@@ -26,9 +26,10 @@ UI says "SOON" rather than showing a mock of it.
 | Landing | marketing page, real sample report | `/` |
 
 | Assessment ladder | 3 rungs per skill, curriculum rubrics, consistency-gated verification | `assessment/`, `api/assessment.py` |
+| Onboarding | resume upload → JD analysis → parsed skills, requirements and quotes on screen | `/onboarding`, `api/pipeline/[...path]` |
 | Interview engine | sessions, questions from priority skills, quote-gated scoring, report | `interview/`, `api/interview.py` |
 
-Backend: **141 tests**, ruff clean, schema checker ("17 queries / 18 tables"). Frontend:
+Backend: **179 tests**, ruff clean, schema checker ("17 queries / 18 tables"). Frontend:
 tsc + eslint + `pnpm build` clean.
 
 ---
@@ -52,6 +53,31 @@ Five paths from the spec that already existed, now implemented rather than imagi
 - with a database the session persists and the score is written back to
   `candidate_skills` (confidence moves halfway, one answer is one measurement); without
   one it lives in memory and every report says `persisted: false`
+
+---
+
+## Onboarding — wired to the real pipeline
+
+`/onboarding` used to be a dead button. It now runs the two endpoints that already existed:
+
+1. `POST /v1/resume/upload` (multipart, forwarded byte-for-byte by
+   `app/api/pipeline/[...path]/route.ts` so the multipart boundary survives) → parsed
+   document, skills, `experience_years`, warnings
+2. `POST /v1/jd/analyze {text}` → role, requirements with importance and the JD quote
+   that proves each one, then a rescore of the stored resume against the JD
+
+The screen has four states — idle, working (per-step copy), error, done — and the error
+state translates API codes into a sentence plus the code in small print
+(`pdf_unreadable`, `unsupported_type`, `too_large`, `jd_too_short`, API-unreachable). The
+page recovers without a reload: swap the file and press Analyse again.
+
+**What it does not pretend:** with no `DATABASE_URL` the parse is real but nothing is
+stored, so the result panel says exactly that, quotes the merge reason from the API, and
+offers the dashboard labelled "demo data" rather than a fake redirect to a profile that
+does not exist. With a database connected the same panel shows the scored-skill count and
+links to `/dashboard` and `/gap-map`. **The persisted branch is not exercised in this
+sandbox — there is no Postgres here**; it is the same code path the upload endpoint has
+always taken, reviewed but not run.
 
 ---
 
@@ -82,6 +108,27 @@ Five paths from the spec that already existed, now implemented rather than imagi
 - **Interviewer voice:** browser `speechSynthesis` — free, no key, no quota
 - **Not using:** Vapi/ElevenLabs/Deepgram (paid per minute). They would be an honest
   upgrade later; the transcript schema does not change if they are swapped in
+- **Fully local alternative** (if "free forever, no account, no upload" matters more than
+  peak accuracy): `faster-whisper` `base.en`/`small.en` int8 on 4 CPU cores — MIT-ish
+  weights, ~1 GB RAM, no network — plus **Silero VAD** for turn-end and **Piper** for the
+  interviewer's voice (runs ~10× real time on one core, ~60 MB voice model)
+
+**Latency budget** (the number to hold the design to — candidate stops speaking to
+interviewer starts speaking):
+
+| Stage | Hosted (Groq) | Local (faster-whisper + Piper) |
+|---|---|---|
+| Turn-end: 500 ms of silence after the last word | 0.5 s | 0.5 s |
+| Final transcription of a 20 s answer | 0.2–0.5 s | 0.8–1.5 s |
+| Score the answer (deterministic rubric, no LLM) | 0.02 s | 0.02 s |
+| Optional LLM follow-up, first token | 0.3–0.6 s | 0.5–1.5 s (7B on CPU) |
+| First audio out | 0.05–0.15 s (`speechSynthesis`) | 0.15–0.3 s (Piper) |
+| **Perceived reply latency** | **~1.1–1.8 s** | **~2.0–3.8 s** |
+
+Both are inside conversational range (humans leave 0.5–1.5 s). Levers if it is too slow:
+trust partial transcripts instead of waiting for the final one, shrink the model
+(`base.en` → `tiny.en`), keep the process warm so no model load is paid per turn, and
+pre-render the fixed interviewer lines to audio at session start.
 - **Rule that survives:** a transcript is evidence of what was *said*. Scoring still
   needs a quote. Communication is reported as transcript-derived only — accent, pace
   and confidence are not measured and are not claimed
