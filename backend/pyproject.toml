@@ -26,6 +26,9 @@ dev = ["pytest>=8.3", "pytest-asyncio>=0.24", "ruff>=0.7"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+# pytest-asyncio warns on every run without this; the default it will switch to is
+# "function", so state it now instead of printing a deprecation block at every user.
+asyncio_default_fixture_loop_scope = "function"
 
 [tool.ruff]
 line-length = 100
