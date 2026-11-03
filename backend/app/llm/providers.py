@@ -264,4 +264,12 @@ def default_chain() -> list:
         provider = known.get(name)
         if provider and provider not in chain:
             chain.append(provider)
+
+    # A blank or misspelled LLM_FALLBACK used to leave the chain with a single
+    # provider and no warning. Adding the other known provider costs nothing — the
+    # gateway skips any provider without a key, and `available()` is what decides
+    # whether it is ever called. Silence is the only thing this prevents.
+    for name, provider in known.items():
+        if provider not in chain:
+            chain.append(provider)
     return chain

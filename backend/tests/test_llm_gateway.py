@@ -214,3 +214,29 @@ def test_gemini_request_shape_is_pure_and_thinking_is_opt_out():
     js = gemini_body("hi", json_mode=True, system="be terse")
     assert js["generationConfig"]["responseMimeType"] == "application/json"
     assert js["systemInstruction"]["parts"][0]["text"] == "be terse"
+
+
+def test_a_blank_fallback_still_leaves_a_second_provider(monkeypatch):
+    """LLM_FALLBACK= (blank) or a typo must not silently reduce the chain to one."""
+    from app.config import get_settings
+    from app.llm.providers import default_chain
+
+    monkeypatch.setenv("LLM_PROVIDER", "groq")
+    monkeypatch.setenv("LLM_FALLBACK", "")
+    get_settings.cache_clear()
+    try:
+        names = [p.name for p in default_chain()]
+        assert names[0] == "groq"
+        assert "gemini" in names
+    finally:
+        monkeypatch.delenv("LLM_FALLBACK", raising=False)
+        get_settings.cache_clear()
+
+
+def test_the_suite_ignores_a_local_env_file_for_llm_settings():
+    """What the conftest pins is what the app sees, whatever is in backend/../.env."""
+    from app.config import get_settings
+
+    s = get_settings()
+    assert (s.llm_provider, s.llm_fallback) == ("groq", "gemini")
+    assert s.gemini_api_key == "" and s.groq_api_key == ""

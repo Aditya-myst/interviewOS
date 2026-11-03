@@ -5,11 +5,17 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-# Tests never touch a real database or a real model provider.
-os.environ.setdefault("DATABASE_URL", "")
-os.environ.setdefault("GEMINI_API_KEY", "")
-os.environ.setdefault("GROQ_API_KEY", "")
-os.environ.setdefault("ENV", "test")
+# Tests never touch a real database or a real model provider, and they never read the
+# developer's .env for the settings they assert on. Plain assignment, not setdefault:
+# a local .env saying LLM_FALLBACK= (empty) silently reduced the provider chain to one
+# entry and failed a test that is about the *default* chain — a suite that passes or
+# fails depending on whose machine it runs on is worse than no suite.
+os.environ["DATABASE_URL"] = ""
+os.environ["GEMINI_API_KEY"] = ""
+os.environ["GROQ_API_KEY"] = ""
+os.environ["ENV"] = "test"
+os.environ["LLM_PROVIDER"] = "groq"
+os.environ["LLM_FALLBACK"] = "gemini"
 
 import pytest
 
