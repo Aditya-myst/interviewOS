@@ -252,6 +252,9 @@ function Result({ resume, analysis }: { resume: ResumeUpload; analysis: JdAnalys
   const saved = resume.persisted && (analysis?.persisted ?? false);
   const scored = analysis?.merge?.scored ?? resume.merge?.scored;
   const blocked = analysis?.merge?.reason ?? resume.merge?.reason ?? null;
+  // A configured database that said no is a different screen from no database at all:
+  // "set DATABASE_URL" would be wrong advice, and the driver's own line is the useful part.
+  const persistError = analysis?.persist_error ?? resume.persist_error ?? null;
 
   return (
     <section className="mt-8 rounded-[18px] border border-[var(--border)] bg-[var(--surface)] p-6">
@@ -340,6 +343,21 @@ function Result({ resume, analysis }: { resume: ResumeUpload; analysis: JdAnalys
               See the gaps
             </Link>
           </div>
+        </div>
+      ) : persistError ? (
+        <div className="mt-5 rounded-[12px] border border-[var(--weak)]/40 bg-[var(--weak)]/[0.06] p-4">
+          <p className="type-small m-0 font-medium text-[var(--text)]">
+            Parsed, but the database refused the write.
+          </p>
+          <p className="type-small mt-1 mb-0 text-[var(--text-dim)]">
+            The parse above is real — {skills.length} skills and {requirements.length} requirements
+            were read from your documents — but nothing was stored, so your dashboard still shows
+            fixtures. What the database said:
+          </p>
+          <p className="mt-2 mb-0 rounded-[8px] bg-[var(--surface)] px-2.5 py-2 font-mono text-[11.5px] leading-snug text-[var(--text-dim)]">
+            {persistError.message}
+          </p>
+          <p className="type-micro mt-2 mb-0 text-[var(--text-dim)]">{persistError.code}</p>
         </div>
       ) : (
         <div className="mt-5 rounded-[12px] border border-[var(--developing)]/35 bg-[var(--developing)]/[0.07] p-4">

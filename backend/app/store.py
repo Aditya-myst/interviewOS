@@ -221,6 +221,34 @@ UPSERT_SKILL = text(
 )
 
 
+PRUNE_STALE = text(
+    """
+    delete from public.candidate_skills
+    where user_id = cast(:user_id as uuid)
+      and skill_id <> all(:keep)
+      -- only the states a recompute owns. A graded row (weak/developing/verified/
+      -- needs_revision) is earned evidence from an assessment or an interview; losing the
+      -- bullet that mentioned it does not erase having demonstrated it.
+      and status in ('claimed', 'unverified')
+    """
+)
+
+
+def prune_stale_skills(session: Session, *, user_id: str, keep: list[str]) -> int:
+    """Drop rows the newest resume+JD no longer mention.
+
+    Without this, uploading a second resume leaves the first one's skills on the dashboard
+    for ever — a marketing candidate ended up with "LLM & RAG" at the top of their priority
+    curve because an earlier upload had mentioned it. Graded rows are never pruned.
+    """
+    if not keep:
+        # an empty keep list would delete everything; a recompute that scored nothing is a
+        # bug upstream, not a reason to wipe the profile
+        return 0
+    result = session.execute(PRUNE_STALE, {"user_id": user_id, "keep": list(keep)})
+    return int(result.rowcount or 0)
+
+
 def upsert_skills(session: Session, *, user_id: str, rows: list[ScoredSkill]) -> int:
     written = 0
     for row in rows:

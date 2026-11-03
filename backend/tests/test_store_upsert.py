@@ -145,3 +145,80 @@ def test_upsert_preserves_verification_against_a_real_database():
     assert "assessment_answer" in types, "the interview quote was deleted by the recompute"
     assert "jd_requirement" in types, "the new JD quote was not added"
     assert float(priority) > 0.7, "scores still update — only the verification state is frozen"
+
+
+def test_prune_never_touches_a_graded_row():
+    """Stale rows go; earned ones stay. The SQL is the contract here."""
+    sql = str(store.PRUNE_STALE).lower()
+    assert "status in ('claimed', 'unverified')" in sql
+    for graded in ("weak", "developing", "verified", "needs_revision"):
+        assert f"'{graded}'" not in sql, f"pruning must not delete {graded} rows"
+    assert "skill_id <> all(:keep)" in sql
+
+
+def test_prune_refuses_an_empty_keep_list():
+    class Exploding:
+        def execute(self, *a, **k):
+            raise AssertionError("an empty keep list must not reach the database")
+
+    assert store.prune_stale_skills(Exploding(), user_id="u", keep=[]) == 0
+
+
+@pytest.mark.skipif(not DSN, reason="set INTERVIEWOS_TEST_DATABASE_URL to run against Postgres")
+def test_prune_against_a_real_database():
+    from sqlalchemy import create_engine, text
+    from sqlalchemy.orm import Session
+
+    engine = create_engine(DSN)
+    with engine.begin() as conn:
+        conn.execute(
+            text(
+                "insert into public.skills (id, name, category, aliases, interview_relevance) "
+                "values ('docker', 'Docker', 'Infra', '{}', 0.7) on conflict (id) do nothing"
+            )
+        )
+        conn.execute(
+            text("delete from public.candidate_skills where user_id = cast(:u as uuid)"),
+            {"u": USER},
+        )
+        # content-strategy: graded, and still mentioned → must survive
+        # docker: never graded, no longer mentioned → stale, must go
+        for skill, status in (("content-strategy", "verified"), ("docker", "unverified")):
+            conn.execute(
+                text(
+                    """
+                    insert into public.candidate_skills
+                      (user_id, skill_id, status, verified_level, expected_level, confidence,
+                       jd_importance, interview_relevance, gap, priority, priority_band,
+                       explanation, in_resume, in_jd, evidence)
+                    values (cast(:u as uuid), :s, cast(:st as public.skill_status),
+                            case when :st = 'verified' then 'beginner'::public.verified_level end,
+                            'expert', 0.5, 0.5, 0.5, 0.5, 0.5, 'medium', 'seeded', true, true,
+                            '[{"type":"assessment_answer","quote":"I graded this"}]'::jsonb)
+                    """.replace("'expert',", "'expert',").replace(
+                        ":st as public.skill_status), 'expert'",
+                        ":st as public.skill_status), 'expert'",
+                    ) + """
+                    """
+                ),
+                {"u": USER, "s": skill, "st": status},
+            )
+
+    with Session(engine) as session:
+        pruned = store.prune_stale_skills(session, user_id=USER, keep=["content-strategy"])
+        session.commit()
+    assert pruned == 1, "only the ungraded stale row should be removed"
+
+    with engine.connect() as conn:
+        left = {
+            row[0]
+            for row in conn.execute(
+                text(
+                    "select skill_id from public.candidate_skills where user_id = cast(:u as uuid)"
+                ),
+                {"u": USER},
+            )
+        }
+    assert left == {"content-strategy"}, (
+        "the ungraded stale row goes and the graded one stays"
+    )

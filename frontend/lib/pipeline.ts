@@ -36,6 +36,7 @@ export interface ResumeUpload {
   warnings?: string[];
   skills?: ResumeSkill[];
   merge?: { scored: number; reason: string | null };
+  /** Present when the schema refused the write. The parse above is still real. */
   persist_error?: { code: string; message: string };
 }
 
@@ -60,6 +61,8 @@ export interface JdAnalysis {
     }>;
   };
   merge?: { scored: number; reason: string | null };
+  /** Present when the schema refused the write. The parse above is still real. */
+  persist_error?: { code: string; message: string };
 }
 
 /**

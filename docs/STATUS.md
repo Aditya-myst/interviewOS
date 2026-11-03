@@ -30,7 +30,7 @@ UI says "SOON" rather than showing a mock of it.
 | Tutor | per-skill answers composed from profile rows + curriculum + catalogue, every claim cited | `tutor/`, `api/tutor.py`, `/tutor` |
 | Interview engine | sessions, questions from priority skills, quote-gated scoring, report | `interview/`, `api/interview.py` |
 
-Backend: **198 tests**, ruff clean, schema checker ("17 queries / 18 tables"). Frontend:
+Backend: **200 tests**, ruff clean, schema checker ("17 queries / 18 tables"). Frontend:
 tsc + eslint + `pnpm build` clean.
 
 ---
@@ -120,6 +120,14 @@ the skill still `weak`/`beginner`, its assessment evidence intact, and 23 skills
 the JD analyse. Zero tracebacks in the API log. Tests: `tests/test_store_upsert.py` (a text
 assertion that runs everywhere plus a live-database test gated on
 `INTERVIEWOS_TEST_DATABASE_URL`) and `test_a_database_rejection_is_a_stated_failure_not_a_500`.
+
+**Same pass, one more thing the live database exposed:** uploading a second resume left the
+first one's skills on the dashboard for ever — a marketing candidate had "LLM & RAG" at the
+top of their priority curve. `store.prune_stale_skills` now drops rows the newest resume+JD
+no longer mention, but **only** `claimed`/`unverified` ones: a `weak`/`developing`/`verified`
+row is evidence someone demonstrated something, and losing the bullet that mentioned it does
+not erase that. The merge payload reports `{"scored": 7, "pruned": 1}` so the UI and the logs
+can see both numbers.
 
 **Nothing to run in SQL** — the schema was already correct; the fix is application code.
 
