@@ -4,6 +4,7 @@ import { CheckCircle2, Clock, CircleDashed, ExternalLink, TriangleAlert } from "
 import PageHeader from "@/components/shell/PageHeader";
 import IosButton from "@/components/primitives/IosButton";
 import DataSourceBadge from "@/components/app/DataSourceBadge";
+import TopicProgressControl from "@/components/app/TopicProgressControl";
 import StateNotice from "@/components/app/StateNotice";
 import Skeleton from "@/components/app/Skeleton";
 import { loadRoadmap } from "@/lib/api";
@@ -136,7 +137,7 @@ async function RoadmapBody({
         <ol className="list-none m-0 p-0">
           {r.topics.map((t) => (
             <li key={t.id}>
-              <TopicCard topic={t} />
+              <TopicCard topic={t} persisted={r.persisted !== false} />
             </li>
           ))}
           <li aria-hidden className="border-t border-[var(--border)]" />
@@ -154,7 +155,7 @@ async function RoadmapBody({
   );
 }
 
-function TopicCard({ topic }: { topic: LearningTopic }) {
+function TopicCard({ topic, persisted }: { topic: LearningTopic; persisted: boolean }) {
   const progressPct = Math.round((topic.progress ?? 0) * 100);
   const missing = topic.missing_roles ?? [];
   const grouped = (["concept", "practice", "checkpoint"] as const).map((role) => ({
@@ -173,6 +174,11 @@ function TopicCard({ topic }: { topic: LearningTopic }) {
           <h2 className="type-h4 m-0">{topic.title}</h2>
         </div>
         <div className="flex items-center gap-2">
+          <TopicProgressControl
+            topicId={topic.id}
+            status={topic.status}
+            disabled={!persisted}
+          />
           <span className="type-micro text-[var(--text-dim)] px-2 py-1 rounded-[999px] border border-[var(--border)]">
             {DEPTH_LABEL[topic.depth] ?? topic.depth}
           </span>

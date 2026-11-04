@@ -217,7 +217,15 @@ export interface Roadmap {
   status: "active" | "completed";
   target_role?: string | null;
   topics: LearningTopic[];
-  progress?: { done: number; total: number };
+  /** `done`/`total` are counted over the topics in *this* plan, never over archived ones. */
+  progress?: { done: number; total: number; percent?: number };
+  /** The persisted path these topics belong to; absent when nothing was stored. */
+  path_id?: string | null;
+  /**
+   * False when the plan could not be written (no database, or the write failed). The screen
+   * must then say progress will not be saved, rather than offering a button that no-ops.
+   */
+  persisted?: boolean;
 }
 
 export interface PreparationPlan {

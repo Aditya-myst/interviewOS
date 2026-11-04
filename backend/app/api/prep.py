@@ -13,12 +13,14 @@ frontend switches on its own schedule.
 """
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
-from fastapi import APIRouter, Response
+from fastapi import APIRouter, HTTPException, Response
+from pydantic import BaseModel, Field
 
 from app import fixtures, store
 from app.db import db_status, get_session
+from app.prep import progress
 from app.schemas import Dashboard, Roadmap, SkillProfile
 
 router = APIRouter(tags=["preparation"])
@@ -123,6 +125,70 @@ def roadmap(response: Response, state: str | None = None) -> dict[str, Any]:
         response.headers["X-Data-Source"] = "database"
         return stored
     return _serve(response, "roadmap", state, reason)
+
+
+class TopicStatusUpdate(BaseModel):
+    """Only the two fields the candidate owns. Everything else is the planner's."""
+
+    status: Literal["not_started", "in_progress", "checkpoint_passed", "done"]
+    progress: float | None = Field(default=None, ge=0, le=1)
+
+
+def _write_session():
+    """A session for a write, or an honest 503.
+
+    Read endpoints fall back to fixtures because a screen must still render; a write has
+    nothing to fall back to, so it says why it cannot proceed instead of pretending.
+    """
+    if db_status()["state"] != "connected":
+        raise HTTPException(
+            status_code=503,
+            detail="no database configured — progress is stored in Postgres, so nothing was saved",
+        )
+    return get_session()
+
+
+@router.post("/preparation/create")
+def create_plan(response: Response) -> dict[str, Any]:
+    """Persist the computed plan. Idempotent: same candidate, same topics, same ids.
+
+    The UI never has to call this — reading the roadmap already stores it — but automation
+    and the CLI want an explicit verb, and an idempotent one is safe to retry.
+    """
+    stored, reason = _from_store("roadmap_payload")
+    if stored is None:
+        raise HTTPException(
+            status_code=409,
+            detail=f"nothing to plan yet ({reason}) — upload a resume and analyse a JD first",
+        )
+    response.headers["X-Data-Source"] = "database"
+    return stored
+
+
+@router.patch("/preparation/topics/{topic_id}")
+def update_topic_status(topic_id: str, body: TopicStatusUpdate, response: Response) -> dict[str, Any]:
+    """Mark one topic started, checked off, or done.
+
+    This is the write that makes `topics_done` mean something: before it existed the column
+    was read by the dashboard and written by nobody.
+    """
+    try:
+        with _write_session() as session:
+            user_id, _ = store.resolve_user(session)
+            result = progress.set_status(
+                session, user_id=user_id, topic_id=topic_id, status=body.status, progress=body.progress
+            )
+    except progress.TopicNotFound:
+        raise HTTPException(
+            status_code=404, detail=f"topic {topic_id!r} is not in your plan"
+        ) from None
+    except store.UserUnresolved:
+        raise HTTPException(status_code=409, detail="no profile yet — finish onboarding first") from None
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from None
+
+    response.headers["X-Data-Source"] = "database"
+    return result
 
 
 @router.get("/preparation/latest")

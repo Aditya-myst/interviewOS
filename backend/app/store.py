@@ -26,7 +26,8 @@ from app.config import get_settings
 from app.parsing.extract import Document
 from app.parsing.jd import ParsedJD
 from app.parsing.resume import ParsedResume
-from app.prep.dashboard import build_dashboard
+from app.prep import progress
+from app.prep.dashboard import build_dashboard, readiness, readiness_label
 from app.prep.priority import ScoredSkill
 from app.prep.profile import counts, coverage_by_category
 from app.prep.roadmap import build_roadmap
@@ -557,9 +558,7 @@ def dashboard_payload(session: Session, *, user_id: str) -> dict | None:
 
     # The roadmap is derived from these same rows, so count its topics the same way: the
     # dashboard used to print "0 of 0 topics done" while the roadmap screen showed five.
-    skill_ids = sorted({row.skill_id for row in rows if row.priority_band != "low"})
-    catalogue = catalogue_for(session, skill_ids=skill_ids) if skill_ids else {}
-    plan = build_roadmap(rows, catalogue, target_role=role)
+    plan = plan_with_progress(session, user_id=user_id, rows=rows, role=role)
     topics = list(plan.get("topics") or [])
     return build_dashboard(
         rows,
@@ -570,13 +569,8 @@ def dashboard_payload(session: Session, *, user_id: str) -> dict | None:
     )
 
 
-def roadmap_payload(session: Session, *, user_id: str) -> dict | None:
-    rows = _scored_rows(session, user_id)
-    if not rows:
-        return None
-    skill_ids = sorted({row.skill_id for row in rows if row.priority_band != "low"})
-    catalogue = catalogue_for(session, skill_ids=skill_ids) if skill_ids else {}
-    role = session.execute(
+def _target_role(session: Session, *, user_id: str) -> str | None:
+    return session.execute(
         text(
             "select coalesce(p.target_role, (select title from public.job_descriptions "
             "where user_id = p.id order by created_at desc limit 1)) "
@@ -584,7 +578,62 @@ def roadmap_payload(session: Session, *, user_id: str) -> dict | None:
         ),
         {"user_id": user_id},
     ).scalar()
-    return build_roadmap(rows, catalogue, target_role=role)
+
+
+def plan_with_progress(
+    session: Session, *, user_id: str, rows: list, role: str | None
+) -> dict:
+    """The computed plan, with the candidate's own status and progress welded on.
+
+    Reading persists the plan (`progress.sync_plan`), which is what makes "mark done" work
+    without a separate "create my plan" step the UI never had. Syncing writes content only,
+    so a re-plan cannot reset what the candidate already finished.
+
+    A failure here must not take the screen down: without stored rows the plan still
+    renders, it just starts at zero — and the caller's header still says `database`.
+    """
+    skill_ids = sorted({row.skill_id for row in rows if row.priority_band != "low"})
+    catalogue = catalogue_for(session, skill_ids=skill_ids) if skill_ids else {}
+    plan = build_roadmap(rows, catalogue, target_role=role)
+
+    try:
+        path_id = progress.sync_plan(
+            session,
+            user_id=user_id,
+            plan=plan,
+            target_role=role,
+            readiness=readiness(rows),
+            readiness_label=readiness_label(readiness(rows)),
+        )
+        states = progress.topic_states(session, user_id=user_id)
+    except Exception:
+        log.exception("could not persist the roadmap — showing it unstarted")
+        plan["persisted"] = False
+        return plan
+
+    for topic in plan["topics"]:
+        stored = states.get(str(topic["id"]))
+        if stored:
+            topic["status"] = stored["status"]
+            topic["progress"] = stored["progress"]
+
+    done = sum(1 for t in plan["topics"] if t["status"] == "done")
+    plan["progress"] = {
+        "done": done,
+        "total": len(plan["topics"]),
+        "percent": round((done / len(plan["topics"])) * 100) if plan["topics"] else 0,
+    }
+    plan["path_id"] = str(path_id)
+    plan["persisted"] = True
+    return plan
+
+
+def roadmap_payload(session: Session, *, user_id: str) -> dict | None:
+    rows = _scored_rows(session, user_id)
+    if not rows:
+        return None
+    role = _target_role(session, user_id=user_id)
+    return plan_with_progress(session, user_id=user_id, rows=rows, role=role)
 
 
 def latest_resume(session: Session, *, user_id: str) -> dict | None:

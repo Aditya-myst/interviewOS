@@ -108,6 +108,7 @@ contrast-corrected variants, not the decorative tones.
 - [x] Resume + JD intelligence (deterministic-first parsing)
 - [x] Skill verification engine (3-level ladder + rubric)
 - [x] Tutor
+- [x] Persisted roadmap progress — `learning_paths` / `learning_topics` are written, and a re-plan cannot reset what you finished
 - [ ] Resource resolver with URL verification (role gaps are named, not filled)
 - [ ] Voice interviews (Whisper STT + local TTS)
 

@@ -228,6 +228,41 @@ paths:
       responses:
         "200": { description: roadmap, content: { application/json: { schema: { $ref: "#/components/schemas/Roadmap" } } } }
 
+  /preparation/create:
+    post:
+      tags: [learning]
+      summary: Persist the computed plan (idempotent)
+      description: >
+        The UI never needs this — reading /learning/roadmap already stores the plan — but an
+        explicit, retry-safe verb is useful for scripts. Same body as GET /learning/roadmap.
+      responses:
+        "200": { description: roadmap, content: { application/json: { schema: { $ref: "#/components/schemas/Roadmap" } } } }
+        "409": { $ref: "#/components/responses/Error" }
+
+  /preparation/topics/{topic_id}:
+    patch:
+      tags: [learning]
+      summary: Mark one topic started, checked off, or done
+      description: >
+        This is the write that makes `topics_done` mean something. A status implies a
+        progress value unless one is passed explicitly (done -> 1.0, in_progress -> 0.5).
+      parameters: [{ name: topic_id, in: path, required: true, schema: { type: string, format: uuid } }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { type: string, enum: [not_started, in_progress, checkpoint_passed, done] }
+                progress: { type: number, minimum: 0, maximum: 1, nullable: true }
+      responses:
+        "200": { description: the stored topic plus the plan's new totals }
+        "404": { $ref: "#/components/responses/Error" }
+        "422": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
+
   /learning/topic/{topic_id}:
     get:
       tags: [learning]
@@ -575,6 +610,15 @@ components:
           properties:
             done: { type: integer }
             total: { type: integer }
+            percent: { type: integer }
+        path_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: the persisted learning_paths row; reading the roadmap creates it
+        persisted:
+          type: boolean
+          description: false when the plan could not be written — progress will not be saved
 
     PreparationPlan:
       type: object
