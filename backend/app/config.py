@@ -38,6 +38,10 @@ class Settings(BaseSettings):
     groq_api_key: str = ""
     groq_model: str = "auto"
     llm_cache_version: int = 1
+    # Off by default: the rubric is deterministic and needs no key. Turning this on
+    # lets a configured provider grade meaning instead of vocabulary, at one call
+    # per answer (~0.6-3 s on the free tiers, cached after that).
+    llm_scoring: bool = False
 
     max_upload_mb: int = 5
 

@@ -92,6 +92,27 @@ $env:INTERVIEWOS_TEST_DATABASE_URL="postgresql+psycopg://postgres:postgres@local
 python -m pytest tests/test_status_transitions.py
 ```
 
+## Scoring: rubric first, model second
+
+Every score has a quote behind it, and by default that quote comes from a deterministic
+rubric matcher: it needs no API key, gives the same answer twice, and cannot be talked into
+anything. Its weakness is vocabulary — an answer that explains a context window's limits
+without saying the word "limits" loses the point.
+
+Set a provider key and `LLM_SCORING=true` and a model reads the answer instead. Three things
+stop that from becoming a slot machine:
+
+- **The model must quote the answer verbatim.** The quote is checked against the text, so a
+  paraphrase is discarded and the rubric score stands.
+- **It must account for every rubric point.** Half a verdict is not a verdict.
+- **Structural floors stay vocabulary-independent.** No quote, too short, no specifics — those
+  caps apply to whatever the model returns. A fluent non-answer cannot be rescued.
+
+Cost, stated plainly: one call per uncached answer, roughly 0.6-3 s on the free Groq/Gemini
+tiers, 0 ms on a cache hit. When the model is unavailable — no key, an outage, invalid JSON —
+grading silently falls back to the rubric, and the answer's `scored_by` field says which of
+the two graded it. It is never inferred, and never "llm" by default.
+
 ## Design system
 
 Cream canvas, ink slabs for contrast, one green accent. Green `#22C55E` is used for

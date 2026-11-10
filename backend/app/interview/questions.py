@@ -313,6 +313,43 @@ def _best_quote(answer: str, matched_terms: tuple[str, ...]) -> str | None:
     return best[1] if best else None
 
 
+
+def _semantic_verdict(question: Question, text: str, deterministic: float, *, has_quote: bool):
+    """The model's reading of the answer, or None when it may not be trusted.
+
+    The tolerance depends on *why* they disagree. When the matcher found a quote it already
+    understood the answer, so the model gets a narrow band to argue in. When the matcher found
+    nothing it understood nothing — the vocabulary gap this pass exists to close — so the
+    model's verdict stands, because `grading` has already checked that its quote appears
+    verbatim in the answer and the structural floors still cap what a fluent non-answer can
+    reach.
+    """
+    from app.llm import grading
+
+    if not grading.enabled():
+        return None
+    rubric = {item.key: ", ".join(item.terms) for item in question.rubric}
+    verdict = grading.grade(
+        question=question.text, skill=question.skill_name, rubric=rubric, answer=text
+    )
+    if verdict is None:
+        return None
+    if has_quote:
+        if abs(verdict.score - deterministic) > grading.MAX_DISAGREEMENT:
+            # The matcher has a quotable point; a model that disagrees wildly is a provider
+            # problem, not a grading decision.
+            return None
+        return verdict
+
+    # The matcher understood nothing, so the model is the only reader — but only an answer
+    # that carries substance may be rescued. Specificity is measurable without vocabulary:
+    # an example, a number, a named tool. Without it, a model's generosity is just a longer
+    # way of saying "sounds good", and the deterministic score stands.
+    if specificity_level(text) < 2:
+        return None
+    return verdict
+
+
 def score_answer(question: Question, answer: str) -> AnswerScore:
     """Coverage of the rubric, capped when there is no quote to point at."""
     text = (answer or "").strip()[:MAX_ANSWER_CHARS]
@@ -349,6 +386,22 @@ def score_answer(question: Question, answer: str) -> AnswerScore:
     score = 0.12 + 0.78 * coverage + (0.10 if concrete else 0.0)
     specificity = specificity_level(text)
     quote = _best_quote(text, tuple(dict.fromkeys(matched_terms)))
+
+    # Semantic pass, before the floors: a model may recognise a rubric point the literal
+    # matcher missed, and in that case the deterministic quote is None precisely *because*
+    # the vocabulary differed. The verdict has to supply its own quote and that quote is
+    # checked against the answer text, so the evidence requirement survives.
+    scored_by = "rubric"
+    llm_note = ""
+    verdict = _semantic_verdict(question, text, score, has_quote=quote is not None)
+    if verdict is not None:
+        score = verdict.score
+        matched = list(verdict.matched)
+        missing = list(verdict.missing)
+        quote = verdict.quote
+        scored_by = "llm"
+        llm_note = f" {verdict.rationale}".strip()
+        flags.append("llm_graded")
 
     if len(text) < 40:
         flags.append("too_short")
@@ -391,6 +444,7 @@ def score_answer(question: Question, answer: str) -> AnswerScore:
         quote=quote,
         matched=tuple(matched),
         missing=tuple(missing),
-        why=why,
+        why=f"{why}{llm_note}",
+        scored_by=scored_by,
         flags=tuple(flags),
     )
