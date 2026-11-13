@@ -42,6 +42,13 @@ function compactReason(text: string): string {
  * Accent, pace and confidence are not measured here and the page says so, because a
  * product that claims to read confidence from text is lying to the candidate.
  */
+/** What "scored by" means, in the candidate's words rather than a flag name. */
+const SCORED_BY_HINT: Record<string, string> = {
+  rubric: "deterministic rubric — same answer, same score",
+  llm: "a model read each answer; its quote was checked against your text",
+  "rubric+llm": "some answers by the rubric, some by a model — each says which",
+};
+
 export default async function ReportPage({
   searchParams,
 }: {
@@ -134,7 +141,7 @@ async function ReportBody({
               <Stat
                 label="Scored by"
                 value={report.scored_by ?? "rubric"}
-                hint="deterministic rubric, reproducible"
+                hint={SCORED_BY_HINT[report.scored_by ?? "rubric"] ?? "deterministic rubric"}
               />
             </div>
 
@@ -142,6 +149,12 @@ async function ReportBody({
               <div>
                 <p className="type-micro text-[var(--text-dim)] m-0">What held up</p>
                 <ul className="mt-2 grid gap-1.5 list-none p-0">
+                  {report.strengths.length === 0 && (
+                    <li className="type-small text-[var(--text-dim)]">
+                      Nothing cleared the bar this session. That is the finding, and the
+                      gaps beside it are the work.
+                    </li>
+                  )}
                   {report.strengths.slice(0, 3).map((line) => (
                     <li key={line} className="type-small text-[var(--text)]">
                       {line}

@@ -426,7 +426,8 @@ function SessionSummary({ report, onRestart }: { report: InterviewReport; onRest
           </p>
         </div>
         <p className="type-small text-[var(--text-dim)] max-w-[52ch] m-0">
-          {report.strengths[0]}
+          {report.strengths[0] ??
+            "Nothing reached verified this session. The report says what was missing."}
         </p>
         <div className="ml-auto flex gap-2">
           <IosButton href="/report" variant="secondary" arrow>

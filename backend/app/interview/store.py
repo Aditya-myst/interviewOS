@@ -74,6 +74,21 @@ class NotFound(LookupError):
     pass
 
 
+def report_scored_by(per_skill: list[dict[str, Any]]) -> str:
+    """Which engine graded this session — derived, never assumed.
+
+    The report used to say "rubric" no matter what: with `LLM_SCORING=true` a model may have
+    graded every answer, and the report still credited the rubric. Every per-skill row already
+    carries `scored_by`, so the session-level answer is a fold over them.
+    """
+    engines = {str(row.get("scored_by") or "rubric") for row in per_skill or []}
+    if "llm" in engines and len(engines) > 1:
+        return "rubric+llm"
+    if engines == {"llm"}:
+        return "llm"
+    return "rubric"
+
+
 # ------------------------------------------------------------------- memory store
 
 
@@ -280,14 +295,18 @@ class SqlSessionStore:
         ).scalar_one_or_none()
         if row is None:
             return None
+        per_skill = row.per_skill or []
         return {
             "session_id": session_id,
             "overall_scores": row.overall_scores or {},
-            "per_skill": row.per_skill or [],
+            "per_skill": per_skill,
             "strengths": row.strengths or [],
             "gaps": row.gaps or [],
             "weak_answers": row.weak_answers or [],
             "next_actions": row.next_actions or [],
+            # Derived on read: the row stored the per-skill engine, so a report read back
+            # two days later still says who graded it.
+            "scored_by": report_scored_by(per_skill),
             "created_at": row.created_at.isoformat() if row.created_at else None,
         }
 

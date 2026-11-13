@@ -19,7 +19,12 @@ import logging
 from typing import Any
 
 from app.interview import questions as engine
-from app.interview.store import MemorySessionStore, NotFound, SessionRecord
+from app.interview.store import (
+    MemorySessionStore,
+    NotFound,
+    SessionRecord,
+    report_scored_by,
+)
 
 
 def _question_payload(question: engine.Question) -> dict[str, Any]:
@@ -215,6 +220,18 @@ def build_report(store, *, session_id: str, plan: list[engine.Question], skills:
     verified = [row for row in per_skill if row["status_after"] == "verified"]
     gaps = [row for row in per_skill if row["status_after"] in ("weak", "needs_revision")]
 
+    # "What held up" may not be empty just because nothing reached `verified` — the best
+    # answer of a session is worth naming, and naming it is not the same as claiming a
+    # skill is verified. The wording keeps that difference visible.
+    held_up = [f"{row['name']}: {row['comment']}" for row in verified][:3]
+    if not held_up:
+        ranked = sorted(per_skill, key=lambda row: row["score"], reverse=True)
+        best = [row for row in ranked if row["score"] >= 0.4][:2]
+        held_up = [
+            f"Held up best: {row['name']} at {round(row['score'] * 100)} — {row['comment']}"
+            for row in best
+        ]
+
     return {
         "session_id": session_id,
         "overall_scores": {
@@ -231,15 +248,14 @@ def build_report(store, *, session_id: str, plan: list[engine.Question], skills:
             "communication_transcript_based": _communication(asked, said),
         },
         "per_skill": per_skill,
-        "strengths": [
-            f"{row['name']}: {row['comment']}" for row in verified
-        ][:3]
-        or ["No skill reached verified in this session — that is a finding, not a failure."],
+        # Empty is a valid answer: the screen says so in its own words rather than
+        # receiving a sentence that is not a strength.
+        "strengths": held_up,
         "gaps": [f"{row['name']}: {row['comment']}" for row in gaps][:4],
         "weak_answers": weak[:3],
         "next_actions": _next_actions(per_skill),
         "persisted": store.source == "database",
-        "scored_by": "rubric",
+        "scored_by": report_scored_by(per_skill),
         "created_at": None,
     }
 

@@ -162,6 +162,21 @@ Two consequences the screens had to learn:
   drops it — and the topic with it. Those rows now come back in `completed` ("finished
   earlier") so the effort stays on the page.
 
+## The interview report says who graded it
+
+`scored_by` on the report used to be the string `"rubric"`, hard-coded. With
+`LLM_SCORING=true` a model may have graded every answer in the session and the report still
+credited the deterministic rubric — the one field a candidate could use to know whether a
+model touched their score was a constant. It is now a fold over the per-answer verdicts
+(`rubric`, `llm`, or `rubric+llm`), derived on write *and* on read, so a report fetched two
+days later still says it.
+
+"What held up" had the opposite problem: it was never empty. When nothing reached
+`verified`, the list was filled with "No skill reached verified in this session — that is a
+finding, not a failure", a sentence filed under a heading that claims it is a strength. The
+list now names the verified skills, or — when none cleared the bar — the best answers
+("Held up best: Python at 61"), or is empty and the screen says so in its own words.
+
 ## Design system
 
 Cream canvas, ink slabs for contrast, one green accent. Green `#22C55E` is used for
@@ -179,6 +194,8 @@ contrast-corrected variants, not the decorative tones.
 - [x] Skill verification engine (3-level ladder + rubric)
 - [x] Tutor
 - [x] Persisted roadmap progress — `learning_paths` / `learning_topics` are written, and a re-plan cannot reset what you finished
+- [x] The ladder moves the roadmap — pass a checkpoint and its topic becomes `checkpoint_passed`, in the same transaction
+- [x] An interview report that does not pad — `scored_by` is derived from the per-answer verdicts, and "what held up" is empty rather than filled with a non-strength
 - [ ] Resource resolver with URL verification (role gaps are named, not filled)
 - [ ] Voice interviews (Whisper STT + local TTS)
 
