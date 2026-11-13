@@ -219,6 +219,19 @@ export interface Roadmap {
   topics: LearningTopic[];
   /** `done`/`total` are counted over the topics in *this* plan, never over archived ones. */
   progress?: { done: number; total: number; percent?: number };
+  /**
+   * Work that left the plan because it is no longer a gap — a skill you verified stops
+   * being something to study. Kept here so passing a checkpoint leaves a trace on the page;
+   * these rows are *not* in the study order and not counted in `progress`.
+   */
+  completed?: Array<{
+    topic_id: string;
+    title: string;
+    skill_id?: string | null;
+    status: string;
+    progress?: number;
+    at?: string | null;
+  }>;
   /** The persisted path these topics belong to; absent when nothing was stored. */
   path_id?: string | null;
   /**
@@ -288,6 +301,17 @@ export interface AssessmentState {
     verified?: boolean;
     why?: string;
     redo?: Array<{ question: string; score: number; quote?: string | null; why: string }>;
+    /**
+     * The roadmap topic this ladder moved, when the candidate has a plan. Present so the
+     * result screen can say what changed instead of leaving the two features unlinked.
+     */
+    roadmap_topic?: {
+      topic_id: string;
+      title: string;
+      status: "not_started" | "in_progress" | "checkpoint_passed" | "done";
+      progress: number;
+      changed: boolean;
+    } | null;
   } | null;
   /** false when the ladder lived in memory and will not survive a restart. */
   persisted?: boolean;

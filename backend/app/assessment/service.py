@@ -384,8 +384,40 @@ def writeback(db_session, *, user_id: str, record: AssessmentRecord) -> bool:
                             "at": datetime.now(UTC).isoformat(),
                         }
                     )
+            if not evidence:
+                # The schema refuses to call a skill verified with an empty evidence array, and
+                # it is right to: a verdict nobody can point at is a claim. Record the ladder
+                # itself rather than let the trigger throw away the candidate's work — this is
+                # the case where the answers were fluent but quotable nowhere.
+                evidence.append(
+                    {
+                        "type": "assessment",
+                        "quote": None,
+                        "score": record.result.get("confidence"),
+                        "level": record.result.get("inferred_level"),
+                        "at": datetime.now(UTC).isoformat(),
+                    }
+                )
             skill.evidence = evidence
             skill.last_assessed_at = datetime.now(UTC)
+
+            # Close the loop with the roadmap: passing the ladder moves the topic that asked
+            # for it. Same transaction as the ladder, the answers and the skill row.
+            from app.prep import progress
+
+            try:
+                # A savepoint, so a roadmap problem costs the roadmap and not the ladder.
+                with db_session.begin_nested():
+                    topic = progress.mark_checkpoint(
+                        db_session,
+                        user_id=user_id,
+                        skill_id=record.skill_id,
+                        passed=record.result.get("status_after") == "verified",
+                    )
+                if topic is not None:
+                    record.result["roadmap_topic"] = topic
+            except Exception:
+                log.exception("could not move the roadmap topic for %s", record.skill_id)
         db_session.commit()
         record.persisted = True
         return True

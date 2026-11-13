@@ -77,7 +77,10 @@ async function RoadmapBody({
 
   const done = r.progress?.done ?? 0;
   const total = r.progress?.total ?? r.topics.length;
-  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  // The server's percent is the average of what each topic has reached, so a passed
+  // checkpoint counts as partial progress. Falling back to done/total here would put the
+  // header back at 0% for someone who just passed one.
+  const pct = r.progress?.percent ?? (total > 0 ? Math.round((done / total) * 100) : 0);
   const gaps = r.topics.reduce((n, t) => n + (t.missing_roles?.length ?? 0), 0);
 
   return (
@@ -108,6 +111,8 @@ async function RoadmapBody({
               {done}/{total}
               <span className="text-[14px] text-[var(--on-ink-dim)] ml-2">
                 topics · {pct}%
+                {!!r.completed?.length &&
+                  ` · ${r.completed.length} finished earlier`}
               </span>
             </p>
           </div>
@@ -142,6 +147,38 @@ async function RoadmapBody({
           ))}
           <li aria-hidden className="border-t border-[var(--border)]" />
         </ol>
+      )}
+
+      {!!r.completed?.length && (
+        <section className="mt-8 border-t border-[var(--border)] pt-5">
+          <h2 className="type-h4 m-0">Finished earlier</h2>
+          <p className="type-small text-[var(--text-dim)] m-0 mt-1 mb-3 max-w-[72ch]">
+            These came off the plan because they stopped being gaps — you passed the
+            checkpoint or marked the work done. Kept here so the effort stays visible.
+          </p>
+          <ul className="list-none m-0 p-0 grid gap-2">
+            {r.completed.map((c) => (
+              <li
+                key={c.topic_id}
+                className="flex flex-wrap items-center justify-between gap-2 rounded-[12px] border border-[var(--border)] px-4 py-3"
+              >
+                <span className="type-small text-[var(--text)]">{c.title}</span>
+                <span className="flex items-center gap-3">
+                  <span className="type-micro text-[var(--text-dim)] tabular-nums">
+                    {Math.round((c.progress ?? 0) * 100)}%
+                  </span>
+                  <span
+                    className={`type-micro px-2 py-1 rounded-[999px] ${
+                      STATUS_STYLE[c.status] ?? STATUS_STYLE.done
+                    }`}
+                  >
+                    {STATUS_LABEL[c.status] ?? c.status}
+                  </span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
 
       <div className="mt-6 flex flex-wrap items-center gap-2">

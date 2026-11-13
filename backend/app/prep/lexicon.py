@@ -32,7 +32,49 @@ INSTRUCTION_WORDS = frozenset(
         "first", "next", "last", "small", "large", "good", "bad", "new", "old", "own",
         "actual", "real", "same", "different", "others", "someone", "something", "else",
         "must", "should", "able", "need", "needs", "want", "wants", "start", "starts",
+        # connectives: they hold a sentence together, they are not a concept. "Scope before
+        # designing" used to make **before** a rubric point, so an answer about scope scored
+        # as if it had missed something.
+        "before", "after", "during", "while", "between", "across", "through", "over", "under",
+        "against", "onto", "within", "into", "each", "every", "both", "either", "neither",
+        "much", "many", "more", "most", "less", "least", "rather", "back", "down", "off",
+        "again", "still", "yet", "now",
     }
 )
 
-__all__ = ["INSTRUCTION_WORDS"]
+# The same idea wearing a different word. The deterministic scorer has no model to ask
+# "do these mean the same thing", so the dictionary is explicit and small: one entry per
+# curriculum concept that candidates reliably phrase another way. Keys are rubric terms
+# (lower case); values are alternates that count as the same point. Anything not listed
+# still has to be said in the rubric's own vocabulary — this widens the door, it does not
+# open it: the answer must still be specific, quotable and sentence-length to score.
+CONCEPT_SYNONYMS: dict[str, tuple[str, ...]] = {
+    # system design
+    "envelope": ("budget", "estimate", "calculate"),
+    "maths": ("math", "arithmetic", "numbers", "calculation"),
+    "scope": ("bound", "boundary", "constraint", "limit"),
+    "primitive": ("building", "component", "block"),
+    "balancing": ("balancer", "balance"),
+    "queues": ("queue", "backlog", "buffer"),
+    "replication": ("replica", "replicas", "copy"),
+    "consistency": ("consistent", "consensus", "invariant"),
+    "observability": ("monitoring", "metrics", "telemetry", "traces"),
+    "failure": ("failover", "fallback", "degrade", "circuit", "resilience"),
+    # retrieval and models
+    "recall": ("retrieved", "retrieval", "hits"),
+    "rerank": ("reranking", "reranker", "reranked"),
+    "embeddings": ("embedding", "vector", "vectors"),
+    "chunking": ("chunk", "chunks", "chunked"),
+    "tokens": ("token", "tokenise", "tokenize", "tokenisation"),
+    "faithfulness": ("grounded", "hallucination", "hallucinations", "citation"),
+    "leakage": ("leak", "leaking", "contaminated"),
+    "overfitting": ("overfit", "generalise", "generalize"),
+    "imbalance": ("imbalanced", "skewed", "rare"),
+    "variance": ("spread", "volatility"),
+    "caching": ("cache", "cached"),
+    "indexing": ("index", "indexes", "indices"),
+    "concurrency": ("concurrent", "parallel", "asynchronous", "async"),
+    "latency": ("p99", "p95", "delay", "slow"),
+}
+
+__all__ = ["CONCEPT_SYNONYMS", "INSTRUCTION_WORDS"]

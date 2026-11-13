@@ -113,6 +113,55 @@ tiers, 0 ms on a cache hit. When the model is unavailable — no key, an outage,
 grading silently falls back to the rubric, and the answer's `scored_by` field says which of
 the two graded it. It is never inferred, and never "llm" by default.
 
+### The rubric understands more than one way of saying it
+
+Without a key, the deterministic matcher is the whole grader, so it has to be fair on its
+own. It was not: three competent system-design answers — read/write ratio, latency budget,
+replicas, circuit breakers — scored 22, 29 and 17 out of 100. Nothing was wrong with the
+answers. The rubric said *replication* and the answer said *replica*; the rubric said
+*queues* and the answer said *queue*; the rubric said *envelope* and the answer said
+*budget*. Every correct answer that used another grammatical form, or another word for the
+same idea, was logged as a miss.
+
+Two changes, both in `app/prep/lexicon.py` and `app/interview/questions.py`:
+
+- **Forms.** A suffix stemmer (`-s`, `-ing`, `-ation`, `-ency`, plural `-ies`) runs on both
+  sides, so a word matches itself in any grammatical shape. It is deliberately conservative:
+  a four-character prefix is not enough, because at four `shar` (share) matched `shard`
+  (shard).
+- **Ideas.** `CONCEPT_SYNONYMS` maps ~25 curriculum concepts to the way candidates actually
+  phrase them (`envelope` → budget/estimate, `recall` → retrieval/hits, `faithfulness` →
+  hallucination/grounded). It widens the door; it does not open it. The answer still has to
+  be sentence-length, specific and quotable, so a fluent non-answer gains nothing.
+
+The same three answers now score 0.61, 0.42 and 0.70 — and the interview, the ladder and
+the assessment all read from the same matcher, so the fix lands on every screen at once.
+
+## The ladder moves the roadmap
+
+The roadmap and the ladder used to be two features that had never met: you could pass all
+three checkpoints on a skill and the roadmap would still say `not_started`, and
+`checkpoint_passed` — a status the schema defines — was set by nothing.
+
+Now `writeback()` calls `progress.mark_checkpoint()` in the same transaction as the ladder,
+its answers and the skill row, through a savepoint so a roadmap problem costs the roadmap
+and not the candidate's work. The rules are forward-only:
+
+- passing marks the topic `checkpoint_passed` (75%), not `done` — a ladder proves the
+  checkpoint, not the reading;
+- a failed ladder marks a fresh topic `in_progress` and never un-passes a checkpoint;
+- a topic already `done` is never downgraded;
+- starting a ladder materialises the plan first, because a candidate can open Assess
+  without ever visiting the roadmap.
+
+Two consequences the screens had to learn:
+
+- **Percent is the average of what each topic reached**, not `done / total`. Telling someone
+  who just passed a checkpoint that they are at 0% is a lie, however arithmetically correct.
+- **Verified work leaves the plan.** A verified skill stops being a gap, so the next re-plan
+  drops it — and the topic with it. Those rows now come back in `completed` ("finished
+  earlier") so the effort stays on the page.
+
 ## Design system
 
 Cream canvas, ink slabs for contrast, one green accent. Green `#22C55E` is used for

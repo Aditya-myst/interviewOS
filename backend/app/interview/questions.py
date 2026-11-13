@@ -17,9 +17,10 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
+from functools import lru_cache
 
 from app.parsing import taxonomy
-from app.prep.lexicon import INSTRUCTION_WORDS
+from app.prep.lexicon import CONCEPT_SYNONYMS, INSTRUCTION_WORDS
 
 # Words that appear in every objective and therefore discriminate nothing.
 STOPWORDS = frozenset(
@@ -111,15 +112,76 @@ def _content_terms(text: str, *, keep: tuple[str, ...] = ()) -> tuple[str, ...]:
 MIN_SENTENCE_WORDS = 6
 
 
+# Suffixes that change the form of a word without changing the idea in it. Ordered longest
+# first so "requirements" loses "ments" in one step rather than "s" and then "ment".
+_SUFFIXES = (
+    "ically", "ations", "ation", "encies", "ency", "ances", "ance", "ences", "ence",
+    "ments", "ment", "ings", "ing", "ions", "ion", "ities", "ity", "ies", "ied", "ers",
+    "er", "ed", "es", "s", "ent", "ant", "ly",
+)
+
+
 def _stem(term: str) -> str:
-    """Crude stemming, enough to stop "write" failing on "writing"."""
-    return term[:-1] if len(term) > 4 and term.endswith("e") else term
+    """Reduce a word to a form two spellings of one idea share.
+
+    This replaces a single-rule stemmer ("strip a trailing e") that only worked in one
+    direction: the rubric said *replication* and the answer said *replica*, the rubric said
+    *queues* and the answer said *queue*, and both scored as a miss. An answer that is right
+    in substance must not be marked wrong for its morphology — that was the single largest
+    source of unfair low scores in the ladder.
+    """
+    word = term.strip().lower()
+    stable = False
+    while not stable and len(word) > 4:
+        stable = True
+        if word.endswith("ies"):
+            word = f"{word[:-3]}y"
+            continue
+        for suffix in _SUFFIXES:
+            if word.endswith(suffix) and len(word) - len(suffix) >= 4:
+                word = word[: -len(suffix)]
+                stable = False
+                break
+        if stable and word.endswith("e") and len(word) > 4:
+            word = word[:-1]
+            stable = False
+    return word
+
+
+def _stem_matches(left: str, right: str) -> bool:
+    """Same stem, or one is a short extension of the other ("replic" / "replica")."""
+    if left == right:
+        return True
+    short, long = (left, right) if len(left) <= len(right) else (right, left)
+    # 5 characters, not 4: at 4, "shar" (share) was a prefix of "shard" (shard), so a
+    # sentence about a share price evidenced a rubric point about sharding. "replic" and
+    # "replica" are still the same idea; "shar" and "shard" are not.
+    return len(short) >= 5 and long.startswith(short) and len(long) - len(short) <= 3
+
+
+@lru_cache(maxsize=4096)
+def _text_stems(text: str) -> frozenset[str]:
+    return frozenset(_stem(word) for word in _words(text))
+
+
+def _term_forms(term: str) -> tuple[str, ...]:
+    """The stem of a rubric term plus the stems of the alternates that mean the same thing."""
+    forms = [_stem(term)]
+    for synonym in CONCEPT_SYNONYMS.get(term.strip().lower(), ()):
+        stem = _stem(synonym)
+        if stem not in forms:
+            forms.append(stem)
+    return tuple(forms)
 
 
 def _has_term(text: str, terms: tuple[str, ...]) -> bool:
-    """Word-boundary prefix match: "post" hits "posts", never "compost"."""
-    low = text.lower()
-    return any(re.search(rf"\b{re.escape(_stem(term))}", low) for term in terms)
+    """Does the text say any of these terms — in any grammatical form, in other words?"""
+    stems = _text_stems(text)
+    if not stems:
+        return False
+    return any(
+        _stem_matches(form, stem) for term in terms for form in _term_forms(term) for stem in stems
+    )
 
 
 def _substantive(sentence: str) -> bool:

@@ -606,9 +606,13 @@ def plan_with_progress(
             readiness_label=readiness_label(readiness(rows)),
         )
         states = progress.topic_states(session, user_id=user_id)
+        # Work that has already left the plan. A verified skill stops being a gap, so the
+        # next re-plan parks its topic — the candidate still needs to see that they did it.
+        plan["completed"] = progress.completed_topics(session, user_id=user_id)
     except Exception:
         log.exception("could not persist the roadmap — showing it unstarted")
         plan["persisted"] = False
+        plan["completed"] = []
         return plan
 
     for topic in plan["topics"]:
@@ -618,14 +622,33 @@ def plan_with_progress(
             topic["progress"] = stored["progress"]
 
     done = sum(1 for t in plan["topics"] if t["status"] == "done")
+    total = len(plan["topics"])
+    # Percent is the average of what each topic has actually reached, not `done / total`.
+    # A topic at `checkpoint_passed` is three quarters of the way there; counting it as zero
+    # told a candidate who had just passed a checkpoint that they were at 0%.
+    reached = sum(float(t.get("progress") or 0) for t in plan["topics"])
     plan["progress"] = {
         "done": done,
-        "total": len(plan["topics"]),
-        "percent": round((done / len(plan["topics"])) * 100) if plan["topics"] else 0,
+        "total": total,
+        "percent": round((reached / total) * 100) if total else 0,
     }
     plan["path_id"] = str(path_id)
     plan["persisted"] = True
     return plan
+
+
+def ensure_plan(session: Session, *, user_id: str) -> dict | None:
+    """Materialise the roadmap if it is not there yet. None when there is nothing to plan.
+
+    Called before a ladder and before the first roadmap read, so "the plan" exists by the time
+    anything wants to move one of its topics. Idempotent: it is the same sync the read does.
+    """
+    rows = _scored_rows(session, user_id)
+    if not rows:
+        return None
+    return plan_with_progress(
+        session, user_id=user_id, rows=rows, role=_target_role(session, user_id=user_id)
+    )
 
 
 def roadmap_payload(session: Session, *, user_id: str) -> dict | None:

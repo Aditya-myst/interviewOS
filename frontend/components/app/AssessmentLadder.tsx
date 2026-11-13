@@ -24,6 +24,13 @@ import { cn } from "@/lib/utils";
  */
 type Phase = "idle" | "asking" | "reviewing" | "done" | "error";
 
+const TOPIC_STATUS: Record<string, string> = {
+  not_started: "not started",
+  in_progress: "in progress",
+  checkpoint_passed: "checkpoint passed",
+  done: "done",
+};
+
 const LEVEL_COPY: Record<string, string> = {
   conceptual: "Start with the concept",
   practical: "Now the mechanics",
@@ -407,6 +414,34 @@ function Result({ state, onRestart }: { state: AssessmentState; onRestart: () =>
           <p className="type-micro mt-1 mb-0 text-[var(--text-dim)]">
             {result.redo[0].why}
           </p>
+        </div>
+      )}
+
+      {result.roadmap_topic && (
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-[12px] border border-[var(--border)] p-4">
+          <div className="min-w-0">
+            <p className="type-micro m-0 text-[var(--text-dim)]">
+              {result.roadmap_topic.changed
+                ? "Your roadmap moved with this"
+                : "This topic was already further along"}
+            </p>
+            <p className="type-small mt-1 mb-0 truncate text-[var(--text)]">
+              {result.roadmap_topic.title}
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="font-mono text-[12px] tabular-nums text-[var(--text-dim)]">
+              {TOPIC_STATUS[result.roadmap_topic.status] ?? result.roadmap_topic.status} ·{" "}
+              {Math.round((result.roadmap_topic.progress ?? 0) * 100)}%
+            </span>
+            <Link
+              href="/roadmap"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--brand)]"
+            >
+              Open roadmap
+              <ArrowRight size={14} aria-hidden />
+            </Link>
+          </div>
         </div>
       )}
 

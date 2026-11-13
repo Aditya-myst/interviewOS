@@ -17,6 +17,7 @@ from typing import Any, Literal
 from fastapi import APIRouter, HTTPException, Response
 from pydantic import BaseModel, Field
 
+from app import store
 from app.api.interview import _backend
 from app.assessment import service
 from app.assessment.service import NotFound as AssessmentNotFound
@@ -48,8 +49,16 @@ def _find_skill(skills: list[dict[str, Any]], skill_id: str) -> dict[str, Any]:
 
 @router.post("/assessment/start")
 def start(response: Response, body: AssessmentStart) -> dict[str, Any]:
-    with _backend(response) as (skills, _store, _db, _user):
+    with _backend(response) as (skills, _store, db, user_id):
         skill = _find_skill(skills, body.skill_id)
+        # Materialise the plan before the ladder runs, so finishing it has a roadmap topic to
+        # move. A candidate can open Assess without ever visiting the roadmap; without this the
+        # write-back would find no topic and the two screens would drift apart again.
+        if db is not None and user_id:
+            try:
+                store.ensure_plan(db, user_id=user_id)
+            except Exception:
+                log.exception("could not materialise the roadmap before the ladder")
         try:
             record = service.start(skill, question_total=body.question_total)
         except ValueError as exc:

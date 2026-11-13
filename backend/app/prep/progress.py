@@ -243,22 +243,123 @@ def set_status(
     }
 
 
+def mark_checkpoint(
+    session, *, user_id: str, skill_id: str, passed: bool
+) -> dict[str, Any] | None:
+    """A finished ladder moves the topic it was asking about.
+
+    The ladder and the roadmap were two features that never spoke: you could pass three
+    checkpoints on "RAG architecture end to end" and the roadmap would still say "not
+    started", with `checkpoint_passed` — a status the schema defines — set by nothing.
+
+    Forward only, on purpose:
+
+    - a topic already `done` is never downgraded (finishing the work beats passing a quiz);
+    - a failed ladder never un-passes a checkpoint;
+    - a first attempt marks the topic `in_progress`, because reading the roadmap should
+      reflect that you have started, not only that you succeeded.
+
+    Does NOT commit: the caller is mid-transaction (the assessment write-back commits the
+    ladder, its answers, the skill row and this together, or none of them).
+    """
+    tid_rows = session.execute(
+        select(LearningTopic.id, LearningTopic.title, LearningTopic.status, LearningTopic.progress)
+        .where(
+            LearningTopic.user_id == uuid.UUID(str(user_id)),
+            LearningTopic.skill_id == skill_id,
+            LearningTopic.order_index < ORDER_PARK,
+        )
+        .order_by(LearningTopic.order_index)
+    ).all()
+    if not tid_rows:
+        return None
+
+    for row in tid_rows:
+        if row.status == "done":
+            return {"topic_id": str(row.id), "title": row.title, "status": "done",
+                    "progress": float(row.progress or 1.0), "changed": False}
+        if passed and row.status == "checkpoint_passed":
+            return {"topic_id": str(row.id), "title": row.title, "status": "checkpoint_passed",
+                    "progress": float(row.progress or PROGRESS_FOR["checkpoint_passed"]),
+                    "changed": False}
+        if not passed and row.status in ("in_progress", "checkpoint_passed"):
+            return {"topic_id": str(row.id), "title": row.title, "status": row.status,
+                    "progress": float(row.progress or 0), "changed": False}
+
+        want = "checkpoint_passed" if passed else "in_progress"
+        topic = session.execute(
+            select(LearningTopic).where(LearningTopic.id == row.id)
+        ).scalar_one()
+        topic.status = want
+        topic.progress = PROGRESS_FOR[want]
+        topic.updated_at = dt.datetime.now(dt.UTC)
+        return {"topic_id": str(row.id), "title": row.title, "status": want,
+                "progress": topic.progress, "changed": True}
+
+    return None
+
+
+def completed_topics(session, *, user_id: str) -> list[dict[str, Any]]:
+    """What this candidate has already finished, including work that left the plan.
+
+    Passing a checkpoint closes the gap, so the next re-plan drops that skill to low
+    priority and parks its topic out of the visible range. That is the planner working
+    correctly — and it also meant a candidate could pass a ladder and find the roadmap
+    looking exactly as it had before, with the topic they just cleared nowhere on it.
+
+    These rows keep their status and their progress; this read brings them back as a
+    "finished earlier" list, newest first, without putting them back in the study order.
+    """
+    rows = session.execute(
+        select(
+            LearningTopic.id,
+            LearningTopic.title,
+            LearningTopic.skill_id,
+            LearningTopic.status,
+            LearningTopic.progress,
+            LearningTopic.updated_at,
+        )
+        .where(
+            LearningTopic.user_id == uuid.UUID(str(user_id)),
+            LearningTopic.order_index >= ORDER_PARK,
+            LearningTopic.status.in_(("checkpoint_passed", "done")),
+        )
+        .order_by(LearningTopic.updated_at.desc())
+        .limit(50)
+    ).all()
+    return [
+        {
+            "topic_id": str(row.id),
+            "title": row.title,
+            "skill_id": row.skill_id,
+            "status": row.status,
+            "progress": float(row.progress or 0),
+            "at": row.updated_at.isoformat() if row.updated_at else None,
+        }
+        for row in rows
+    ]
+
+
 def _totals(session, *, user_id: str) -> dict[str, Any]:
     rows = session.execute(
-        select(LearningTopic.status, func.count())
+        select(LearningTopic.status, LearningTopic.progress)
         .where(
             LearningTopic.user_id == uuid.UUID(str(user_id)),
             LearningTopic.order_index < ORDER_PARK,  # current plan only, not archived rows
         )
-        .group_by(LearningTopic.status)
     ).all()
-    by_status = {status: int(count) for status, count in rows}
-    total = sum(by_status.values())
+    by_status: dict[str, int] = {}
+    reached = 0.0
+    for status, value in rows:
+        by_status[status] = by_status.get(status, 0) + 1
+        reached += float(value or 0)
+    total = len(rows)
     done = by_status.get("done", 0)
     return {
         "done": done,
         "total": total,
-        "percent": round((done / total) * 100) if total else 0,
+        # Average of each topic's own progress: `checkpoint_passed` is 75%, not zero.
+        "percent": round((reached / total) * 100) if total else 0,
         "by_status": by_status,
     }
 
@@ -267,6 +368,8 @@ __all__ = [
     "PROGRESS_FOR",
     "STATUSES",
     "TopicNotFound",
+    "completed_topics",
+    "mark_checkpoint",
     "path_id_for",
     "set_status",
     "sync_plan",
