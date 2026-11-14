@@ -44,7 +44,7 @@ export async function proxyToApi(
     // The screen must be able to say "the API is not running" rather than render a button
     // that does nothing.
     return NextResponse.json(
-      { detail: `the API is unreachable — is uvicorn running on :8000? (${scope})` },
+      { detail: `the API is unreachable. Is uvicorn running on :8000? (${scope})` },
       { status: 503 },
     );
   }

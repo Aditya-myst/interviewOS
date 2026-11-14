@@ -28,7 +28,7 @@ def test_skills_profile_counts_add_up():
     counts = body["counts"]
     assert len(body["skills"]) == 9
     assert sum(counts[b] for b in ("critical", "high", "medium", "low")) == 9
-    # every skill with an assessed status must carry evidence — the same rule
+    # every skill with an assessed status must carry evidence, the same rule
     # the database trigger enforces
     for skill in body["skills"]:
         if skill["status"] in ("weak", "developing", "verified"):

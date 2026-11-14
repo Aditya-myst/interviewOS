@@ -18,7 +18,7 @@ TEXT = SAMPLE.read_text()
 
 
 def make_pdf(lines: list[str]) -> bytes:
-    """A real, minimal single-page PDF — no extra dependency needed to test pypdf."""
+    """A real, minimal single-page PDF, no extra dependency needed to test pypdf."""
     ops = ["BT", "/F1 12 Tf", "72 720 Td"]
     for index, line in enumerate(lines):
         if index:
@@ -178,7 +178,7 @@ def test_every_claim_confidence_is_bounded():
 
 def test_vocabulary_comes_from_the_taxonomy_file():
     vocab = taxonomy.load()
-    assert len(vocab) >= 41, "engineering plus content/growth — extend the YAML, not the code"
+    assert len(vocab) >= 41, "engineering plus content/growth, extend the YAML, not the code"
     assert vocab["llm-rag"].interview_relevance == 1.0
     assert "rag" in vocab["llm-rag"].terms
 
@@ -217,7 +217,7 @@ def test_parse_reports_its_own_method_and_evidence_count():
     assert parsed.stats["skills_found"] == len(parsed.skills) > 0
     assert parsed.stats["quotes"] >= parsed.stats["skills_found"]
     # the sample says "Teaching Assistant, Data Structures - 2025", a single year,
-    # which is a date, not a duration — so the honest answer is None with a reason
+    # which is a date, not a duration, so the honest answer is None with a reason
     assert parsed.experience_years is None
     assert "not stated" in parsed.experience_basis
 
@@ -291,7 +291,7 @@ def test_the_qualifier_restores_the_real_meaning():
 
 
 def test_vocabulary_gaps_are_measured_not_guessed():
-    """A marketing resume against an engineering taxonomy finds nothing — and says
+    """A marketing resume against an engineering taxonomy finds nothing, and says
     which words it did not know, instead of pretending the resume was empty."""
     text = ("MARKETING LEAD\nNew Delhi | lead@example.com\n\nSKILLS\n"
             "Languages: English, Hindi\nMarketing: HubSpot, Zoho, SEO\n"
@@ -322,7 +322,7 @@ CONTENT_RESUME = (pathlib.Path(__file__).parent / "data" / "content_resume.txt")
 
 def test_a_content_resume_is_described_by_a_content_vocabulary():
     """This is the author's own resume, redacted. Before the content/growth skills
-    existed it produced 0 matches (after the false positives were removed) — an
+    existed it produced 0 matches (after the false positives were removed), an
     honest "we do not know your field", not a parse failure."""
     parsed = resume.parse(extract("resume.txt", CONTENT_RESUME.encode()))
     found = {c.skill_id for c in parsed.skills}

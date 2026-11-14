@@ -1,4 +1,4 @@
-# UI v2 — less prose, more shape
+# UI v2, less prose, more shape
 
 ## The diagnosis
 
@@ -14,7 +14,7 @@ Three specific faults:
    click away, or in the one row that matters.
 2. **No chart answers the screen's question.** "Where do I stand?" is answered by
    text and a number. It should be answered by a shape you can read in a glance.
-3. **Uniform density.** Header, cards, table, footer all at the same weight —
+3. **Uniform density.** Header, cards, table, footer all at the same weight,
    nothing tells the eye where to land first.
 
 ## The rules
@@ -79,7 +79,7 @@ Three specific faults:
 │                    JD importance   Evidence   Recency                               │
 │  LLM & RAG         ████████        ▓▓▒░       3d                                    │
 │  FastAPI           ███████         ░░░░       3d                                    │
-│  System Design     ██████          ░░░░       —                                     │
+│  System Design     ██████          ░░░░     ,                                     │
 │  …                                                                                  │
 │  click any row → side sheet: status, why, quotes, "start assessment"                │
 └─────────────────────────────────────────────────────────────────────────────────────┘
@@ -107,7 +107,7 @@ Rail, not cards. Each topic expands in place to show the triplet:
 ```
   LEARN            PRACTISE                    PROVE
   [docs]   →       [repo / exercise]     →     [checkpoint]
-  FastAPI —        Full Stack FastAPI          (not resolved yet —
+  FastAPI,        Full Stack FastAPI          (not resolved yet,
   Dependencies     Template test suite         labelled search)
   ✓ checked 1d     ✓ checked 1d
 ```
@@ -128,11 +128,11 @@ The "why" sentence becomes the caption under each resource, capped at one line
 
 Numbers count up once (`CountUp`, already built). Charts draw on first view via
 `IntersectionObserver`, and are static under `prefers-reduced-motion`. No
-parallax on app screens — motion on an app screen is a signal, not decoration.
+parallax on app screens, motion on an app screen is a signal, not decoration.
 
 ## Build order
 
-1. `components/charts/*` — RadialScore, Sparkline, PriorityScatter, SkillMatrix,
+1. `components/charts/*`, RadialScore, Sparkline, PriorityScatter, SkillMatrix,
    TopicRail (+ sr-only tables). Nothing else can be laid out until these exist.
 2. Dashboard re-layout on top of them; delete the priority card list and the
    separate stat tiles.

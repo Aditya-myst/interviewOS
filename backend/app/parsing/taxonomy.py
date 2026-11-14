@@ -1,4 +1,4 @@
-"""The vocabulary, loaded from data/taxonomy.yaml — not from code.
+"""The vocabulary, loaded from data/taxonomy.yaml, not from code.
 
 If parsing can only recognise skills listed in a Python file, then adding a skill
 means editing the parser. Here the taxonomy is data: 41 skills, 137 subtopics, and
@@ -33,7 +33,7 @@ class Skill:
 def load() -> dict[str, Skill]:
     path = DATA_DIR / "taxonomy.yaml"
     if not path.exists():
-        raise FileNotFoundError(f"{path} is missing — the parser has no vocabulary")
+        raise FileNotFoundError(f"{path} is missing, the parser has no vocabulary")
     raw = yaml.safe_load(path.read_text()) or {}
     skills: dict[str, Skill] = {}
     for row in raw.get("skills", []):

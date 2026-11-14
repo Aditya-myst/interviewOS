@@ -2,7 +2,7 @@ import { AlertTriangle, Info } from "lucide-react";
 
 /**
  * Degraded-mode banner. When the model is unavailable the deterministic parser
- * still produces a usable profile — the UI says so instead of failing, which is
+ * still produces a usable profile, the UI says so instead of failing, which is
  * the behaviour we demo on purpose.
  */
 export default function StateNotice({

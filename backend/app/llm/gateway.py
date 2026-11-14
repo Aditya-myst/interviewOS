@@ -52,7 +52,7 @@ class Gateway:
         answers with invalid JSON is a provider failure, not a cache entry."""
         attempts: list[Attempt] = []
 
-        # Phase 1 — look the prompt up across the WHOLE chain before calling
+        # Phase 1, look the prompt up across the WHOLE chain before calling
         # anyone. A cache hit on the fallback must not wait behind a primary
         # timeout: that is exactly how a cached answer still cost 45 s.
         keyed: list[tuple[Provider, str, str]] = []
@@ -62,7 +62,7 @@ class Gateway:
                 continue
             try:
                 model = provider.model
-            except Exception as exc:  # noqa: BLE001 — model lookup is a network call too
+            except Exception as exc:  # noqa: BLE001, model lookup is a network call too
                 attempts.append(
                     Attempt(provider.name, f"{type(exc).__name__}: {exc}"[:300], 0)
                 )
@@ -80,7 +80,7 @@ class Gateway:
             if validator is not None:
                 try:
                     validator(text)
-                except Exception as exc:  # noqa: BLE001 — stale/invalid entry
+                except Exception as exc:  # noqa: BLE001, stale/invalid entry
                     log.info("cache entry for %s rejected by validator: %s", model, exc)
                     continue
             return LLMResult(
@@ -92,14 +92,14 @@ class Gateway:
                 attempts=attempts,
             )
 
-        # Phase 2 — nothing cached: call the providers in order.
+        # Phase 2, nothing cached: call the providers in order.
         for provider, model, key in keyed:
             started = time.monotonic()
             try:
                 text = provider.complete(prompt, system=system, json_mode=json_mode)
                 if validator is not None:
                     validator(text)
-            except Exception as exc:  # noqa: BLE001 — every provider failure looks the same here
+            except Exception as exc:  # noqa: BLE001, every provider failure looks the same here
                 attempts.append(
                     Attempt(
                         provider.name,

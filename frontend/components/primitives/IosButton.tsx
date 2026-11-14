@@ -14,7 +14,7 @@ interface IosButtonProps
   size?: ButtonSize;
   arrow?: boolean;
   loading?: boolean;
-  /** When set, renders a Next.js <Link> with identical styling — never nest
+  /** When set, renders a Next.js <Link> with identical styling, never nest
    *  a <button> inside an <a>, that is what this prop exists to avoid. */
   href?: string;
   children: React.ReactNode;
@@ -22,7 +22,7 @@ interface IosButtonProps
 
 /**
  * Light-theme first. Every variant is readable on the cream canvas, and the
- * arrow chip is owned here — callers must never render their own arrow.
+ * arrow chip is owned here, callers must never render their own arrow.
  */
 const VARIANT_STYLES: Record<ButtonVariant, string> = {
   primary: [

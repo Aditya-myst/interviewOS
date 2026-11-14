@@ -5,7 +5,7 @@ project bullet is a claim *plus* a place it was used. That difference decides th
 claimed level, so we have to know where we are in the document.
 
 Headers are detected structurally (short line, no trailing punctuation, either
-ALL CAPS or a known keyword) rather than by asking a model — this runs on every
+ALL CAPS or a known keyword) rather than by asking a model, this runs on every
 document and must be reproducible.
 """
 from __future__ import annotations
@@ -62,7 +62,7 @@ def _classify(line: str) -> str | None:
     lowered = stripped.lower().rstrip(":").strip()
     if lowered in _ALIASES:
         return _ALIASES[lowered]
-    # "SKILLS & TOOLS", "Technical Skills:", "PROJECTS — 2024"
+    # "SKILLS & TOOLS", "Technical Skills:", "PROJECTS, 2024"
     for phrase, name in _ALIASES.items():
         if re.search(rf"\b{re.escape(phrase)}\b", lowered):
             return name

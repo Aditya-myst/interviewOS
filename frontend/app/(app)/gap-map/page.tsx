@@ -11,12 +11,12 @@ import Skeleton from "@/components/app/Skeleton";
 import { loadSkillProfile } from "@/lib/api";
 import { parseState } from "@/lib/fixtures";
 
-export const metadata = { title: "Gap map — InterviewOS" };
+export const metadata = { title: "Gap map · InterviewOS" };
 
 /**
  * The gap map reads `/v1/skills/profile`. When that endpoint serves rows the
  * matrix is this user's evidence; when it serves its fixture the badge says so.
- * Either way the page renders a real shape — an empty skill list is the empty
+ * Either way the page renders a real shape, an empty skill list is the empty
  * state, never a blank card that looks finished.
  */
 export default function GapMapPage({
@@ -63,8 +63,7 @@ async function GapMapBody({
           <h2 className="type-display-3 m-0 mb-3">No skills scored yet</h2>
           <p className="type-body text-[var(--text-dim)] m-0 max-w-[52ch] mx-auto">
             The gap map is built from real requirements in your job description
-            and real claims in your resume. Nothing here is pre-filled — an empty
-            map means the analysis has not run, not that you have no gaps.
+            and real claims in your resume. Nothing here is pre-filled. An empty map means the analysis has not run, not that you have no gaps.
           </p>
         </section>
         <div className="mt-6 flex flex-wrap items-center gap-2">

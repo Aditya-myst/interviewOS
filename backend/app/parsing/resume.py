@@ -1,7 +1,7 @@
 """Resume → claimed skills, with a span behind every one of them.
 
 This is the deterministic pass. It runs with no model, no quota and no network, so
-the profile it produces can always be produced again — which matters when the same
+the profile it produces can always be produced again, which matters when the same
 resume must yield the same plan tomorrow as it did today.
 
 The model's job (later in the pipeline) is to *extend* this, and every extension
@@ -101,7 +101,7 @@ def _experience(
             f"computed from date ranges in the {where} (earliest {earliest}, latest {latest})"
         )
 
-    return None, "not stated — no explicit years and no readable work date ranges"
+    return None, "not stated: no explicit years and no readable work date ranges"
 
 
 def vocabulary_gaps(
@@ -111,7 +111,7 @@ def vocabulary_gaps(
 
     This is the measurement that turns "only 2 skills found" from a mystery into a
     diff. A skills section saying "HubSpot, Zoho, SEO" against a taxonomy of 31
-    engineering skills is not a parser bug — it is a vocabulary gap, and printing
+    engineering skills is not a parser bug, it is a vocabulary gap, and printing
     the gap is more honest than silently finding nothing.
     """
     gaps: list[str] = []
@@ -121,7 +121,7 @@ def vocabulary_gaps(
         if section.name not in ("skills", "requirements"):
             continue
         body = text[section.start : section.end]
-        # A wrapped line is a wrap, not a new item — but only when the next line
+        # A wrapped line is a wrap, not a new item, but only when the next line
         # continues in lower case. "Marketing: HubSpot" starting a new line is a new
         # category, and joining it produced the skill "Hindi Marketing: HubSpot".
         body = re.sub(r"\n(?=\s*[a-z])", " ", body)

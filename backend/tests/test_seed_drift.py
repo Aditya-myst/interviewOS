@@ -24,7 +24,7 @@ def test_seed_sql_matches_the_data_files():
     generated = load_generator().build()
     assert SEED.exists(), "docs/sql/002_seed.sql is missing"
     assert SEED.read_text(encoding="utf-8").strip() == generated.strip(), (
-        "docs/sql/002_seed.sql is out of date with data/taxonomy.yaml or data/curated.yaml — "
+        "docs/sql/002_seed.sql is out of date with data/taxonomy.yaml or data/curated.yaml, "
         "run: python scripts/gen_seed.py"
     )
 

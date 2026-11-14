@@ -87,7 +87,7 @@ def test_gap_is_never_negative_and_uses_the_level_scale():
 
 def test_what_the_jd_wants_beats_what_the_resume_happens_to_list():
     """Skills the resume lists but the JD never mentions are kept for coverage and
-    ranked below everything the JD asked for — ENUMS §3 gives them half weight."""
+    ranked below everything the JD asked for, ENUMS §3 gives them half weight."""
     rows = priority.score(parsed_resume(), parsed_jd())
     jd_only = [r for r in rows if r.in_jd and not r.in_resume]
     resume_only = [r for r in rows if r.in_resume and not r.in_jd]
@@ -254,7 +254,7 @@ def test_a_list_item_ending_in_a_semicolon_is_not_chopped():
 
 
 def test_a_plus_phrase_governs_only_its_own_segment():
-    """'Experience with Docker; Kubernetes is a plus' — Docker is required, Kubernetes
+    """'Experience with Docker; Kubernetes is a plus', Docker is required, Kubernetes
     is not, and the segment boundary is what tells them apart."""
     parsed = jd_mod.parse(JD_TEXT)
     by_id = {r.skill_id: r for r in parsed.requirements}

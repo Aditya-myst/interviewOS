@@ -3,7 +3,7 @@ import MarketingNav from "@/components/marketing/MarketingNav";
 import MarketingFooter from "@/components/marketing/MarketingFooter";
 import Section from "@/components/marketing/Section";
 
-export const metadata: Metadata = { title: "Terms — InterviewOS" };
+export const metadata: Metadata = { title: "Terms · InterviewOS" };
 
 const LAST_UPDATED = "1 November 2026";
 

@@ -7,12 +7,12 @@ import TutorChat from "@/components/app/TutorChat";
 import { loadSkillProfile } from "@/lib/api";
 import { parseState } from "@/lib/fixtures";
 
-export const metadata = { title: "Tutor — InterviewOS" };
+export const metadata = { title: "Tutor · InterviewOS" };
 
 /**
  * The tutor screen.
  *
- * The starter questions come from the candidate's own profile, in priority order — a
+ * The starter questions come from the candidate's own profile, in priority order, a
  * marketing candidate is offered content and analytics, not FastAPI. The chat itself is a
  * client component because the answer is a POST; everything above it is server-rendered so
  * the page still says who it is talking about before a single request is made.
@@ -43,7 +43,7 @@ async function TutorBody({ searchParams }: { searchParams: Promise<{ state?: str
       <PageHeader
         eyebrow="Tutor"
         title="Every answer cites the row it came from"
-        description="Scoped to your own gaps. It explains the next three subtopics from the curriculum and links the curated resources for them — and when there is no row, it says so instead of improvising."
+        description="Scoped to your own gaps. It explains the next three subtopics from the curriculum and links the curated resources for them, and when there is no row it says so instead of improvising."
         actions={
         <DataSourceBadge
           source={profile.source}

@@ -6,13 +6,13 @@ import Reveal from "./Reveal";
 const ROWS = [
   {
     claim: "Knows what you can't do",
-    them: "No — it grades the prompt",
-    us: "Yes — from your answers",
+    them: "No, it grades the prompt",
+    us: "Yes, from your answers",
   },
   {
     claim: "Remembers your progress",
-    them: "No — every chat starts fresh",
-    us: "Yes — skills stay verified until stale",
+    them: "No, every chat starts fresh",
+    us: "Yes, skills stay verified until stale",
   },
   {
     claim: "Learning links",
@@ -33,7 +33,7 @@ export default function WhyNotChatGPT() {
         index="04"
         eyebrow="Fair question"
         title="Why not just paste it into a chatbot?"
-        lead="A chatbot can tell you what a good answer looks like. It cannot tell you whether yours was one — it has no evidence, no memory of your progress, and no reason to keep its links alive."
+        lead="A chatbot can tell you what a good answer looks like. It cannot tell you whether yours was one. It has no evidence, no memory of your progress, and no reason to keep its links alive."
       />
 
       <Reveal>

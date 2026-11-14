@@ -81,7 +81,7 @@ function NavLink({
     const dis = (
       <div
         aria-disabled="true"
-        title={`${item.label} — not built yet`}
+        title={`${item.label} · not built yet`}
         className={cn(
           "flex items-center gap-3 rounded-[12px] px-3 py-2.5 text-sm font-medium",
           "text-[var(--text-dim)]/55 cursor-not-allowed select-none",
@@ -104,7 +104,7 @@ function NavLink({
       <Tooltip>
         <TooltipTrigger render={dis} />
         <TooltipContent side="right" sideOffset={8}>
-          {item.label} — not built yet
+          {item.label} · not built yet
         </TooltipContent>
       </Tooltip>
     ) : (

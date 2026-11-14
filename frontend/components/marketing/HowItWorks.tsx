@@ -7,7 +7,7 @@ const STEPS = [
     n: "01",
     title: "Claim",
     body: "Upload your resume and paste the job description you are actually targeting.",
-    note: "PDF or DOCX — never stored publicly",
+    note: "PDF or DOCX, never stored publicly",
   },
   {
     n: "02",
@@ -19,7 +19,7 @@ const STEPS = [
     n: "03",
     title: "Close the gap",
     body: "A roadmap ordered by interview impact, with verified free resources only.",
-    note: "Docs, not dead links — every URL checked",
+    note: "Docs, not dead links, every URL checked",
   },
 ];
 

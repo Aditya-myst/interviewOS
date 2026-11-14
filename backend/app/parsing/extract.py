@@ -1,4 +1,4 @@
-"""Text extraction — the first step that can silently ruin everything after it.
+"""Text extraction, the first step that can silently ruin everything after it.
 
 Two rules:
 
@@ -59,7 +59,7 @@ class Document:
 def _normalise(raw: str) -> str:
     """One canonical form: LF newlines, no trailing spaces, no runs of blank lines.
 
-    Deliberately conservative — no case folding, no dash unification, nothing that
+    Deliberately conservative, no case folding, no dash unification, nothing that
     would make a stored quote fail to match the stored text.
     """
     text = raw.replace("\r\n", "\n").replace("\r", "\n").replace("\x00", "")
@@ -89,7 +89,7 @@ def _from_pdf(data: bytes) -> tuple[str, list[Page], list[str]]:
     for index, page in enumerate(reader.pages, start=1):
         try:
             page_text = page.extract_text() or ""
-        except Exception as exc:  # noqa: BLE001 — one bad page must not lose the rest
+        except Exception as exc:  # noqa: BLE001, one bad page must not lose the rest
             warnings.append(f"page {index} failed to extract: {type(exc).__name__}")
             page_text = ""
         page_text = page_text.strip()
@@ -130,7 +130,7 @@ def extract(filename: str, data: bytes) -> Document:
     extension = "." + lowered.rsplit(".", 1)[-1] if "." in lowered else ""
     if extension not in SUPPORTED_EXTENSIONS:
         raise UnparseableDocument(
-            "unsupported_type", f"{extension or 'no extension'} — accepted: pdf, docx, txt, md"
+            "unsupported_type", f"{extension or 'no extension'}: accepted: pdf, docx, txt, md"
         )
 
     warnings: list[str] = []
@@ -147,14 +147,14 @@ def extract(filename: str, data: bytes) -> Document:
             raw = data.decode("utf-8")
         except UnicodeDecodeError:
             raw = data.decode("latin-1")
-            warnings.append("decoded as latin-1 — not valid UTF-8")
+            warnings.append("decoded as latin-1, not valid UTF-8")
         kind = "text"
 
     # Somewhere between the PDF and here, UTF-8 can arrive as cp1252. Fix it before
     # anything downstream stores a "verbatim" quote in the wrong alphabet.
     raw, repaired = repair_mojibake(raw)
     if repaired:
-        warnings.append("repaired mojibake — text had been decoded as a legacy codepage")
+        warnings.append("repaired mojibake: text had been decoded as a legacy codepage")
 
     text = _normalise(raw)
     if not pages:
@@ -167,7 +167,7 @@ def extract(filename: str, data: bytes) -> Document:
     if len(text) < 120:
         raise UnparseableDocument(
             "no_text_layer",
-            f"only {len(text)} characters extracted — likely a scanned or image-only document",
+            f"only {len(text)} characters extracted: likely a scanned or image-only document",
         )
 
     return Document(

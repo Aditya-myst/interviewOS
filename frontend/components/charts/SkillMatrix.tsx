@@ -7,7 +7,7 @@ import { FIXTURE_TODAY } from "@/lib/fixtures";
  * Cells link to the detailed row further down the page.
  */
 function daysSince(iso: string | null | undefined, today: string): string {
-  if (!iso) return "—";
+  if (!iso) return "n/a";
   const d = Math.round((Date.parse(today) - Date.parse(iso)) / 86_400_000);
   if (d <= 0) return "today";
   if (d === 1) return "1d";

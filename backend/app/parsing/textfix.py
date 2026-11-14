@@ -1,14 +1,14 @@
 """Repair text that was decoded with the wrong codec on the way in.
 
 Where "â€œunderstanding why content worksâ€" comes from: UTF-8 bytes decoded as
-cp1252/latin-1 — usually by a PDF extractor or a Windows tool that assumes a legacy
+cp1252/latin-1, usually by a PDF extractor or a Windows tool that assumes a legacy
 codepage. It is not merely ugly. It breaks the product's central promise, because a quote
 shown in a report has to be the candidate's *actual* words: a mangled quote is
 verbatim-but-wrong.
 
 Two passes, most faithful first:
 
-1. round trip the whole string through cp1252/latin-1 and re-decode as UTF-8 — perfect
+1. round trip the whole string through cp1252/latin-1 and re-decode as UTF-8, perfect
    when the corruption is intact;
 2. otherwise substitute the known fragments. The second pass exists because truncation
    happens: a console, a column limit or a paste can cut "â€œ" down to "â€", and a strict
@@ -81,7 +81,7 @@ FRAGMENTS = {
 
 
 # A lone "â" or "Â" standing between punctuation and nothing is the tail of a character
-# that was cut in half — no language has a word made only of those letters. This is what a
+# that was cut in half, no language has a word made only of those letters. This is what a
 # truncated "â€™" looks like once the rest has been dropped.
 ORPHANS = re.compile(r"(?<![^\W\d_])[âÂ](?![^\W\d_])")
 
@@ -107,7 +107,7 @@ def repair_mojibake(text: str) -> tuple[str, bool]:
 
     before = _fingerprints(text)
 
-    # Pass 1 — the clean case: the whole string is intact mojibake.
+    # Pass 1, the clean case: the whole string is intact mojibake.
     for codec in ("cp1252", "latin-1"):
         try:
             candidate = text.encode(codec, errors="strict").decode("utf-8", errors="strict")
@@ -116,7 +116,7 @@ def repair_mojibake(text: str) -> tuple[str, bool]:
         if _fingerprints(candidate) < before:
             return candidate, True
 
-    # Pass 2 — fragments, including truncated ones.
+    # Pass 2, fragments, including truncated ones.
     candidate = _by_fragment(text)
     # A leftover "â€" is a broken fragment of a character we cannot recover; drop it rather
     # than show it, and say the text was repaired so the warning travels.

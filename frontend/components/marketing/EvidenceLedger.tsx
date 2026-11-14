@@ -3,8 +3,8 @@ type Verdict = "verified" | "partial" | "not proven" | "not asked";
 /**
  * The hero artifact: an evidence ledger, not a pair of overlapping cards.
  *
- * It says the one thing the product actually does — a resume claim meets a
- * rubric verdict — and it says it in the product's own vocabulary. Rows arrive
+ * It says the one thing the product actually does, a resume claim meets a
+ * rubric verdict, and it says it in the product's own vocabulary. Rows arrive
  * on the paper stagger; each verdict lands a beat later with a stepped stamp.
  * Every figure here is labelled SAMPLE, because it is one.
  */
@@ -148,7 +148,7 @@ export default function EvidenceLedger() {
             })}
           </ul>
 
-          {/* the total: nine cells, two filled — countable at a glance */}
+          {/* the total: nine cells, two filled, countable at a glance */}
           <div className="flex items-center gap-3 border-t border-white/10 px-4 py-3.5">
             <div className="flex flex-1 gap-1" aria-hidden>
               {Array.from({ length: TOTAL }, (_, i) => (

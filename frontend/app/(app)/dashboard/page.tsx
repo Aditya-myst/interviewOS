@@ -21,7 +21,7 @@ import type {
   SkillProfile,
 } from "../../../../contracts/types";
 
-export const metadata = { title: "Dashboard — InterviewOS" };
+export const metadata = { title: "Dashboard · InterviewOS" };
 
 type Move = { action: string; meta: string; minutes: number; href: string };
 
@@ -69,7 +69,7 @@ async function DashboardBody({
   const d = dashboard.data;
 
   // `?state=empty` is a demo switch for the fixture path only. Once the API is serving
-  // this user's rows, an empty screen would be a lie — the database wins.
+  // this user's rows, an empty screen would be a lie, the database wins.
   const demoEmpty = state === "empty" && dashboard.source !== "database";
 
   if (demoEmpty || d.stats.skills_total === 0) {
@@ -101,7 +101,7 @@ async function DashboardBody({
       <p className="m-0 -mt-4 mb-6 type-small text-[var(--text-dim)]">
         {d.stats.verified_skills} of {d.stats.skills_total} skills verified
         <Sep />
-        avg interview score {d.stats.avg_interview_score ?? "—"}
+        avg interview score {d.stats.avg_interview_score ?? "n/a"}
         <Sep />
         {d.stats.topics_done} of {d.stats.topics_total} topics done
         <Sep />
@@ -194,7 +194,7 @@ function TopRow({ d, profile }: { d: Dashboard; profile: SkillProfile }) {
 
         <p className="m-0 type-small text-[var(--text-dim)] text-center">
           {d.provisional
-            ? "Provisional — partial evidence only"
+            ? "Provisional, partial evidence only"
             : "Based on assessed evidence"}
           {values.length === 1 && " · one measurement so far"}
         </p>
@@ -249,8 +249,7 @@ function NextMoves({ d, roadmap }: { d: Dashboard; roadmap: Roadmap }) {
       <section className="card-surface p-5">
         <h2 className="type-h4 m-0 mb-2">Next three moves</h2>
         <p className="type-small text-[var(--text-dim)] m-0">
-          No moves to derive yet — that needs at least one critical gap and one
-          resolved concept resource.
+          No moves to derive yet. That needs at least one critical gap and one resolved concept resource.
         </p>
       </section>
     );

@@ -2,8 +2,8 @@
 
 **Your resume claims skills. This tells you which ones you can actually defend.**
 
-InterviewOS takes three inputs — your resume, a target job description, and short adaptive
-skill checks — and produces a preparation plan ordered by *interview impact*, not by what
+InterviewOS takes three inputs, your resume, a target job description, and short adaptive
+skill checks, and produces a preparation plan ordered by *interview impact*, not by what
 happens to be on your CV. Every priority it shows cites the evidence behind it.
 
 > **Status:** frontend (dashboard, gap map, roadmap) + API service, database verified live
@@ -40,7 +40,7 @@ Everything runs on free tiers. No paid search API, no local GPU, no Ollama.
 contracts/   openapi.yaml, types.ts, ENUMS.md, fixtures/   ← single source of truth
 data/        taxonomy.yaml (41 skills / 137 subtopics), curated.yaml (resource seeds)
 docs/        architecture.md, PHASE0.md, sql/ ← the database handover
-scripts/     verify_env.py — environment doctor
+scripts/     verify_env.py, environment doctor
 frontend/    Next.js app
 backend/     FastAPI service
 ```
@@ -55,15 +55,15 @@ backend/     FastAPI service
 cp .env.example .env         # fill in Supabase, Gemini, Groq keys
 uv run python scripts/verify_env.py
 
-# 2. database — 18 tables, RLS, 41 skills, 137 subtopics, 39 curated resources
+# 2. database, 18 tables, RLS, 41 skills, 137 subtopics, 39 curated resources
 #    paste docs/sql/001_init.sql, then 002_seed.sql, then 003_storage.sql
 #    into the Supabase SQL editor. Full walkthrough: docs/sql/README.md
 
-# 3. frontend — pnpm only (packageManager is pinned; npm/yarn will fight the lockfile)
+# 3. frontend, pnpm only (packageManager is pinned; npm/yarn will fight the lockfile)
 corepack enable                             # once per machine, gives you pnpm
 cd frontend && pnpm install && pnpm dev     # http://localhost:3000
 
-# 4. backend — boots with no .env; /ready honestly says "degraded, fixture mode"
+# 4. backend, boots with no .env; /ready honestly says "degraded, fixture mode"
 cd backend && uv sync; uv run uvicorn app.main:app --reload --port 8000
 #    http://localhost:8000/docs     full API map: backend/README.md
 ```
@@ -96,7 +96,7 @@ python -m pytest tests/test_status_transitions.py
 
 Every score has a quote behind it, and by default that quote comes from a deterministic
 rubric matcher: it needs no API key, gives the same answer twice, and cannot be talked into
-anything. Its weakness is vocabulary — an answer that explains a context window's limits
+anything. Its weakness is vocabulary, an answer that explains a context window's limits
 without saying the word "limits" loses the point.
 
 Set a provider key and `LLM_SCORING=true` and a model reads the answer instead. Three things
@@ -105,19 +105,19 @@ stop that from becoming a slot machine:
 - **The model must quote the answer verbatim.** The quote is checked against the text, so a
   paraphrase is discarded and the rubric score stands.
 - **It must account for every rubric point.** Half a verdict is not a verdict.
-- **Structural floors stay vocabulary-independent.** No quote, too short, no specifics — those
+- **Structural floors stay vocabulary-independent.** No quote, too short, no specifics, those
   caps apply to whatever the model returns. A fluent non-answer cannot be rescued.
 
 Cost, stated plainly: one call per uncached answer, roughly 0.6-3 s on the free Groq/Gemini
-tiers, 0 ms on a cache hit. When the model is unavailable — no key, an outage, invalid JSON —
+tiers, 0 ms on a cache hit. When the model is unavailable, no key, an outage, invalid JSON,
 grading silently falls back to the rubric, and the answer's `scored_by` field says which of
 the two graded it. It is never inferred, and never "llm" by default.
 
 ### The rubric understands more than one way of saying it
 
 Without a key, the deterministic matcher is the whole grader, so it has to be fair on its
-own. It was not: three competent system-design answers — read/write ratio, latency budget,
-replicas, circuit breakers — scored 22, 29 and 17 out of 100. Nothing was wrong with the
+own. It was not: three competent system-design answers, read/write ratio, latency budget,
+replicas, circuit breakers, scored 22, 29 and 17 out of 100. Nothing was wrong with the
 answers. The rubric said *replication* and the answer said *replica*; the rubric said
 *queues* and the answer said *queue*; the rubric said *envelope* and the answer said
 *budget*. Every correct answer that used another grammatical form, or another word for the
@@ -134,20 +134,20 @@ Two changes, both in `app/prep/lexicon.py` and `app/interview/questions.py`:
   hallucination/grounded). It widens the door; it does not open it. The answer still has to
   be sentence-length, specific and quotable, so a fluent non-answer gains nothing.
 
-The same three answers now score 0.61, 0.42 and 0.70 — and the interview, the ladder and
+The same three answers now score 0.61, 0.42 and 0.70, and the interview, the ladder and
 the assessment all read from the same matcher, so the fix lands on every screen at once.
 
 ## The ladder moves the roadmap
 
 The roadmap and the ladder used to be two features that had never met: you could pass all
 three checkpoints on a skill and the roadmap would still say `not_started`, and
-`checkpoint_passed` — a status the schema defines — was set by nothing.
+`checkpoint_passed`, a status the schema defines, was set by nothing.
 
 Now `writeback()` calls `progress.mark_checkpoint()` in the same transaction as the ladder,
 its answers and the skill row, through a savepoint so a roadmap problem costs the roadmap
 and not the candidate's work. The rules are forward-only:
 
-- passing marks the topic `checkpoint_passed` (75%), not `done` — a ladder proves the
+- passing marks the topic `checkpoint_passed` (75%), not `done`, a ladder proves the
   checkpoint, not the reading;
 - a failed ladder marks a fresh topic `in_progress` and never un-passes a checkpoint;
 - a topic already `done` is never downgraded;
@@ -159,28 +159,28 @@ Two consequences the screens had to learn:
 - **Percent is the average of what each topic reached**, not `done / total`. Telling someone
   who just passed a checkpoint that they are at 0% is a lie, however arithmetically correct.
 - **Verified work leaves the plan.** A verified skill stops being a gap, so the next re-plan
-  drops it — and the topic with it. Those rows now come back in `completed` ("finished
+  drops it, and the topic with it. Those rows now come back in `completed` ("finished
   earlier") so the effort stays on the page.
 
 ## The interview report says who graded it
 
 `scored_by` on the report used to be the string `"rubric"`, hard-coded. With
 `LLM_SCORING=true` a model may have graded every answer in the session and the report still
-credited the deterministic rubric — the one field a candidate could use to know whether a
+credited the deterministic rubric, the one field a candidate could use to know whether a
 model touched their score was a constant. It is now a fold over the per-answer verdicts
 (`rubric`, `llm`, or `rubric+llm`), derived on write *and* on read, so a report fetched two
 days later still says it.
 
 "What held up" had the opposite problem: it was never empty. When nothing reached
-`verified`, the list was filled with "No skill reached verified in this session — that is a
+`verified`, the list was filled with "No skill reached verified in this session, that is a
 finding, not a failure", a sentence filed under a heading that claims it is a strength. The
-list now names the verified skills, or — when none cleared the bar — the best answers
+list now names the verified skills, or, when none cleared the bar, the best answers
 ("Held up best: Python at 61"), or is empty and the screen says so in its own words.
 
 ## Design system
 
 Cream canvas, ink slabs for contrast, one green accent. Green `#22C55E` is used for
-**fills only** — text on cream uses `#15803D` so it passes contrast. Status colours are
+**fills only**, text on cream uses `#15803D` so it passes contrast. Status colours are
 contrast-corrected variants, not the decorative tones.
 
 ## Roadmap
@@ -193,9 +193,9 @@ contrast-corrected variants, not the decorative tones.
 - [x] Resume + JD intelligence (deterministic-first parsing)
 - [x] Skill verification engine (3-level ladder + rubric)
 - [x] Tutor
-- [x] Persisted roadmap progress — `learning_paths` / `learning_topics` are written, and a re-plan cannot reset what you finished
-- [x] The ladder moves the roadmap — pass a checkpoint and its topic becomes `checkpoint_passed`, in the same transaction
-- [x] An interview report that does not pad — `scored_by` is derived from the per-answer verdicts, and "what held up" is empty rather than filled with a non-strength
+- [x] Persisted roadmap progress, `learning_paths` / `learning_topics` are written, and a re-plan cannot reset what you finished
+- [x] The ladder moves the roadmap, pass a checkpoint and its topic becomes `checkpoint_passed`, in the same transaction
+- [x] An interview report that does not pad, `scored_by` is derived from the per-answer verdicts, and "what held up" is empty rather than filled with a non-strength
 - [ ] Resource resolver with URL verification (role gaps are named, not filled)
 - [ ] Voice interviews (Whisper STT + local TTS)
 

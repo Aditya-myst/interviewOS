@@ -3,7 +3,7 @@
 The defect this file exists for: the roadmap and the assessment were two features that had
 never met. A candidate could answer every rung of "RAG architecture end to end" and get a
 `verified` verdict on the Assess screen, then open Roadmap and find the topic still
-`not_started` — the effort visible on one screen and absent on the other, which is exactly
+`not_started`, the effort visible on one screen and absent on the other, which is exactly
 what "everything should act on my resume and JD" rules out.
 
 Three things are easy to get wrong here, and each has a test:
@@ -14,7 +14,7 @@ Three things are easy to get wrong here, and each has a test:
    not exist yet. Starting a ladder materialises it first; a missing plan must also not
    break the write-back.
 3. **Isolation.** The roadmap lives in the same transaction as the ladder, its answers and
-   the skill row — but through a savepoint, so a roadmap failure costs the roadmap only.
+   the skill row, but through a savepoint, so a roadmap failure costs the roadmap only.
 """
 from __future__ import annotations
 
@@ -109,7 +109,7 @@ def _a_planned_skill(session) -> tuple[dict, dict]:
     assert plan and plan["topics"], "ensure_plan should have planned something"
     topic = plan["topics"][0]
     # Read shape calls a topic `id`; the write shape (PATCH, and the write-back below) calls
-    # it `topic_id`. Same uuid, two shapes — spelled out here so the test cannot pass by luck.
+    # it `topic_id`. Same uuid, two shapes, spelled out here so the test cannot pass by luck.
     assert topic["id"]
     skill = next(s for s in skills if s["skill_id"] == topic["skill_id"])
     return skill, topic

@@ -1,5 +1,5 @@
 -- ═══════════════════════════════════════════════════════════════════════════
--- InterviewOS — 003_storage.sql   (Supabase only)
+-- InterviewOS, 003_storage.sql   (Supabase only)
 --
 -- A private bucket for resume files, with one folder per user. Raw bytes live
 -- in Storage; Postgres keeps only `resumes.storage_path`, the extracted text

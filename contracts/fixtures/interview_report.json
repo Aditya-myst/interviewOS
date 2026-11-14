@@ -12,7 +12,7 @@
       "name": "LLM & RAG",
       "score": 0.55,
       "status_after": "developing",
-      "comment": "Explained chunking but could not describe how you would measure retrieval quality — the exact gap the JD probes.",
+      "comment": "Explained chunking but could not describe how you would measure retrieval quality: the exact gap the JD probes.",
       "scored_by": "rubric",
       "quote": "I chunked the PDFs at about 800 tokens and embedded them, but I never built an eval set to check whether the right passage came back."
     },
@@ -48,7 +48,7 @@
   "weak_answers": [
     {
       "question": "How do you know your RAG pipeline is working?",
-      "why_weak": "Answered with 'it gives good answers' — no metric, no eval set, no failure analysis.",
+      "why_weak": "Answered with 'it gives good answers': no metric, no eval set, no failure analysis.",
       "better_answer_outline": [
         "Build a labelled eval set of 30 questions",
         "Measure retrieval recall@k separately from answer faithfulness",
@@ -72,7 +72,7 @@
   "next_actions": [
     "Finish the RAG evaluation topic (2 of 3 resources done)",
     "Re-assess FastAPI at practical level before the next mock",
-    "Start the system design topic — currently unverified and high priority"
+    "Start the system design topic: currently unverified and high priority"
   ],
   "created_at": "2026-10-30T17:05:00Z",
   "persisted": false,

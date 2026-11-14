@@ -4,7 +4,7 @@ This test exists because of a real bug: `dashboard_payload` selected
 `r.overall_score` (the column is `overall_scores`) and ordered by `s.created_at`
 (the column is `started_at`). Postgres raised, the route caught it, served fixtures,
 and `X-Data-Source: fixture` looked exactly like "no data yet". The dashboard was
-never broken-looking — it was wrong-looking, which is worse.
+never broken-looking, it was wrong-looking, which is worse.
 
 Fixtures and response models cannot catch a wrong column name. The DDL can.
 """
@@ -49,7 +49,7 @@ def test_every_query_in_the_app_matches_the_schema(checker):
             checked += 1
             for bad in checker.check(sql, tables):
                 problems.append(f"{path.relative_to(REPO)}: {bad}")
-    assert checked >= 10, f"only {checked} queries were found — the scanner is not seeing them"
+    assert checked >= 10, f"only {checked} queries were found, the scanner is not seeing them"
     assert not problems, "queries name columns the schema does not have:\n" + "\n".join(problems)
 
 

@@ -1,7 +1,7 @@
 # InterviewOS backend
 
 FastAPI service that the Next.js frontend consumes. It implements
-`contracts/openapi.yaml` — it never invents a field the contract does not have.
+`contracts/openapi.yaml`, it never invents a field the contract does not have.
 
 **The rule this service is built around: it does not lie about its own state.** If there is
 no database, `/ready` says `degraded`. If there is no LLM key, LLM routes return
@@ -21,12 +21,12 @@ uv sync --frozen                           # exact versions from uv.lock
 uv run uvicorn app.main:app --reload --port 8000
 ```
 
-No `uv` yet? `pip install uv` — it is free and MIT-licensed, and it is the only way to
+No `uv` yet? `pip install uv`, it is free and MIT-licensed, and it is the only way to
 get the versions this repo was tested against. `python -m pip install -e .` still works,
 but pip resolves fresh versions every time, which is how the environment drifted in the
 first place.
 
-Open <http://localhost:8000/docs> — every route below is there with its schema.
+Open <http://localhost:8000/docs>, every route below is there with its schema.
 
 No `.env` needed to boot. With no `DATABASE_URL` and no LLM keys the service starts in
 **fixture mode**, which is the honest, fully-working demo state.
@@ -47,10 +47,10 @@ Two Windows failures this catches by name:
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| `ModuleNotFoundError: No module named 'psycopg2'` with `DATABASE_URL` set | SQLAlchemy reads a bare `postgresql://` URL as psycopg2; this project ships psycopg 3 | pull latest — the app now rewrites the URL to `postgresql+psycopg://`; `pip install "psycopg[binary]"` if missing |
-| `ImportError: cannot import name 'ArgsKwargs' from 'pydantic_core._pydantic_core' (unknown location)` | `pydantic` and `pydantic_core` disagree — usually a half-written wheel from an interrupted install, or a user-site copy leaking into a venv | `pip install --force-reinstall --no-cache-dir --only-binary=:all: pydantic pydantic-core`; if the doctor lists a suspect copy outside the venv, set `$env:PYTHONNOUSERSITE = "1"` and reinstall |
+| `ModuleNotFoundError: No module named 'psycopg2'` with `DATABASE_URL` set | SQLAlchemy reads a bare `postgresql://` URL as psycopg2; this project ships psycopg 3 | pull latest, the app now rewrites the URL to `postgresql+psycopg://`; `pip install "psycopg[binary]"` if missing |
+| `ImportError: cannot import name 'ArgsKwargs' from 'pydantic_core._pydantic_core' (unknown location)` | `pydantic` and `pydantic_core` disagree, usually a half-written wheel from an interrupted install, or a user-site copy leaking into a venv | `pip install --force-reinstall --no-cache-dir --only-binary=:all: pydantic pydantic-core`; if the doctor lists a suspect copy outside the venv, set `$env:PYTHONNOUSERSITE = "1"` and reinstall |
 
-A clean rebuild is often faster than repairing — and on Windows the one-liner is:
+A clean rebuild is often faster than repairing, and on Windows the one-liner is:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\fix_windows_env.ps1
@@ -108,13 +108,13 @@ Expected with nothing configured:
 | `GET /health` | `200 {"status":"ok","mode":"fixture"}` | Liveness only. Touches no dependency, so it never flaps. |
 | `GET /ready` | `200 {"status":"degraded", checks:{database:unconfigured, fixtures:present, llm:unconfigured}}` | Degraded ≠ broken: fixtures are present, so the product still demos. |
 | `GET /v1/analytics/dashboard` | `200`, `X-Data-Source: fixture`, `readiness 42`, 7 history points | Reads `contracts/fixtures/dashboard.json` verbatim. |
-| `GET /v1/analytics/dashboard?state=empty` | `200`, zeros | A real empty payload, not a 404 — the UI has an empty state to render. |
+| `GET /v1/analytics/dashboard?state=empty` | `200`, zeros | A real empty payload, not a 404, the UI has an empty state to render. |
 | `POST /dev/llm` | `503 llm_unavailable`, `configured: []`, `detail: "gemini: not configured; groq: not configured"` | The gateway refuses rather than fabricating. |
 | `GET /nope` | `404` | |
 
 ## 3. Flip to the real database
 
-The schema is **handed over, not auto-migrated** — `docs/sql/001_init.sql`, `002_seed.sql`,
+The schema is **handed over, not auto-migrated**, `docs/sql/001_init.sql`, `002_seed.sql`,
 `003_storage.sql` are pasted into the Supabase SQL editor by you, and the models here
 *reflect* that schema. The app never calls `create_all`, so it can never quietly invent a
 table that disagrees with `docs/sql/`.
@@ -130,7 +130,7 @@ Restart, then prove it landed without opening psql:
 curl.exe http://localhost:8000/dev/db
 ```
 
-Every check comes back with `expected` and `actual` side by side — `tables 18`,
+Every check comes back with `expected` and `actual` side by side, `tables 18`,
 `rls_tables 18`, `enums 22`, `extensions 3`, `skills 31`, `subtopics 100`,
 `resources 39`. A wrong Supabase project shows up as a named failure, not a shrug.
 
@@ -150,7 +150,7 @@ Two more things change the moment it connects, with no code edit:
 
 - The LLM cache switches from `MemoryCache` (per-process, lost on restart) to `DbCache`,
   which persists in `public.llm_cache` with `on conflict` upsert.
-- `X-Data-Source` stays `fixture` until the Phase 5 pipeline writes real rows — it is
+- `X-Data-Source` stays `fixture` until the Phase 5 pipeline writes real rows, it is
   driven by the data path, not by whether a database exists.
 
 ## 4. LLM gateway
@@ -166,13 +166,13 @@ prompt ──▶ cache ──hit──▶ return (no network, no quota spent)
                       └─ all exhausted ──▶ LLMUnavailable(reasons)
 ```
 
-- Cache key is `sha256(model | schema_version | prompt)` — bumping `schema_version`
+- Cache key is `sha256(model | schema_version | prompt)`, bumping `schema_version`
   invalidates every cached answer for that schema without deleting rows.
 - A provider that returns unparseable JSON is a **failure**, not a cache entry.
 - There is deliberately **no** "return canned text if everything fails" step. The failure
   carries each provider's reason so the UI can say why.
-- A provider failure reports **the provider's own sentence** — `HTTP 400:
-  INVALID_ARGUMENT: API key not valid.` — not httpx's `Client error '400 Bad Request'`,
+- A provider failure reports **the provider's own sentence**, `HTTP 400:
+  INVALID_ARGUMENT: API key not valid.`, not httpx's `Client error '400 Bad Request'`,
   which throws the response body away. That body is the only place the reason lives.
 - **Model names are not hard-coded.** `GEMINI_MODEL`/`GROQ_MODEL` default to `auto`: the
   app asks the provider which models the key can call (`GET /dev/llm/models`) and picks a
@@ -182,11 +182,11 @@ prompt ──▶ cache ──hit──▶ return (no network, no quota spent)
 - **Cache is searched chain-wide before any network call.** Measured bug: primary timed
   out at 45 s, the fallback had the answer cached, and the cached call still cost 45 s
   because the primary was tried first. A cache hit answers in 0 ms even while the primary
-  is dead — there is a test for exactly that.
+  is dead, there is a test for exactly that.
 - `GEMINI_THINKING=off` sends `thinkingBudget: 0`; Gemini can otherwise spend tens of
   seconds deciding how hard to think about "reply with ok".
 - `GET /dev/llm` shows the chain, the resolved model and its source (`env` or `auto`), the
-  cache backend, and the last 4 characters of each key — spending no quota. Use it first
+  cache backend, and the last 4 characters of each key, spending no quota. Use it first
   when a probe fails.
 - `POST /dev/llm` is a probe for exactly this and returns 404 when `ENV=prod`. Its
   `error.attempts[]` carries one `{provider, error, ms}` row per provider tried.
@@ -203,7 +203,7 @@ uv run python -m app.cli analyze resume.pdf jd.txt             # scored profile,
 No model, no network, no quota: taxonomy aliases and document structure. Every claim it
 makes carries a `quote` you can find with Ctrl-F in the original file. `--json` output is
 the exact shape `/v1/skills/profile` returns, which is how the fixture was always meant to
-be replaced — same keys, real provenance.
+be replaced, same keys, real provenance.
 
 ## 5. Routes
 
@@ -211,7 +211,7 @@ be replaced — same keys, real provenance.
 |---|---|---|
 | GET | `/health` | in-process |
 | GET | `/ready` | live: DB connect attempt, fixture presence, LLM keys |
-| GET | `/dev/db` | live: JSON twin of `docs/sql/004_verify.sql` — expected vs actual per check |
+| GET | `/dev/db` | live: JSON twin of `docs/sql/004_verify.sql`, expected vs actual per check |
 | POST | `/dev/llm` | live: gateway probe |
 | GET | `/v1/analytics/dashboard` | fixture → Phase 5: aggregated from `sessions`, `skill_evidence` |
 | POST | `/v1/resume/upload` | live: parse a PDF/DOCX/txt; persists when the DB is connected |

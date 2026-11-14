@@ -41,7 +41,7 @@ async function call<T>(path: string, init?: RequestInit): Promise<Result<T>> {
     return {
       ok: false,
       status: 0,
-      message: "the interview service did not answer — is uvicorn running on :8000?",
+      message: "the interview service did not answer. Is uvicorn running on :8000?",
     };
   }
 }

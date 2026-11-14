@@ -7,7 +7,7 @@ the next question or close the session and build the report.
 Evidence rules that the API must not break:
 
 * every answer message is stored verbatim, and the quote in the score is a substring
-  of it — a report can never show a quote the candidate did not say;
+  of it, a report can never show a quote the candidate did not say;
 * `communication_transcript_based` is only ever set from the transcript, and the field
   name says so because the contract says so;
 * an answer with no quote scores at most 0.25, so a fluent non-answer cannot lift a
@@ -61,7 +61,7 @@ def start(
 ) -> dict[str, Any]:
     plan = engine.build_plan(skills, total=total)
     if not plan:
-        raise ValueError("no scoreable skills yet — upload a resume and a JD first")
+        raise ValueError("no scoreable skills yet: upload a resume and a JD first")
     record = store.create(
         plan=[_question_payload(q) for q in plan],
         target_role=target_role,
@@ -220,7 +220,7 @@ def build_report(store, *, session_id: str, plan: list[engine.Question], skills:
     verified = [row for row in per_skill if row["status_after"] == "verified"]
     gaps = [row for row in per_skill if row["status_after"] in ("weak", "needs_revision")]
 
-    # "What held up" may not be empty just because nothing reached `verified` — the best
+    # "What held up" may not be empty just because nothing reached `verified`, the best
     # answer of a session is worth naming, and naming it is not the same as claiming a
     # skill is verified. The wording keeps that difference visible.
     held_up = [f"{row['name']}: {row['comment']}" for row in verified][:3]
@@ -228,7 +228,7 @@ def build_report(store, *, session_id: str, plan: list[engine.Question], skills:
         ranked = sorted(per_skill, key=lambda row: row["score"], reverse=True)
         best = [row for row in ranked if row["score"] >= 0.4][:2]
         held_up = [
-            f"Held up best: {row['name']} at {round(row['score'] * 100)} — {row['comment']}"
+            f"Held up best: {row['name']} at {round(row['score'] * 100)}. {row['comment']}"
             for row in best
         ]
 
@@ -291,7 +291,7 @@ def _next_actions(per_skill: list[dict[str, Any]]) -> list[str]:
 
 # Categories that used to define "technical". Kept only as a note: a marketing candidate,
 # a designer or a teacher has no skills in this set, and their report then showed
-# `technical: null` — the product quietly assuming every user is an engineer.
+# `technical: null`, the product quietly assuming every user is an engineer.
 TECH_CATEGORIES = ("Backend", "Data", "Infra", "AI")
 
 
@@ -320,7 +320,7 @@ def _outline(question: engine.Question) -> list[str]:
         sub = subtopics.get(item.key)
         if sub:
             outline.append(f"Show {sub.get('title', item.key).lower()}: {sub.get('objective', '')}")
-    outline.append("Finish with the outcome — a number, or what changed because of you.")
+    outline.append("Finish with the outcome: a number, or what changed because of you.")
     return outline
 
 
@@ -338,7 +338,7 @@ def _communication(asked: list[dict], said: list[dict]) -> float | None:
 
 
 def store_for(*, db_session=None, user_id: str | None = None):
-    """SQL when a database is configured, memory otherwise — never a silent fallback."""
+    """SQL when a database is configured, memory otherwise, never a silent fallback."""
     if db_session is not None and user_id:
         from app.interview.store import SqlSessionStore
 
@@ -395,7 +395,7 @@ def writeback_to_candidate_skills(
     row.status = reconcile(row.status, result.status_after)
     # The schema will not accept `verified` without a level (`verified_needs_level`), and it
     # is right not to: "verified" with no level says nothing. The rung's own level is what
-    # the answer demonstrated, so that is what gets recorded — never invented.
+    # the answer demonstrated, so that is what gets recorded, never invented.
     if row.status == "verified" and not row.verified_level:
         row.verified_level = level if level in {"beginner", "intermediate", "advanced", "expert"} else "intermediate"
     # Confidence moves toward the score, but slowly: one answer is one measurement.
@@ -405,9 +405,9 @@ def writeback_to_candidate_skills(
     try:
         db_session.commit()
     except Exception:
-        # The answer still counts — it is scored, quoted and returned. Losing the write is
+        # The answer still counts, it is scored, quoted and returned. Losing the write is
         # a persistence problem, not a reason to throw away what the candidate just said.
-        log.exception("interview writeback failed for %s — the answer was not stored", skill_id)
+        log.exception("interview writeback failed for %s, the answer was not stored", skill_id)
         db_session.rollback()
         return None
     return row

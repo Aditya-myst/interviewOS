@@ -3,7 +3,7 @@ import MarketingNav from "@/components/marketing/MarketingNav";
 import MarketingFooter from "@/components/marketing/MarketingFooter";
 import Section from "@/components/marketing/Section";
 
-export const metadata: Metadata = { title: "Privacy — InterviewOS" };
+export const metadata: Metadata = { title: "Privacy · InterviewOS" };
 
 const LAST_UPDATED = "1 November 2026";
 
@@ -16,7 +16,7 @@ export default function PrivacyPage() {
         <h1 className="type-display-2 m-0 mb-3">What we store, and where</h1>
         <p className="type-small text-[var(--text-dim)] mb-10">
           Last updated {LAST_UPDATED}. This page describes what the code in this
-          repository actually does — not what a template says.
+          repository actually does, not what a template says.
         </p>
 
         <div className="space-y-8">
@@ -61,7 +61,7 @@ export default function PrivacyPage() {
             </li>
             <li>
               Model responses are cached by a hash of the prompt so a repeated
-              request does not spend quota — the cache is service-role only.
+              request does not spend quota. The cache is service-role only.
             </li>
             <li>
               We do not sell data, run ads, or ship third-party analytics or
@@ -76,7 +76,7 @@ export default function PrivacyPage() {
             </li>
             <li>
               Deleting your account removes your profile, documents, skills,
-              assessments, paths, interviews and reports — by database cascade,
+              assessments, paths, interviews and reports, by database cascade,
               not by a cleanup script that might be forgotten.
             </li>
           </Block>

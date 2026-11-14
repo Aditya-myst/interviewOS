@@ -3,8 +3,8 @@ import type { CandidateSkill } from "../../../contracts/types";
 /**
  * Priority, as a curve rather than a cloud.
  *
- * The scatter this replaces was technically faithful — importance on one axis, gap
- * on the other — and unreadable: nine dots in a small square, four of them
+ * The scatter this replaces was technically faithful, importance on one axis, gap
+ * on the other, and unreadable: nine dots in a small square, four of them
  * overlapping, and no sense of *order*. The question a candidate actually asks is
  * "what first, and how much further ahead is it", and that is a line.
  *
@@ -35,7 +35,7 @@ export default function PriorityCurve({ skills }: { skills: CandidateSkill[] }) 
     return (
       <div className="flex h-[232px] items-center justify-center">
         <p className="type-small text-[var(--text-dim)] m-0">
-          Nothing scored yet — the curve needs at least one assessed skill.
+          Nothing scored yet. The curve needs at least one assessed skill.
         </p>
       </div>
     );
@@ -49,7 +49,7 @@ export default function PriorityCurve({ skills }: { skills: CandidateSkill[] }) 
   const plotH = plotBottom - PAD.top;
   const highest = Math.max(...ranked.map((s) => s.priority), 0.2);
   // Axis top rounded up to the next 0.2 so the ticks are 0.2 / 0.4 / 0.6 rather than
-  // 0.16 / 0.32 / 0.47 — a chart nobody can read at a glance is just decoration.
+  // 0.16 / 0.32 / 0.47, a chart nobody can read at a glance is just decoration.
   const max = Math.max(0.4, Math.ceil(highest * 5) / 5);
   const step = ranked.length > 1 ? plotW / (ranked.length - 1) : 0;
 
@@ -106,7 +106,7 @@ export default function PriorityCurve({ skills }: { skills: CandidateSkill[] }) 
         </g>
       ))}
 
-      {/* the critical band's lower edge — above this line is where to start */}
+      {/* the critical band's lower edge, above this line is where to start */}
       {criticalY > PAD.top && (
         <g>
           <line
@@ -147,7 +147,7 @@ export default function PriorityCurve({ skills }: { skills: CandidateSkill[] }) 
         return (
           <g key={s.skill_id}>
             <title>
-              {`${i + 1}. ${s.name} — priority ${s.priority.toFixed(2)} (${s.priority_band}), gap ${s.gap.toFixed(2)}`}
+              {`${i + 1}. ${s.name}, priority ${s.priority.toFixed(2)} (${s.priority_band}), gap ${s.gap.toFixed(2)}`}
             </title>
             <circle cx={cx} cy={cy} r={r} fill={color} stroke="var(--surface)" strokeWidth="2" />
             {i < 3 && (

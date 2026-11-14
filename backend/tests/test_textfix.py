@@ -10,14 +10,14 @@ from app.parsing.textfix import repair_mojibake
 
 INTACT = "â€œUnderstanding why content works â€” and why hooks matter.â€"
 TRUNCATED = "Understanding why content works, distribution psychology, narratives.â"
-CLEAN = "Understanding why content works — and why “hooks” matter."
+CLEAN = "Understanding why content works \u2014 and why “hooks” matter."
 FRENCH = "J'ai travaillé sur la stratégie de contenu à Paris."
 
 
 def test_intact_mojibake_is_repaired_to_real_punctuation():
     fixed, changed = repair_mojibake(INTACT)
     assert changed is True
-    assert "“" in fixed and "—" in fixed
+    assert "“" in fixed and "\u2014" in fixed
     assert "â€" not in fixed
 
 
@@ -42,7 +42,7 @@ def test_accented_bytes_are_repaired():
 
 
 def test_every_json_response_declares_utf8():
-    """PowerShell 5.1 decodes without a charset as latin-1 — this header is why the
+    """PowerShell 5.1 decodes without a charset as latin-1, this header is why the
     terminal stopped showing garbage."""
     with TestClient(create_app()) as api:
         response = api.post("/v1/interview/start", json={"mode": "jd_based", "question_count": 3})

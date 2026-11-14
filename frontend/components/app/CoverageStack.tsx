@@ -3,7 +3,7 @@ import type { CoverageRow } from "../../../contracts/types";
 /**
  * Coverage as stacked bars: counts of skills, not percentages dressed up as
  * evidence. Contract CoverageRow only carries three buckets, so the mapping is
- * explicit — verified stays verified, developing stays developing, and
+ * explicit, verified stays verified, developing stays developing, and
  * claimed / unverified / weak all count as "unverified" here because none of
  * them is proven. Weak is not hidden; the band it lives in is.
  */

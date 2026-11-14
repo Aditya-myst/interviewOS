@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-InterviewOS — does the database's resource catalogue match data/curated.yaml?
+InterviewOS, does the database's resource catalogue match data/curated.yaml?
 
 The seed is generated from the YAML, so after a paste the two should agree exactly.
 When they don't, the usual cause is a URL that was *edited* rather than added:
@@ -53,7 +53,7 @@ def main() -> int:
     from app.config import get_settings
 
     if not get_settings().database_configured:
-        print("DATABASE_URL is not set — nothing to compare. (Fixture mode.)")
+        print("DATABASE_URL is not set, nothing to compare. (Fixture mode.)")
         return 2
 
     from app.db import get_session
@@ -77,7 +77,7 @@ def main() -> int:
 
         if missing:
             print(f"\n{len(missing)} in curated.yaml but NOT in the database "
-                  f"— re-paste docs/sql/002_seed.sql:")
+                  f", re-paste docs/sql/002_seed.sql:")
             for url in missing[:20]:
                 skill, sub = expected[url]
                 print(f"  {skill}/{sub}  {url}")
@@ -85,7 +85,7 @@ def main() -> int:
                 print(f"  … and {len(missing) - 20} more")
 
         if not extra:
-            print("\nno extra rows — the database matches the catalogue exactly.")
+            print("\nno extra rows, the database matches the catalogue exactly.")
             return 0
 
         print(f"\n{len(extra)} row(s) in the database that curated.yaml no longer lists:")

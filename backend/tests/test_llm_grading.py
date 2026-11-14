@@ -7,7 +7,7 @@ one is tested here:
 - **It says 100 for a vacuous answer.** A verdict that disagrees with the deterministic score
   by more than MAX_DISAGREEMENT is discarded, and the rubric score stands.
 - **It goes down / answers with prose.** No key, an outage, invalid JSON, half the rubric
-  accounted for — every one of those returns None and the rubric stands untouched.
+  accounted for, every one of those returns None and the rubric stands untouched.
 - **It is on by default.** It is not: without a key and without LLM_SCORING, no call is made
   at all.
 
@@ -43,7 +43,7 @@ class FakeProvider:
 
 
 QUESTION = questions.Question(
-    text="LLM & RAG — How LLMs work: tokens, context, temperature.",
+    text="LLM & RAG, How LLMs work: tokens, context, temperature.",
     question_type="scenario",
     skill_id="llm-rag",
     skill_name="LLM & RAG",
@@ -55,7 +55,7 @@ QUESTION = questions.Question(
     ),
 )
 
-# Deliberately avoids the word "limits" while explaining it — the case the rubric punishes
+# Deliberately avoids the word "limits" while explaining it, the case the rubric punishes
 # and a model should recognise.
 ANSWER = (
     "A model can only attend to so much at once, so long documents get truncated and the "
@@ -102,7 +102,7 @@ def test_the_vocabulary_gap_is_what_this_pass_closes(monkeypatch):
     """ANSWER explains the limits of a context window without ever saying "limits"."""
     baseline = questions.score_answer(QUESTION, ANSWER)
     assert baseline.scored_by == "rubric"
-    assert baseline.quote is None, "the literal matcher found nothing quotable — the whole point"
+    assert baseline.quote is None, "the literal matcher found nothing quotable, the whole point"
 
     provider = FakeProvider(_verdict(70, ["tokens", "context", "limits"], []))
     _install(monkeypatch, provider, scoring=True)

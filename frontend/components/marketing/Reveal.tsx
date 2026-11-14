@@ -4,10 +4,10 @@ import React, { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * Scroll reveal — 12px lift + fade, once per element.
+ * Scroll reveal, 12px lift + fade, once per element.
  * Zero dependencies: an IntersectionObserver plus a CSS transition.
  * Under prefers-reduced-motion the global CSS rule collapses every transition
- * to ~0ms, so content still appears on intersect — just without the movement.
+ * to ~0ms, so content still appears on intersect, just without the movement.
  */
 export default function Reveal({
   children,

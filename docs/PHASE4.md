@@ -1,4 +1,4 @@
-# Phase 4 — the API service
+# Phase 4, the API service
 
 **Goal:** make the frontend's data come from a service that is honest about what it knows,
 and put the two fragile external dependencies (Postgres, LLM) behind interfaces that can
@@ -41,12 +41,12 @@ That turns an outage into a lie the UI cannot detect. Instead `LLMUnavailable` c
 
 **4. Invalid JSON is a failure, not a cache entry.**
 The gateway takes a `validator` callable. If a provider returns prose instead of the schema,
-that response is discarded, the next provider is tried, and nothing is written to cache —
+that response is discarded, the next provider is tried, and nothing is written to cache,
 so one bad generation cannot poison every future call for the same prompt.
 
 ## Verified against the live project (2026-11-01)
 
-`GET /dev/db` on a fresh Supabase project — every handover promise, expected beside actual:
+`GET /dev/db` on a fresh Supabase project, every handover promise, expected beside actual:
 
 | Check | Expected | Actual | |
 |---|---|---|---|
@@ -57,8 +57,8 @@ so one bad generation cannot poison every future call for the same prompt.
 | skills | 31 | 31 | ✅ |
 | subtopics | 100 | 100 | ✅ |
 | resources | 39 | 39 | ✅ |
-| policies | informational | 48 | — |
-| verified_links | informational | 33 | — |
+| policies | informational | 48 |, |
+| verified_links | informational | 33 |, |
 
 `"ok": true, "failed": []`, `server_version 17.11`. The seed numbers match the ones
 recorded when the fixtures were authored, which is the point: fixtures were *recorded
@@ -77,7 +77,7 @@ output*, not hand-typed constants.
 ## The honest gap (unchanged by this phase)
 
 `/v1/*` routes still read `contracts/fixtures/*.json`. They are shaped exactly like the
-pipeline output and are labelled `X-Data-Source: fixture` on every response — so the day
+pipeline output and are labelled `X-Data-Source: fixture` on every response, so the day
 Phase 5 writes rows, the header flips to `database` and no frontend code changes.
 
 That fixture set is itself recorded data: the numbers come from the seeded taxonomy
@@ -86,7 +86,7 @@ That fixture set is itself recorded data: the numbers come from the seeded taxon
 
 ## Not done, deliberately
 
-- No auth/RLS enforcement in the API yet — RLS policies exist in SQL; the service uses the
+- No auth/RLS enforcement in the API yet, RLS policies exist in SQL; the service uses the
   session credentials and will move to per-user JWT claims in Phase 5.
 - No background workers. Ingestion is request/response until there is a real document to
   process.
@@ -95,6 +95,6 @@ That fixture set is itself recorded data: the numbers come from the seeded taxon
 
 ## Next
 
-Phase 5 — resume parse → JD parse → skill merge → priority scoring → evidence gate, with
+Phase 5, resume parse → JD parse → skill merge → priority scoring → evidence gate, with
 every extraction holding a `quote` span so `/v1/skills/profile` can be backed by rows
 instead of a fixture.

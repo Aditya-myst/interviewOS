@@ -1,4 +1,4 @@
-"""Questions and scoring — the part of the interview that must not be a black box.
+"""Questions and scoring, the part of the interview that must not be a black box.
 
 Two rules decide everything here:
 
@@ -6,10 +6,10 @@ Two rules decide everything here:
    question names a skill, and carries a rubric derived from a real subtopic objective
    in data/taxonomy.yaml. That is what makes the answer scoreable.
 2. A score needs a quote. If the answer contains no sentence that touches the rubric,
-   the score is capped low and the answer is recorded as evidence-free — never rounded
+   the score is capped low and the answer is recorded as evidence-free, never rounded
    up because it "sounded confident".
 
-Both functions are pure: no database, no LLM, no clock. That is deliberate — the honest
+Both functions are pure: no database, no LLM, no clock. That is deliberate, the honest
 path has to be the testable path. An LLM may later *draft* better phrasing (block 6),
 but it never invents the rubric and never supplies the quote.
 """
@@ -92,8 +92,8 @@ def _words(text: str) -> list[str]:
 def _content_terms(text: str, *, keep: tuple[str, ...] = ()) -> tuple[str, ...]:
     """Discriminative words from a sentence, in the order they appear.
 
-    `keep` used to be appended verbatim, so a subtopic title became one "term" — the phrase
-    "how llms work: tokens, context, temperature" — which no answer can contain. Titles are
+    `keep` used to be appended verbatim, so a subtopic title became one "term", the phrase
+    "how llms work: tokens, context, temperature", which no answer can contain. Titles are
     now split into words, and instruction words ("explain", "measure", "without") are
     dropped: they tell the candidate what to do, they are not what an answer says.
     """
@@ -127,7 +127,7 @@ def _stem(term: str) -> str:
     This replaces a single-rule stemmer ("strip a trailing e") that only worked in one
     direction: the rubric said *replication* and the answer said *replica*, the rubric said
     *queues* and the answer said *queue*, and both scored as a miss. An answer that is right
-    in substance must not be marked wrong for its morphology — that was the single largest
+    in substance must not be marked wrong for its morphology, that was the single largest
     source of unfair low scores in the ladder.
     """
     word = term.strip().lower()
@@ -175,7 +175,7 @@ def _term_forms(term: str) -> tuple[str, ...]:
 
 
 def _has_term(text: str, terms: tuple[str, ...]) -> bool:
-    """Does the text say any of these terms — in any grammatical form, in other words?"""
+    """Does the text say any of these terms, in any grammatical form, in other words?"""
     stems = _text_stems(text)
     if not stems:
         return False
@@ -193,7 +193,7 @@ def _sentence_has_term(sentence: str, terms: tuple[str, ...]) -> bool:
 
 
 def split_sentences(answer: str) -> list[str]:
-    """Sentence split that keeps the text verbatim — quotes must be substrings."""
+    """Sentence split that keeps the text verbatim, quotes must be substrings."""
     parts = re.split(r"(?<=[.!?])\s+|\n+", answer.strip())
     return [part.strip() for part in parts if part.strip()]
 
@@ -262,7 +262,7 @@ def question_for_skill(skill: dict) -> Question:
         qtype = "resume_project"
         text = (
             f'Your resume says: “{_shorten(quote)}”. Take that work and walk me through '
-            f"how you would {objective_low} — what you actually did, and what you would "
+            f"how you would {objective_low}: what you actually did, and what you would "
             "do differently now."
         )
     elif band in ("critical", "high"):
@@ -290,7 +290,7 @@ def question_for_skill(skill: dict) -> Question:
         text=text,
         # `source` says where the question came from; `question_type` says what kind of
         # question it is. contracts/types.ts keeps those vocabularies separate, and so
-        # does this engine — collapsing them was the first version's bug.
+        # does this engine, collapsing them was the first version's bug.
         question_type=PEDAGOGY.get(qtype, "scenario"),
         skill_id=skill_id or None,
         skill_name=name,
@@ -338,7 +338,7 @@ def specificity_level(text: str) -> int:
     """0 = opinions, 1 = some ownership, 2+ = a real example.
 
     Coverage of the rubric alone is gameable: a fluent paragraph that name-drops every
-    keyword scores like an expert. This is the counterweight — and nothing reaches
+    keyword scores like an expert. This is the counterweight, and nothing reaches
     "verified" without it.
     """
     low = text.lower()
@@ -381,7 +381,7 @@ def _semantic_verdict(question: Question, text: str, deterministic: float, *, ha
 
     The tolerance depends on *why* they disagree. When the matcher found a quote it already
     understood the answer, so the model gets a narrow band to argue in. When the matcher found
-    nothing it understood nothing — the vocabulary gap this pass exists to close — so the
+    nothing it understood nothing, the vocabulary gap this pass exists to close, so the
     model's verdict stands, because `grading` has already checked that its quote appears
     verbatim in the answer and the structural floors still cap what a fluent non-answer can
     reach.
@@ -403,7 +403,7 @@ def _semantic_verdict(question: Question, text: str, deterministic: float, *, ha
             return None
         return verdict
 
-    # The matcher understood nothing, so the model is the only reader — but only an answer
+    # The matcher understood nothing, so the model is the only reader, but only an answer
     # that carries substance may be rescued. Specificity is measurable without vocabulary:
     # an example, a number, a named tool. Without it, a model's generosity is just a longer
     # way of saying "sounds good", and the deterministic score stands.
@@ -433,7 +433,7 @@ def score_answer(question: Question, answer: str) -> AnswerScore:
     matched_terms: list[str] = []
     for item in question.rubric:
         # A one-word or throwaway sentence mentioning the topic is not evidence that
-        # the point was addressed — the mention has to sit in a real sentence.
+        # the point was addressed, the mention has to sit in a real sentence.
         if any(_has_term(sentence, item.terms) for sentence in sentences):
             matched.append(item.key)
             matched_terms.extend(item.terms)

@@ -2,7 +2,7 @@
  * Fixture access for phases 3–4, before the API exists.
  *
  * These are the same JSON files the backend will return (contracts/fixtures/),
- * so a page built on them needs no rework when the endpoints land — only the
+ * so a page built on them needs no rework when the endpoints land, only the
  * `loadFixture` call changes for a `fetch`.
  *
  * They are read from disk rather than imported: Turbopack refuses to resolve
@@ -62,7 +62,7 @@ export function parseState(raw: string | string[] | undefined): DemoState {
 }
 
 export function formatDate(iso: string | null | undefined): string {
-  if (!iso) return "—";
+  if (!iso) return "n/a";
   return new Intl.DateTimeFormat("en-GB", {
     day: "2-digit",
     month: "short",

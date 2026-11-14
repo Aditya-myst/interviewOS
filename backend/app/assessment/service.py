@@ -2,7 +2,7 @@
 
 State lives in process memory, like an interview session without a database. The score
 comes from `app.interview.questions.score_answer`, which is the same quote-gated rubric
-the mock interview uses — deliberately, because two scores that mean different things
+the mock interview uses, deliberately, because two scores that mean different things
 would make the profile meaningless.
 
 What a finished ladder does:
@@ -10,7 +10,7 @@ What a finished ladder does:
 * in memory: nothing. The record exists until the process restarts, and the response
   says `persisted: false` when it happens.
 * with a database: the answers are written to `assessment_answers`, the summary to
-  `assessments`, and the skill is updated in `candidate_skills` — verified level,
+  `assessments`, and the skill is updated in `candidate_skills`, verified level,
   confidence moved halfway, and the quoted answer appended to `evidence`, so the
   dashboard can show *why* the number moved.
 """
@@ -31,11 +31,11 @@ log = logging.getLogger(__name__)
 #
 # The interview's score_answer is the right instrument for a 20-minute mock: it rewards
 # measured outcomes, and caps an answer that quotes nothing. A three-question checkpoint
-# on "HTTP fundamentals" cannot be held to the same bar — even a perfect answer there has
+# on "HTTP fundamentals" cannot be held to the same bar, even a perfect answer there has
 # no metric to report, and the interview cap pinned it at 0.70, so a flawless ladder
 # could never verify anything.
 #
-# So the ladder keeps the part that matters (no quote, no credit — coverage is zero)
+# So the ladder keeps the part that matters (no quote, no credit, coverage is zero)
 # and scores what a checkpoint can actually show:
 #
 #     checkpoint = 0.85 * coverage + 0.15 * concreteness
@@ -43,7 +43,7 @@ log = logging.getLogger(__name__)
 # coverage     = rubric terms evidenced by a quotable sentence / rubric terms
 # concreteness = 0 (no numbers or named trade-off) .. 1 (specific and measured)
 #
-# A skill is verified only when the average clears 0.75 AND no rung falls below 0.50 —
+# A skill is verified only when the average clears 0.75 AND no rung falls below 0.50,
 # one strong answer must not carry a weak one.
 COVERAGE_WEIGHT = 0.85
 CONCRETENESS_WEIGHT = 0.15
@@ -107,7 +107,7 @@ def start(skill: dict, *, question_total: int = 3) -> AssessmentRecord:
     rungs = build_ladder(skill, count=question_total)
     if not rungs:
         raise ValueError(
-            f"no subtopics for {skill.get('skill_id')!r} — this skill has nothing to assess"
+            f"no subtopics for {skill.get('skill_id')!r}: this skill has nothing to assess"
         )
     record = AssessmentRecord(
         id=str(uuid.uuid4()),
@@ -202,7 +202,7 @@ def _rung_why(checkpoint, result, coverage: float, specificity: int, score: floa
     ]
     if result.missing:
         parts.append("still missing: " + ", ".join(m.replace("-", " ") for m in result.missing))
-    parts.append("specific enough to be useful" if specificity >= 1 else "general — add what you did and what changed")
+    parts.append("specific enough to be useful" if specificity >= 1 else "general: add what you did and what changed")
     return "; ".join(parts) + f". Score {round(score * 100)}."
 
 
@@ -387,7 +387,7 @@ def writeback(db_session, *, user_id: str, record: AssessmentRecord) -> bool:
             if not evidence:
                 # The schema refuses to call a skill verified with an empty evidence array, and
                 # it is right to: a verdict nobody can point at is a claim. Record the ladder
-                # itself rather than let the trigger throw away the candidate's work — this is
+                # itself rather than let the trigger throw away the candidate's work, this is
                 # the case where the answers were fluent but quotable nowhere.
                 evidence.append(
                     {
@@ -422,7 +422,7 @@ def writeback(db_session, *, user_id: str, record: AssessmentRecord) -> bool:
         record.persisted = True
         return True
     except Exception:  # persistence is best effort, and the response says so
-        log.exception("assessment writeback failed — the ladder stays in memory")
+        log.exception("assessment writeback failed, the ladder stays in memory")
         db_session.rollback()
         return False
 

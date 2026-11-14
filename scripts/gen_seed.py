@@ -26,10 +26,10 @@ TARGET = ROOT / "docs" / "sql" / "002_seed.sql"
 
 HEADER = """\
 -- ═══════════════════════════════════════════════════════════════════════════
--- InterviewOS — 002_seed.sql
+-- InterviewOS · 002_seed.sql
 -- Seeds the global vocabulary and the tier-0 resource catalogue.
 --
--- GENERATED FILE — do not edit by hand.
+-- GENERATED FILE: do not edit by hand.
 --   source: data/taxonomy.yaml ({n_skills} skills / {n_subtopics} subtopics)
 --           data/curated.yaml  ({n_resources} hand-curated resources)
 --   regenerate: python scripts/gen_seed.py
@@ -67,7 +67,7 @@ def build() -> str:
     n_resources = sum(len(rows) for by_sub in catalogue.values() for rows in by_sub.values())
 
     if not skills:
-        raise SystemExit("data/taxonomy.yaml has no skills — refusing to write an empty seed")
+        raise SystemExit("data/taxonomy.yaml has no skills, refusing to write an empty seed")
     # Referential integrity: a curated entry pointing at a subtopic that does not exist
     # would fail the FK on paste, after the user had already scrolled through 700 lines.
     # resources.url is unique in the schema, so a URL reused across two subtopics would
@@ -82,7 +82,7 @@ def build() -> str:
                     dupes.append(f"{url} ({seen_urls[url]} and {skill_id}/{subtopic_id})")
                 seen_urls[url] = f"{skill_id}/{subtopic_id}"
     if dupes:
-        raise SystemExit("curated.yaml reuses a URL; resources.url is unique — " + "; ".join(dupes))
+        raise SystemExit("curated.yaml reuses a URL; resources.url is unique; " + "; ".join(dupes))
 
     known = {(sk["id"], st["id"]) for sk in skills for st in (sk.get("subtopics") or [])}
     dangling = [
@@ -154,7 +154,7 @@ def build() -> str:
         "-- curated_skill_id / curated_subtopic_id record which subtopic each row is the\n"
         "-- canonical answer for. verified_at uses the catalogue's own assembly date\n"
         "f-- (taxonomy.yaml `updated: {stamp}`) for links marked `verified: true` in\n"
-        "-- curated.yaml — it is the date the link was hand-checked, not the date this\n"
+        "-- curated.yaml: it is the date the link was hand-checked, not the date this\n"
         "-- file ran. Everything else is stamped by the link-check job.\n".replace("f--", "--")
     )
     out.append(
@@ -167,7 +167,7 @@ def build() -> str:
         for subtopic_id, entries in by_subtopic.items():
             for entry in entries:
                 verified = entry.get("verified") is True
-                # A row may carry its own hand-check date (verified_on) — that is what
+                # A row may carry its own hand-check date (verified_on): that is what
                 # happens when the catalogue grows in a later pass than taxonomy.yaml.
                 own_stamp = str(entry.get("verified_on") or "").strip() or stamp
                 stamp_sql = (
@@ -213,11 +213,11 @@ begin
   select count(*) into n_resources from public.resources;
   raise notice 'seeded: % skills, % subtopics, % resources', n_skills, n_subtopics, n_resources;
   if n_skills <> {len(skills)} then
-    raise warning 'expected {len(skills)} skills, found % — is the seed out of date? '
+    raise warning 'expected {len(skills)} skills, found %: is the seed out of date? '
       'Run: python scripts/gen_seed.py', n_skills;
   end if;
   if n_subtopics < {n_subtopics} then
-    raise warning 'expected at least {n_subtopics} subtopics, found % — is the seed out of date?',
+    raise warning 'expected at least {n_subtopics} subtopics, found %: is the seed out of date?',
       n_subtopics;
   end if;
 end;

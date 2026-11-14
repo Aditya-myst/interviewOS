@@ -1,10 +1,10 @@
 -- ═══════════════════════════════════════════════════════════════════════════
--- InterviewOS — 001_init.sql
+-- InterviewOS, 001_init.sql
 -- Schema of record: extensions, 18 tables, indexes, guards, RLS.
 --
 -- Mirrors contracts/types.ts and contracts/ENUMS.md exactly. If you change an
 -- enum value here without changing ENUMS.md, you have created two sources of
--- truth — don't.
+-- truth, don't.
 --
 -- WHERE TO RUN THIS: Supabase dashboard → SQL Editor → New query → paste the
 -- whole file → Run. It is idempotent-ish: it drops and recreates the objects
@@ -69,7 +69,7 @@ drop type if exists public.message_role cascade;
 drop type if exists public.path_status cascade;
 drop type if exists public.job_status cascade;
 
--- ── Enums — one per distinct vocabulary in contracts/ENUMS.md ──────────────
+-- ── Enums, one per distinct vocabulary in contracts/ENUMS.md ──────────────
 create type public.skill_status as enum
   ('claimed', 'unverified', 'weak', 'developing', 'verified', 'needs_revision');
 
@@ -128,7 +128,7 @@ end;
 $fn$;
 
 -- ── 1. profiles ────────────────────────────────────────────────────────────
--- One row per auth user. `id` IS the auth uid — that is what every RLS policy
+-- One row per auth user. `id` IS the auth uid, that is what every RLS policy
 -- compares against.
 create table public.profiles (
   id             uuid primary key references auth.users (id) on delete cascade,
@@ -232,7 +232,7 @@ create index skill_subtopics_order_idx
 create index skill_subtopics_embedding_idx
   on public.skill_subtopics using hnsw (embedding vector_cosine_ops);
 
--- ── 6. candidate_skills — the heart of the product ────────────────────────
+-- ── 6. candidate_skills, the heart of the product ────────────────────────
 -- status + the three priority factors + priority + band + the server-written
 -- explanation. The UI renders `explanation` verbatim; it never recomputes it.
 create table public.candidate_skills (
@@ -280,7 +280,7 @@ create trigger trg_candidate_skills_touch
 -- so it lives in the database rather than in one service method.
 -- Ownership rule this guard enforces: `status` belongs to the assessment and interview
 -- paths. A resume or JD upload measures how a skill *scores* (gap, priority, importance)
--- and must never move a verification state — re-uploading a resume is not evidence of
+-- and must never move a verification state, re-uploading a resume is not evidence of
 -- anything new. `store.upsert_skills` therefore omits `status` from its conflict branch,
 -- and this trigger exists to catch it (or any future caller) if that is ever forgotten.
 create or replace function public.enforce_skill_transition()
@@ -461,7 +461,7 @@ create trigger trg_resources_touch
   before update on public.resources
   for each row execute function public.touch_updated_at();
 
--- ── 12. topic_resources — what a user's topic actually points at ───────────
+-- ── 12. topic_resources, what a user's topic actually points at ───────────
 create table public.topic_resources (
   id          uuid primary key default gen_random_uuid(),
   topic_id    uuid not null references public.learning_topics (id) on delete cascade,
@@ -475,7 +475,7 @@ create table public.topic_resources (
 
 create index topic_resources_topic_idx on public.topic_resources (topic_id);
 
--- ── 13. resource_checks — link health, one row per HTTP check ──────────────
+-- ── 13. resource_checks, link health, one row per HTTP check ──────────────
 create table public.resource_checks (
   id          bigserial primary key,
   resource_id uuid not null references public.resources (id) on delete cascade,
@@ -564,7 +564,7 @@ create index llm_cache_expires_idx on public.llm_cache (expires_at);
 comment on table public.llm_cache is
   'Service-role only. Never readable by an anon/authenticated key: prompts can contain resume text.';
 
--- ── 18. jobs — the outbox for slow work (parse, embed, link-check) ────────
+-- ── 18. jobs, the outbox for slow work (parse, embed, link-check) ────────
 create table public.jobs (
   id          uuid primary key default gen_random_uuid(),
   user_id     uuid references public.profiles (id) on delete cascade,
@@ -707,7 +707,7 @@ create trigger on_auth_user_created
 -- Supabase already applies these as default privileges; stating them explicitly
 -- means this file also behaves correctly on a plain Postgres instance, and it
 -- documents exactly what the anon and authenticated keys can touch. None of
--- this weakens RLS — a grant without a policy is still a denial.
+-- this weakens RLS, a grant without a policy is still a denial.
 -- ═══════════════════════════════════════════════════════════════════════════
 grant usage on schema public to anon, authenticated, service_role;
 grant select, insert, update, delete on all tables in schema public to authenticated;
@@ -715,7 +715,7 @@ grant select, insert, update, delete on all tables in schema public to service_r
 grant usage, select on all sequences in schema public to authenticated, service_role;
 
 -- ═══════════════════════════════════════════════════════════════════════════
--- Table count check — should print 18.
+-- Table count check, should print 18.
 -- ═══════════════════════════════════════════════════════════════════════════
 do $do$
 declare

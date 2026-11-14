@@ -1,4 +1,4 @@
-"""Deterministic skill matching — no model, no quota, same answer every time.
+"""Deterministic skill matching, no model, no quota, same answer every time.
 
 Every match is a span in the document, so every skill we claim to have found can
 be shown to a human as "here is the line". The model is not trusted for this and
@@ -8,7 +8,7 @@ result) rather than guessed.
 
 Ambiguity is handled explicitly. `rest`, `next`, `node`, `lambda`, `ml`, `syntax`
 and friends are ordinary words in some sentences and technologies in others, so
-they are marked WEAK: they only count with corroboration — a capitalised
+they are marked WEAK: they only count with corroboration, a capitalised
 spelling, a skills-section context, or another strong alias for the same skill in
 the same sentence.
 """
@@ -30,7 +30,7 @@ WEAK_ALIASES: dict[str, str] = {
     "tree": "ordinary English word",
     "express": "ordinary English word ('express interest')",
     "lambda": "'lambda function' is often Python, not AWS",
-    "pipeline": "CI/CD or data pipeline — the word alone does not decide",
+    "pipeline": "CI/CD or data pipeline: the word alone does not decide",
     "shell": "ordinary English word",
     "bash": "can mean 'a bash script' in any language context",
     "ml": "two letters, matches part of other tokens",
@@ -180,7 +180,7 @@ def find_mentions(text: str, section_list: list[sections_mod.Section] | None = N
             if qualifiers and not _has_qualifier(text, start, end, qualifiers):
                 continue
             # "capitalised" means the document wrote it with a capital: REST, Next.js,
-            # S3. Comparing to the alias string is not enough — a case-insensitive
+            # S3. Comparing to the alias string is not enough, a case-insensitive
             # match returns the document's own text, so it always looks "exact".
             exact = text[start].isupper()
             quote, qs, qe = sentence_around(text, start, end)
@@ -236,7 +236,7 @@ def _confidence(mentions: list[Mention]) -> float:
 
 
 def claim_level(mentions: list[Mention]) -> tuple[str, str]:
-    """What the document *claims* — never more than the document supports.
+    """What the document *claims*, never more than the document supports.
 
     A resume cannot claim "advanced". It can list a technology, or show it used in
     a project, and those are different amounts of evidence.

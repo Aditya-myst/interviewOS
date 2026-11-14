@@ -327,8 +327,8 @@ skills:
       - { id: pd-performance, title: "Vectorisation and memory", level: intermediate, objective: "Make a slow pipeline fast." }
 
   # ── content, growth and creator work ───────────────────────────────────────
-  # Added in Phase 5 because a real resume — a final-year CS student targeting a
-  # content-engine role — could not be described by an engineering-only vocabulary.
+  # Added in Phase 5 because a real resume, a final-year CS student targeting a
+  # content-engine role, could not be described by an engineering-only vocabulary.
   # Every term below is something candidates actually put on a resume, and every
   # skill carries subtopics, because a skill with no curriculum cannot produce a
   # plan (scripts/gen_seed.py refuses to generate one).

@@ -1,4 +1,4 @@
-"""Skill status transitions — the schema's rules, in one place, so app code cannot fight
+"""Skill status transitions, the schema's rules, in one place, so app code cannot fight
 the database.
 
 `docs/sql/001_init.sql` installs `enforce_skill_transition()`, which refuses illegal moves
@@ -10,7 +10,7 @@ This module is that question, and its table is a mirror of the trigger (there is
 that asserts the two agree by attempting every pair against a real database).
 
 The important case it exists for: an interview scoring 0.2 means "needs rework", but for a
-skill that was only ever `claimed` there is nothing to revise — it was never verified. The
+skill that was only ever `claimed` there is nothing to revise, it was never verified. The
 honest state there is `weak`. Writing `needs_revision` instead crashed the interview with
 `illegal transition claimed -> needs_revision`.
 """
@@ -31,7 +31,7 @@ LEGAL: dict[str, frozenset[str]] = {
 # When the wanted status is not reachable from where the skill is, these are the honest
 # fallbacks. Two rules decide them:
 #
-#  - "needs_revision" without a prior verification is "weak" — you cannot revise a thing you
+#  - "needs_revision" without a prior verification is "weak", you cannot revise a thing you
 #    never proved. (This is the mapping that crashed the interview.)
 #  - anything else that cannot move stays where it is. A bad answer must never *promote* a
 #    skill as a side effect, and staying put is always legal (the trigger no-ops on it).

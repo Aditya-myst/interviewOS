@@ -37,7 +37,7 @@
       "evidence": [{ "type": "assessment_answer", "quote": "asyncio.gather runs coroutines concurrently; a blocking call inside it still serialises the loop." }] },
     { "skill_id": "langgraph", "name": "LangGraph", "category": "AI", "status": "unverified", "claimed_level": null, "verified_level": null, "expected_level": "beginner",
       "confidence": 0.0, "jd_importance": 0.45, "interview_relevance": 0.9, "gap": 0.25, "priority": 0.1, "priority_band": "medium",
-      "explanation": "Only a preferred skill, and only at beginner level — worth an hour after the critical work, not before it.",
+      "explanation": "Only a preferred skill, and only at beginner level: worth an hour after the critical work, not before it.",
       "in_resume": false, "in_jd": true, "last_assessed_at": null, "evidence": [] },
     { "skill_id": "postgresql", "name": "PostgreSQL", "category": "Data", "status": "developing", "claimed_level": "intermediate", "verified_level": "beginner", "expected_level": "intermediate",
       "confidence": 0.58, "jd_importance": 0.75, "interview_relevance": 0.7, "gap": 0.25, "priority": 0.13, "priority_band": "low",

@@ -121,7 +121,7 @@ export default function GapMapTable({ skills }: { skills: CandidateSkill[] }) {
                         </span>
                       </td>
                       <td className="px-4 py-3.5 type-small text-[var(--text-dim)]">
-                        {s.category ?? "—"}
+                        {s.category ?? "n/a"}
                       </td>
                       <td className="px-4 py-3.5">
                         <SkillPill
@@ -192,7 +192,7 @@ export default function GapMapTable({ skills }: { skills: CandidateSkill[] }) {
 
       </div>
 
-      {/* Mobile cards — a 6-column table at 390px is unreadable, so the same
+      {/* Mobile cards, a 6-column table at 390px is unreadable, so the same
           rows render as stacked cards instead of horizontal scroll. */}
       <ul className="md:hidden list-none m-0 p-0 space-y-3">
         {rows.map((s) => {
@@ -217,7 +217,7 @@ export default function GapMapTable({ skills }: { skills: CandidateSkill[] }) {
               <div className="flex flex-wrap items-center gap-2 mb-2">
                 <SkillPill label={s.status.replace("_", " ")} status={s.status} />
                 <span className="type-small text-[var(--text-dim)]">
-                  {s.category ?? "—"} ·{" "}
+                  {s.category ?? "n/a"} ·{" "}
                   {s.expected_level && s.expected_level !== "none"
                     ? s.expected_level
                     : "not in JD"}{" "}

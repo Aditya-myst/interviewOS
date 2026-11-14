@@ -134,7 +134,7 @@ def test_store_refuses_to_write_a_skill_with_no_evidence():
         explanation = "because"
         in_resume = True
         in_jd = True
-        evidence: list = []  # noqa: RUF012 — the point of the fixture
+        evidence: list = []  # noqa: RUF012, the point of the fixture
 
     class FakeSession:
         def execute(self, *a, **k):  # pragma: no cover - must never be reached
@@ -146,7 +146,7 @@ def test_store_refuses_to_write_a_skill_with_no_evidence():
 
 def test_a_broken_read_says_so_instead_of_looking_empty(client, monkeypatch):
     """A SQL error and an empty account both serve fixtures. The header now tells them
-    apart — that difference is what turned a wrong column name into a quiet fixture."""
+    apart, that difference is what turned a wrong column name into a quiet fixture."""
     monkeypatch.setattr("app.api.prep._from_store", lambda builder: (None, "db_error"))
     response = client.get("/v1/analytics/dashboard")
     assert response.headers["x-data-source"] == "fixture"
@@ -173,7 +173,7 @@ def test_a_database_rejection_is_a_stated_failure_not_a_500(client, monkeypatch)
     """The upload that crashed on a real Postgres.
 
     A resume re-upload tried to reset a graded skill's status; the schema's transition
-    guard raised, and the exception escaped as a 500 — the user saw "the API answered 500"
+    guard raised, and the exception escaped as a 500, the user saw "the API answered 500"
     with no idea which half failed. The document parses either way, so a rejected write is
     a 200 that says `persisted: false` and names the reason.
     """

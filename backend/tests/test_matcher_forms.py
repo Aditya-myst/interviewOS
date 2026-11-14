@@ -1,7 +1,7 @@
 """The same idea in different words must score the same.
 
 The failure this guards, observed on the live ladder: three genuinely good system-design
-answers — read/write ratio, latency budget, queue depth, replicas, circuit breakers — came
+answers, read/write ratio, latency budget, queue depth, replicas, circuit breakers, came
 back 22, 29 and 17 out of 100. Nothing was wrong with the answers. The rubric said
 *replication* and the answer said *replica*; the rubric said *queues* and the answer said
 *queue*; the rubric said *envelope* and the answer said *budget*. The matcher compared bare
@@ -12,7 +12,7 @@ What is tested here:
 
 1. **Form.** Plurals, -ing, -ation and -ity are the same word as far as grading is concerned.
 2. **Idea.** A small, explicit synonym table covers the curriculum concepts candidates
-   reliably phrase differently. It widens the door; it does not open it — the answer still
+   reliably phrase differently. It widens the door; it does not open it, the answer still
    has to be sentence-length, specific and quotable to score well.
 3. **No bleed.** Unrelated words never match, so a fluent non-answer cannot ride the fix to
    a good score.
@@ -95,7 +95,7 @@ def test_another_word_for_the_same_idea_is_the_same_point(term, sentence):
 def test_an_unrelated_word_never_matches(term, sentence):
     """Prefix matching has to stay inside a word: "post" must not fire on "compost"."""
     if term == "recall":
-        pytest.skip("deliberately ambiguous English — see the note below")
+        pytest.skip("deliberately ambiguous English, see the note below")
     assert not questions._has_term(sentence, (term,))
 
 

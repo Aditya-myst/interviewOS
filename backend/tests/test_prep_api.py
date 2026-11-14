@@ -2,7 +2,7 @@
 
 It was the last read endpoint that never queried the store: with 23 live skill rows it still
 returned a fixture plan for a different person. The header said `fixture`, which is honest,
-but the screen above it was wrong — the exact defect the user asked to be rid of.
+but the screen above it was wrong, the exact defect the user asked to be rid of.
 """
 from __future__ import annotations
 
@@ -34,7 +34,7 @@ def test_preparation_goes_through_the_store(client, monkeypatch):
         "id": "plan-1",
         "readiness": 51.1,
         "readiness_label": "approaching",
-        "next_best_action": "RAG architecture end to end (LLM & RAG) — Describe ingest, retrieve, rerank, generate.",
+        "next_best_action": "RAG architecture end to end (LLM & RAG), Describe ingest, retrieve, rerank, generate.",
         "generated_at": "2026-11-03T00:00:00Z",
         "parse_status": "ok",
         "skill_profile": {"provisional": True, "counts": {}, "coverage_by_category": [], "skills": []},
@@ -49,7 +49,7 @@ def test_preparation_goes_through_the_store(client, monkeypatch):
 
 
 def test_the_plan_is_stored_when_rows_exist(client, monkeypatch):
-    """The stored path is a composition of the other three payloads — same candidate."""
+    """The stored path is a composition of the other three payloads, same candidate."""
     from app import store
 
     dashboard = {
@@ -95,7 +95,7 @@ def test_the_plan_is_stored_when_rows_exist(client, monkeypatch):
 
 
 def test_the_plan_is_none_when_nothing_is_scored(monkeypatch):
-    """None — not an empty plan — so the caller falls back and the header tells the truth."""
+    """None, not an empty plan, so the caller falls back and the header tells the truth."""
     from app import store
 
     monkeypatch.setattr(store, "dashboard_payload", lambda *_a, **_k: None)

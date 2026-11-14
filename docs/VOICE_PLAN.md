@@ -1,8 +1,8 @@
-# Voice interviewer — how it gets built, and what the latency actually is
+# Voice interviewer, how it gets built, and what the latency actually is
 
 Nothing here is built yet. This is the plan of record, with the numbers stated up front so
 the decision is not made blind. It exists because "add voice" is the step where an
-interview product usually starts lying about what it measured — the plan is shaped around
+interview product usually starts lying about what it measured, the plan is shaped around
 not doing that.
 
 ---
@@ -29,7 +29,7 @@ TTS first audio ── interviewer speaks, candidate's mic is muted while it doe
 
 Two rules that do not bend:
 
-1. **The transcript is the evidence.** Audio never becomes the scored object — the same
+1. **The transcript is the evidence.** Audio never becomes the scored object, the same
    quote-gated rubric that grades typed answers grades spoken ones. If the transcript has
    no quote, the answer does not verify.
 2. **The interviewer never talks over the candidate.** Mic is muted from the first
@@ -37,9 +37,9 @@ Two rules that do not bend:
 
 ---
 
-## 2. The stack — two options, both free
+## 2. The stack, two options, both free
 
-### Option A — hosted free tier (default, best accuracy)
+### Option A, hosted free tier (default, best accuracy)
 
 | Part | Choice | Cost | Why |
 |---|---|---|---|
@@ -52,14 +52,14 @@ Audio uploads only after the turn ends, so nothing streams to a third party whil
 candidate is mid-sentence. Recorded audio is discarded after transcription unless the user
 opts to keep it.
 
-### Option B — fully local, forever free, no account
+### Option B, fully local, forever free, no account
 
 | Part | Choice | Footprint | Notes |
 |---|---|---|---|
 | STT | `faster-whisper` `base.en` or `small.en`, int8 on CTranslate2 | ~150–500 MB, ~1 GB RAM | CPU-only is enough; MIT/Apache weights |
 | VAD | Silero VAD | 2 MB | same model as above |
 | TTS | **Piper** (`en_US-lessac-medium`) | ~60 MB | runs ~10× real time on one core |
-| Follow-ups | local 7B via Ollama, or **no LLM at all** — the rubric already picks the next question | 4–5 GB if used | the interview works without a single generative call |
+| Follow-ups | local 7B via Ollama, or **no LLM at all**, the rubric already picks the next question | 4–5 GB if used | the interview works without a single generative call |
 
 Option B is the honest answer to "free open source": it needs no key, sends nothing
 anywhere, and the whole interview loop still runs if the network dies. It costs accuracy
@@ -77,7 +77,7 @@ Measured against the target: *candidate stops speaking → interviewer's first s
 
 | Stage | Option A (hosted) | Option B (local, 4 CPU cores) |
 |---|---|---|
-| Endpointing — 500 ms of silence before the turn is declared over | 0.50 s | 0.50 s |
+| Endpointing, 500 ms of silence before the turn is declared over | 0.50 s | 0.50 s |
 | Final transcription of a 20 s answer | 0.20–0.50 s | 0.80–1.50 s |
 | Score the answer (deterministic rubric, no model) | 0.02 s | 0.02 s |
 | Follow-up question, first token (skippable) | 0.30–0.60 s | 0.50–1.50 s |
@@ -91,14 +91,14 @@ Both are stated to the user before the first session rather than discovered by t
 
 If that is not fast enough, in this order:
 
-1. **Drop the follow-up LLM call.** The rubric already knows the next question — that alone
+1. **Drop the follow-up LLM call.** The rubric already knows the next question, that alone
    removes 0.3–1.5 s and removes a hallucination surface.
 2. **Act on partials.** Score from the streaming transcript the moment VAD fires, without
    waiting for the final pass; reconcile afterwards.
 3. **Shrink the model.** `small.en` → `base.en` → `tiny.en` (roughly halves each stage).
 4. **Keep the process warm.** Load the model at session start, never per turn.
 5. **Pre-render the interviewer's fixed lines** (greeting, "take your time", "next
-   question") to WAV at session start — those turns then cost 0 ms of synthesis.
+   question") to WAV at session start, those turns then cost 0 ms of synthesis.
 
 ---
 
@@ -106,13 +106,13 @@ If that is not fast enough, in this order:
 
 | Claim | Status |
 |---|---|
-| What the candidate said | **measured** — transcript, quote-gated |
-| Whether the answer covers the rubric | **measured** — same scoring as typed |
+| What the candidate said | **measured**, transcript, quote-gated |
+| Whether the answer covers the rubric | **measured**, same scoring as typed |
 | Filler-word count, words per minute, longest pause | **measured from the transcript/audio timing**, reported as numbers, never as a grade |
 | "Communication score", "confidence", "accent", "fluency" | **refused.** Needs human-rated audio to be meaningful; any number produced here would be invented |
 
 The rehearsal UI therefore shows a **transcript-derived** panel: pace, filler count, pauses
-over 3 s — descriptive, not evaluative. Scores still come only from rubric coverage with
+over 3 s, descriptive, not evaluative. Scores still come only from rubric coverage with
 quotes, which is what the report already does.
 
 ---
@@ -133,7 +133,7 @@ quotes, which is what the report already does.
 
 ## 6. Build order (each step schedulable in an hour)
 
-1. Record + upload + transcribe a turn, no voice output — typed answers untouched
+1. Record + upload + transcribe a turn, no voice output, typed answers untouched
 2. Silero VAD endpointing + live partials
 3. `speechSynthesis` interviewer, mic-mute discipline
 4. Transcript-derived pace/filler panel (descriptive numbers only)
@@ -141,5 +141,5 @@ quotes, which is what the report already does.
 6. Latency instrumentation: log each stage per turn, show the median in `/status`
 
 **Decision needed from you:** Option A (hosted free tier, faster, needs the Groq key) or
-Option B (fully local, slower, no account) — or A now with B behind a toggle. Nothing gets
+Option B (fully local, slower, no account), or A now with B behind a toggle. Nothing gets
 built until you pick.

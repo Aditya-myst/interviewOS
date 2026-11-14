@@ -4,13 +4,13 @@ Two rules:
 
 1. **The schema is the contract.** Every insert here names columns that exist in
    docs/sql/001_init.sql. There is no `create_all`, no migration runner, and no
-   "just one extra column" — the database is handed over, not managed by the app.
+   "just one extra column", the database is handed over, not managed by the app.
 2. **Nothing is written without evidence.** `upsert_skills` refuses a row whose
    evidence list is empty, mirroring the product rule at the storage layer, so a
    caller that skipped the quote gate fails loudly instead of quietly.
 
 When there is no database the API stays in fixture mode and these functions are
-never called — that is a supported state, not an error path.
+never called, that is a supported state, not an error path.
 """
 from __future__ import annotations
 
@@ -78,7 +78,7 @@ def resolve_user(session: Session) -> tuple[str, str]:
 
     rows = session.execute(text("select id from public.profiles limit 2")).all()
     if len(rows) == 1:
-        log.info("resolved user from the single existing profile — set DEMO_USER_ID to pin this")
+        log.info("resolved user from the single existing profile, set DEMO_USER_ID to pin this")
         return str(rows[0][0]), "single_profile"
     if not rows:
         raise UserUnresolved(
@@ -86,7 +86,7 @@ def resolve_user(session: Session) -> tuple[str, str]:
             "(auto-confirm), then set DEMO_USER_ID in .env."
         )
     raise UserUnresolved(
-        f"{len(rows)}+ profiles exist — refusing to guess. Set DEMO_USER_ID in .env."
+        f"{len(rows)}+ profiles exist: refusing to guess. Set DEMO_USER_ID in .env."
     )
 
 
@@ -244,7 +244,7 @@ RETIRE_STALE = text(
         jd_importance = 0,
         priority = 0,
         priority_band = 'low',
-        explanation = 'Graded in an earlier session — the current resume and posting '
+        explanation = 'Graded in an earlier session: the current resume and posting '
                       'no longer mention it.',
         updated_at = now()
     where user_id = cast(:user_id as uuid)
@@ -282,7 +282,7 @@ def upsert_skills(session: Session, *, user_id: str, rows: list[ScoredSkill]) ->
     for row in rows:
         if not row.evidence:
             # the storage-layer version of "no quote, no row"
-            raise EvidenceRequired(f"{row.skill_id} has no evidence — refusing to store it")
+            raise EvidenceRequired(f"{row.skill_id} has no evidence: refusing to store it")
         session.execute(
             UPSERT_SKILL,
             {
@@ -326,7 +326,7 @@ PROFILE_SQL = text(
 def profile_payload(session: Session, *, user_id: str) -> dict | None:
     """The stored profile, in the same shape build_profile() produces.
 
-    None means "this user has no candidate_skills rows yet" — the caller decides to
+    None means "this user has no candidate_skills rows yet", the caller decides to
     serve fixtures instead, and says so in the header.
     """
     rows = session.execute(PROFILE_SQL, {"user_id": user_id}).mappings().all()
@@ -402,7 +402,7 @@ RESOURCES_SQL = text(
 
 
 def catalogue_for(session: Session, *, skill_ids: list[str]) -> dict[tuple[str, str], list[dict]]:
-    """Resource rows grouped by (skill, subtopic) — the roadmap's raw material."""
+    """Resource rows grouped by (skill, subtopic), the roadmap's raw material."""
     if not skill_ids:
         return {}
     rows = session.execute(RESOURCES_SQL, {"skill_ids": skill_ids}).mappings().all()
@@ -457,7 +457,7 @@ def _scored_rows(session: Session, user_id: str) -> list:
 
 
 def scored_skills(session: Session, *, user_id: str) -> list[dict]:
-    """The candidate's skill rows as plain dicts — the shape the interview asks from.
+    """The candidate's skill rows as plain dicts, the shape the interview asks from.
 
     Same query as the dashboard, so a question can only be about a skill the dashboard
     is willing to show. Empty list means "this user has no scored graph yet".
@@ -473,7 +473,7 @@ def preparation_payload(session: Session, *, user_id: str) -> dict | None:
     """The preparation plan, assembled from the same rows the other screens read.
 
     `/v1/preparation/latest` was the last endpoint that answered from a fixture even with a
-    live database — the plan on it described somebody else's profile. It is a composition of
+    live database, the plan on it described somebody else's profile. It is a composition of
     three queries that already exist, so it costs one extra read, not new logic: readiness
     from the dashboard, skills from the profile, topics from the roadmap.
 
@@ -492,7 +492,7 @@ def preparation_payload(session: Session, *, user_id: str) -> dict | None:
             continue
         objective = str(topic.get("objective") or "").rstrip(".")
         next_action = (
-            f"{topic.get('title')} ({topic.get('skill_name')}) — {objective}."
+            f"{topic.get('title')} ({topic.get('skill_name')}): {objective}."
             if objective
             else f"Start {topic.get('title')} ({topic.get('skill_name')})."
         )
@@ -513,7 +513,7 @@ def preparation_payload(session: Session, *, user_id: str) -> dict | None:
 
 
 def dashboard_payload(session: Session, *, user_id: str) -> dict | None:
-    """None when this user has no scored skills — the caller serves fixtures."""
+    """None when this user has no scored skills, the caller serves fixtures."""
     rows = _scored_rows(session, user_id)
     if not rows:
         return None
@@ -529,7 +529,7 @@ def dashboard_payload(session: Session, *, user_id: str) -> dict | None:
 
     # Column names here are the schema's, not the fixture's: reports hold `overall_scores`
     # (jsonb, keyed "overall"), and a session has `started_at`, not `created_at`. Getting
-    # either wrong used to be invisible — the query threw, the route served fixtures and
+    # either wrong used to be invisible, the query threw, the route served fixtures and
     # the screen still looked right (tests/test_sql_columns.py now catches it).
     interviews = [
         {
@@ -590,7 +590,7 @@ def plan_with_progress(
     so a re-plan cannot reset what the candidate already finished.
 
     A failure here must not take the screen down: without stored rows the plan still
-    renders, it just starts at zero — and the caller's header still says `database`.
+    renders, it just starts at zero, and the caller's header still says `database`.
     """
     skill_ids = sorted({row.skill_id for row in rows if row.priority_band != "low"})
     catalogue = catalogue_for(session, skill_ids=skill_ids) if skill_ids else {}
@@ -607,10 +607,10 @@ def plan_with_progress(
         )
         states = progress.topic_states(session, user_id=user_id)
         # Work that has already left the plan. A verified skill stops being a gap, so the
-        # next re-plan parks its topic — the candidate still needs to see that they did it.
+        # next re-plan parks its topic, the candidate still needs to see that they did it.
         plan["completed"] = progress.completed_topics(session, user_id=user_id)
     except Exception:
-        log.exception("could not persist the roadmap — showing it unstarted")
+        log.exception("could not persist the roadmap, showing it unstarted")
         plan["persisted"] = False
         plan["completed"] = []
         return plan

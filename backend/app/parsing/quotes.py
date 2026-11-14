@@ -1,7 +1,7 @@
-"""The quote gate — the reason this product can be trusted.
+"""The quote gate, the reason this product can be trusted.
 
 Every skill claim, in either direction, carries a `quote`. This module answers one
-question about a quote: *does it actually appear in the document?* — and if so,
+question about a quote: *does it actually appear in the document?*, and if so,
 where. Whitespace differences (a PDF that broke a line mid-phrase) are tolerated;
 invented, paraphrased or edited text is not.
 
@@ -37,7 +37,7 @@ def _flexible_pattern(quote: str) -> str:
 def verify(quote: str, text: str) -> VerifiedQuote | None:
     """Return the located span, or None if this quote is not in the document.
 
-    None is not an error — it is the gate closing. The caller drops the claim and
+    None is not an error, it is the gate closing. The caller drops the claim and
     records why.
     """
     candidate = " ".join(quote.split()).strip()

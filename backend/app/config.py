@@ -1,5 +1,5 @@
 """Settings, loaded once. Every value has a safe default so the API boots with
-an empty .env — which is exactly how it behaves in CI and on a fresh clone."""
+an empty .env, which is exactly how it behaves in CI and on a fresh clone."""
 from __future__ import annotations
 
 from functools import lru_cache
@@ -63,7 +63,7 @@ class Settings(BaseSettings):
         """The URL the engine is built from, with the driver named.
 
         pyproject declares psycopg 3, but SQLAlchemy reads a bare ``postgresql://``
-        as psycopg2 and raises ModuleNotFoundError at startup — which is how a
+        as psycopg2 and raises ModuleNotFoundError at startup, which is how a
         correct DATABASE_URL took the whole API down. Naming the driver here means
         every caller gets one honest URL, however the platform spells it.
         """

@@ -3,7 +3,7 @@
 Three rules this file encodes:
 
 1. **A bad document is a 422 with a reason**, not a 500 and not an empty profile.
-2. **Nothing is persisted unless the database is connected** — the response says
+2. **Nothing is persisted unless the database is connected**, the response says
    `persisted: false` and `X-Data-Source: pipeline`, so a fixture-mode demo never
    looks like it wrote to Postgres.
 3. **The merge step always recomputes from stored text.** The resume's `raw_text`
@@ -36,7 +36,7 @@ MAX_BYTES = 10 * 1024 * 1024
 
 
 def _db_reason(exc: SQLAlchemyError) -> str:
-    """One readable line from a driver exception — enough to act on, short enough to show."""
+    """One readable line from a driver exception, enough to act on, short enough to show."""
     raw = str(getattr(exc, "orig", exc)).strip().splitlines()
     line = raw[0] if raw else exc.__class__.__name__
     return line[:240]
@@ -47,7 +47,7 @@ def _db_ready() -> bool:
 
 
 def _document_from_stored(text_value: str, filename: str = "stored") -> Document:
-    """Rebuild the extraction result from stored raw text — identical input, so the
+    """Rebuild the extraction result from stored raw text, identical input, so the
     deterministic pass reproduces identical output."""
     return Document(
         text=text_value,
@@ -100,7 +100,7 @@ class JdRequest(BaseModel):
 @router.post("/resume/upload")
 async def resume_upload(
     response: Response,
-    file: UploadFile = File(...),  # noqa: B008 — FastAPI's documented file-upload form
+    file: UploadFile = File(...),  # noqa: B008, FastAPI's documented file-upload form
 ) -> dict[str, Any]:
     """Parse a resume. Persists only when a database is connected."""
     settings = get_settings()
@@ -190,7 +190,7 @@ def jd_analyze(body: JdRequest, response: Response) -> dict[str, Any]:
             status_code=422,
             detail={
                 "code": "jd_too_short",
-                "message": f"{len(text_value)} characters — a usable JD needs a few lines",
+                "message": f"{len(text_value)} characters: a usable JD needs a few lines",
             },
         )
 
@@ -233,7 +233,7 @@ def resume_latest(response: Response) -> dict[str, Any]:
     if not _db_ready():
         raise HTTPException(
             status_code=503,
-            detail={"code": "degraded_mode", "message": "no database — nothing has been stored"},
+            detail={"code": "degraded_mode", "message": "no database, so nothing has been stored"},
         )
     with get_session() as session:
         user_id, _ = store.resolve_user(session)

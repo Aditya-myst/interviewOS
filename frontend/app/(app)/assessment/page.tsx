@@ -9,7 +9,7 @@ import PriorityScatter from "@/components/charts/PriorityScatter";
 import { loadSkillProfile } from "@/lib/api";
 import { parseState } from "@/lib/fixtures";
 
-export const metadata = { title: "Assessment ladder — InterviewOS" };
+export const metadata = { title: "Assessment ladder · InterviewOS" };
 
 /* Same four colours the scatter uses, so the legend and the chart cannot drift. */
 const BAND_DOT: Record<string, string> = {
@@ -24,7 +24,7 @@ const BAND_DOT: Record<string, string> = {
  *
  * `?skill=<id>` picks the skill; without it the page lists what can be assessed, in
  * priority order, so the screen is never a dead end. Every skill here comes from the
- * candidate's own profile — a marketing candidate sees content and SEO, not FastAPI.
+ * candidate's own profile, a marketing candidate sees content and SEO, not FastAPI.
  */
 export default async function AssessmentPage({
   searchParams,
@@ -167,8 +167,7 @@ async function AssessmentBody({
                       style={{ background: BAND_DOT[band] }}
                     />
                     <span className="type-small text-[var(--text-dim)]">
-                      <span className="font-medium capitalize text-[var(--text)]">{band}</span>{" "}
-                      — {meaning}
+                      <span className="font-medium capitalize text-[var(--text)]">{band}</span>: {meaning}
                     </span>
                   </li>
                 ))}

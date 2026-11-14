@@ -8,7 +8,7 @@ One owner per path.
 
 Phase 4 serves them from contracts/fixtures and says so in the `X-Data-Source`
 header. Phase 5 replaces the bodies with SQL against candidate_skills,
-learning_paths and learning_topics — the response models do not change, so the
+learning_paths and learning_topics, the response models do not change, so the
 frontend switches on its own schedule.
 """
 from __future__ import annotations
@@ -70,7 +70,7 @@ def _serve(
 def _from_store(builder: str) -> tuple[dict[str, Any] | None, str | None]:
     """Every read endpoint goes through here, so "database or fixture" is one decision.
 
-    Returns `(payload, reason)`: payload when rows were read, otherwise None plus why —
+    Returns `(payload, reason)`: payload when rows were read, otherwise None plus why,
     `no_db`, `no_profile`, `no_rows` or `db_error`. Split out so tests can exercise both
     paths without a live Postgres. A failing query still serves fixtures, because a
     broken read must not take the screen down, but the reason travels to the header.
@@ -86,7 +86,7 @@ def _from_store(builder: str) -> tuple[dict[str, Any] | None, str | None]:
     except Exception:
         import logging
 
-        logging.getLogger(__name__).exception("%s failed — serving fixtures", builder)
+        logging.getLogger(__name__).exception("%s failed, serving fixtures", builder)
         return None, "db_error"
     if payload is None:
         return None, "no_rows"
@@ -105,7 +105,7 @@ def dashboard(response: Response, state: str | None = None) -> dict[str, Any]:
 
 @router.get("/skills/profile", response_model=SkillProfile)
 def skills_profile(response: Response, state: str | None = None) -> dict[str, Any]:
-    """Rows when they exist, fixtures otherwise — and the header says which.
+    """Rows when they exist, fixtures otherwise, and the header says which.
 
     This is the switch Phase 5 was built for. The payload shape is identical, so
     the frontend does not change; only `X-Data-Source` does, and it is never wrong:
@@ -143,7 +143,7 @@ def _write_session():
     if db_status()["state"] != "connected":
         raise HTTPException(
             status_code=503,
-            detail="no database configured — progress is stored in Postgres, so nothing was saved",
+            detail="no database configured: progress is stored in Postgres, so nothing was saved",
         )
     return get_session()
 
@@ -152,14 +152,14 @@ def _write_session():
 def create_plan(response: Response) -> dict[str, Any]:
     """Persist the computed plan. Idempotent: same candidate, same topics, same ids.
 
-    The UI never has to call this — reading the roadmap already stores it — but automation
+    The UI never has to call this, reading the roadmap already stores it, but automation
     and the CLI want an explicit verb, and an idempotent one is safe to retry.
     """
     stored, reason = _from_store("roadmap_payload")
     if stored is None:
         raise HTTPException(
             status_code=409,
-            detail=f"nothing to plan yet ({reason}) — upload a resume and analyse a JD first",
+            detail=f"nothing to plan yet ({reason}): upload a resume and analyse a JD first",
         )
     response.headers["X-Data-Source"] = "database"
     return stored
@@ -183,7 +183,7 @@ def update_topic_status(topic_id: str, body: TopicStatusUpdate, response: Respon
             status_code=404, detail=f"topic {topic_id!r} is not in your plan"
         ) from None
     except store.UserUnresolved:
-        raise HTTPException(status_code=409, detail="no profile yet — finish onboarding first") from None
+        raise HTTPException(status_code=409, detail="no profile yet: finish onboarding first") from None
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from None
 

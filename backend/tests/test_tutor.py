@@ -1,7 +1,7 @@
 """The tutor's promise, as tests.
 
 The important one is `test_every_answer_line_is_cited`: the tutor is only trustworthy if a
-claim cannot appear without a row behind it. The rest keep its honesty honest — an
+claim cannot appear without a row behind it. The rest keep its honesty honest, an
 off-domain question gets "not in my sources", never the user's own gap dressed up as an
 answer.
 """

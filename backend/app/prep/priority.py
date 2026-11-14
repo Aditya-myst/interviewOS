@@ -2,11 +2,11 @@
 
 Why not ask a model which skill matters most: because "why is this first?" is the
 question a user will ask, and the answer has to be the same tomorrow. The formula is
-the one in contracts/ENUMS.md §3 —
+the one in contracts/ENUMS.md §3,
 
     priority = jd_importance × gap × interview_relevance
 
-— with band thresholds >=0.55 critical, >=0.35 high, >=0.18 medium, else low. The
+, with band thresholds >=0.55 critical, >=0.35 high, >=0.18 medium, else low. The
 fixture profile was produced with this formula, which is why its numbers and the
 pipeline's numbers land in the same place.
 """
@@ -17,7 +17,7 @@ from dataclasses import dataclass
 from app.parsing.jd import ParsedJD, Requirement
 from app.parsing.resume import ParsedResume
 
-# contracts/ENUMS.md §2 — `listed` shares beginner's numeric value on purpose
+# contracts/ENUMS.md §2, `listed` shares beginner's numeric value on purpose
 LEVEL_VALUE = {
     "none": 0.0,
     "listed": 0.25,
@@ -117,7 +117,7 @@ def _explain(
     if in_jd and not in_resume:
         return (
             f"{name} is {requirement.requirement_type if requirement else 'required'} in the JD "
-            f"at {expected} level and appears nowhere in your resume — the largest kind of gap."
+            f"at {expected} level and appears nowhere in your resume: the largest kind of gap."
         )
     if in_resume and in_jd:
         trailing = (
@@ -131,7 +131,7 @@ def _explain(
         )
     if in_resume:
         return (
-            f"{name} is on your resume but not in this JD — kept for coverage at "
+            f"{name} is on your resume but not in this JD: kept for coverage at "
             f"{claimed} level, ranked {band_name} against the interview's own weighting."
         )
     return f"No evidence either side; ranked {band_name}."
@@ -183,7 +183,7 @@ def score(resume: ParsedResume, jd: ParsedJD, *, verified: dict[str, dict] | Non
         if requirement is not None:
             # A JD quote is not resume evidence. This used to be retyped as
             # resume_skill_list, which put "followers alone are not the metric" on the
-            # candidate's own evidence list — the exact opposite of what this product
+            # candidate's own evidence list, the exact opposite of what this product
             # promises. It keeps its own type and gains the document it came from.
             evidence += [
                 dict(item, type="jd_requirement", document="jd")
@@ -226,7 +226,7 @@ def score(resume: ParsedResume, jd: ParsedJD, *, verified: dict[str, dict] | Non
 
 
 def next_level(level: str | None) -> str:
-    """The rung above a claimed level — used by the plan, not by the score."""
+    """The rung above a claimed level, used by the plan, not by the score."""
     if not level or level not in LEVEL_ORDER:
         return "beginner"
     index = LEVEL_ORDER.index(level)

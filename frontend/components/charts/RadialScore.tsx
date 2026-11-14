@@ -37,7 +37,7 @@ export default function RadialScore({
         height={size}
         viewBox={`0 0 ${size} ${size}`}
         role="img"
-        aria-label={`${pct} percent${label ? ` — ${label}` : ""}`}
+        aria-label={`${pct} percent${label ? `, ${label}` : ""}`}
         className="-rotate-90"
       >
         <circle

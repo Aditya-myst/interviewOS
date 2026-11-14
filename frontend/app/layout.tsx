@@ -28,14 +28,14 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://interviewos.app"),
   title: {
-    default: "InterviewOS — prove what you actually know",
+    default: "InterviewOS: prove what you actually know",
     template: "%s | InterviewOS",
   },
   description:
     "InterviewOS tests what your resume claims against what the job requires, then builds a roadmap from the gaps that will actually be asked.",
   keywords: ["interview preparation", "skill gap analysis", "AI interview practice", "career"],
   openGraph: {
-    title: "InterviewOS — prove what you actually know",
+    title: "InterviewOS: prove what you actually know",
     description:
       "Evidence-based interview preparation: claims, verification, gaps, roadmap.",
     type: "website",

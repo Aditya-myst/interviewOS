@@ -48,7 +48,7 @@ export async function setTopicStatus(
     return {
       ok: false,
       status: 0,
-      message: "the API did not answer — is uvicorn running on :8000?",
+      message: "the API did not answer. Is uvicorn running on :8000?",
     };
   }
 }

@@ -1,5 +1,5 @@
 -- ═══════════════════════════════════════════════════════════════════════════
--- LOCAL TEST STUB — never run this on Supabase.
+-- LOCAL TEST STUB, never run this on Supabase.
 --
 -- 001_init.sql assumes Supabase's `auth` schema: `auth.users` for the profile
 -- foreign key, `auth.uid()` inside every RLS policy. A plain Postgres instance

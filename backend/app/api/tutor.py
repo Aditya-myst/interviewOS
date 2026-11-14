@@ -49,7 +49,7 @@ def tutor_ask(body: TutorRequest, response: Response, state: str | None = None) 
             status_code=422,
             detail={
                 "code": "question_too_short",
-                "message": f"{len(question)} characters — ask a full question",
+                "message": f"{len(question)} characters: ask a full question",
             },
         )
 

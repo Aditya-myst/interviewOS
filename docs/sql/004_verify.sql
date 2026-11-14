@@ -1,5 +1,5 @@
 -- ═══════════════════════════════════════════════════════════════════════════
--- InterviewOS — 004_verify.sql
+-- InterviewOS, 004_verify.sql
 --
 -- Run this AFTER 001_init.sql, 002_seed.sql (and optionally 003_storage.sql).
 -- Unlike the other files this one is a single SELECT, so the SQL editor shows

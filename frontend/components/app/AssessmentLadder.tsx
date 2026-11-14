@@ -15,9 +15,9 @@ import { cn } from "@/lib/utils";
  * Three checkpoints on one skill, each drawn from a real curriculum subtopic and scored on
  * that subtopic's rubric. What this screen refuses to do:
  *
- *   show a score without the quote that earned it  — a score with no quote is a guess
- *   report a "communication" score                 — there is no audio here
- *   claim the profile changed when it did not      — `persisted: false` says so out loud
+ *   show a score without the quote that earned it, a score with no quote is a guess
+ *   report a "communication" score               , there is no audio here
+ *   claim the profile changed when it did not    , `persisted: false` says so out loud
  *
  * The question header names the subtopic, because "why am I being asked this" is the
  * first thing a candidate wants to know.
@@ -119,7 +119,7 @@ export default function AssessmentLadder({
             the end. The badge now says which of the two it is. */}
         {state?.persisted === false && (
           <span className="type-micro rounded-full bg-[var(--developing)]/10 px-2 py-0.5 text-[var(--developing)]">
-            {phase === "done" ? "not saved — the write failed" : "saves when you finish"}
+            {phase === "done" ? "not saved: the write failed" : "saves when you finish"}
           </span>
         )}
       </div>
@@ -186,11 +186,10 @@ function Intro({
       <h2 className="type-h3 mt-1 mb-0">Three checkpoints on {skillName}</h2>
       <p className="type-small mt-2 max-w-[62ch] text-[var(--text-dim)]">
         Concept, then mechanics, then the work itself. Each answer is scored against the
-        rubric for one subtopic of this skill, and a score needs a sentence to quote — you
-        will see both. Three minutes, and the skill stops being a guess.
+        rubric for one subtopic of this skill, and a score needs a sentence to quote. You will see both. Three minutes, and the skill stops being a guess.
       </p>
       <ul className="mt-4 grid list-none gap-1.5 p-0">
-        {["Conceptual — what it is for", "Practical — how you would do it", "Applied — where you did it"].map(
+        {["Conceptual: what it is for", "Practical: how you would do it", "Applied: where you did it"].map(
           (line) => (
             <li key={line} className="type-small flex items-center gap-2 text-[var(--text-dim)]">
               <Check size={14} className="text-[var(--brand-strong)]" aria-hidden />

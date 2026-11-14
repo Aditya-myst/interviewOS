@@ -1,8 +1,8 @@
-# InterviewOS — Shared Enums (single source of truth)
+# InterviewOS, Shared Enums (single source of truth)
 
 Every builder (backend, UI, prompts) uses these exact strings. A typo here is a bug in both layers.
 
-## 1. SkillStatus — the skill state machine
+## 1. SkillStatus, the skill state machine
 | value | meaning | UI colour token |
 |---|---|---|
 | `claimed` | Appears in the resume, nothing verified yet | `--unverified` |
@@ -23,7 +23,7 @@ needs_revision -> developing | verified
 ```
 Rule: **no transition without an `Evidence` record.** A status change with no evidence is a bug.
 
-## 2. Level — proficiency scale
+## 2. Level, proficiency scale
 `none` (0) . `listed` (1) . `beginner` (1) . `intermediate` (2) . `advanced` (3) . `expert` (4)
 
 `listed` means "named on the resume, no proof": same numeric value as `beginner`, displayed differently.
@@ -48,7 +48,7 @@ document the quote came from.
 
 `resume_summary` was added in Phase 5: a skill named only in the candidate's own summary
 is a claim about themselves with no work behind it, and filing it as `resume_project`
-would have overstated it. The four `resume_*` types are ranked by strength —
+would have overstated it. The four `resume_*` types are ranked by strength,
 `resume_project`/`resume_experience` (used somewhere) > `resume_skill_list` (listed) >
 `resume_summary` (asserted).
 
@@ -72,10 +72,10 @@ system-design round, and reporting one would have been a fabrication dressed as 
 `text` . `voice`
 
 ## 10. ResourceRole
-`concept` . `practice` . `checkpoint` — every learning topic resolves to exactly one of each, or a labelled gap. Never a fabricated link.
+`concept` . `practice` . `checkpoint`, every learning topic resolves to exactly one of each, or a labelled gap. Never a fabricated link.
 
 ## 11. ParseStatus
-`ok` . `degraded` — `degraded` = model unavailable, deterministic-only parse. UI shows a banner and keeps working.
+`ok` . `degraded`, `degraded` = model unavailable, deterministic-only parse. UI shows a banner and keeps working.
 
 ## 12. Error codes
 `not_found` . `bad_input` . `unauthenticated` . `invalid_token` . `unsupported_file` . `file_too_large` .

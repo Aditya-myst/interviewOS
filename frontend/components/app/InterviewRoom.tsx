@@ -18,10 +18,10 @@ const SOURCE_LABEL: Record<string, string> = {
 };
 
 const STATUS_COPY: Record<string, string> = {
-  verified: "Verified — this is now evidence on your profile.",
-  developing: "Developing — right direction, not enough proof yet.",
-  weak: "Weak — thin evidence, prepare a concrete example.",
-  needs_revision: "Needs revision — nothing here could be scored.",
+  verified: "Verified: this is now evidence on your profile.",
+  developing: "Developing: right direction, not enough proof yet.",
+  weak: "Weak: thin evidence, prepare a concrete example.",
+  needs_revision: "Needs revision: nothing here could be scored.",
 };
 
 type Phase = "idle" | "asking" | "reviewing" | "done" | "error";
@@ -112,8 +112,7 @@ export default function InterviewRoom({
           <p className="type-small text-[var(--text-dim)] max-w-[60ch] m-0">
             Questions are generated from your own priority skills for{" "}
             <strong className="text-[var(--text)]">{role}</strong> and scored against a
-            rubric built from the curriculum. Every score needs a quote from your answer —
-            so a fluent answer with no example cannot pass here.
+            rubric built from the curriculum. Every score needs a quote from your answer, so a fluent answer with no example cannot pass here.
           </p>
 
           <ul className="mt-6 grid gap-2 list-none p-0">
@@ -221,7 +220,7 @@ export default function InterviewRoom({
                 : "Session lives in memory for this demo and will not survive a restart"
             }
           >
-            {source === "database" ? "saved to your account" : "not saved — demo mode"}
+            {source === "database" ? "saved to your account" : "not saved, demo mode"}
           </span>
         </div>
         <div className="h-1 w-full bg-[var(--surface-2)]">
@@ -354,8 +353,7 @@ function FeedbackPanel({
       ) : (
         <p className="mt-5 flex items-start gap-2 type-small text-[var(--weak)]">
           <CircleAlert size={16} className="mt-0.5 shrink-0" aria-hidden />
-          Nothing in that answer could be quoted as evidence, so it earned no credit — that
-          is the rule, not a scoring accident.
+          Nothing in that answer could be quoted as evidence, so it earned no credit. That is the rule, not a scoring accident.
         </p>
       )}
 

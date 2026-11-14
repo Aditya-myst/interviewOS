@@ -11,7 +11,7 @@ import { loadRoadmap } from "@/lib/api";
 import { parseState } from "@/lib/fixtures";
 import type { LearningTopic, Resource } from "../../../../contracts/types";
 
-export const metadata = { title: "Roadmap — InterviewOS" };
+export const metadata = { title: "Roadmap · InterviewOS" };
 
 const STATUS_STYLE: Record<string, string> = {
   done: "bg-[var(--brand)] text-[var(--ink-950)]",
@@ -44,7 +44,7 @@ const ROLE_LABEL: Record<string, string> = {
 const GAP_TEXT: Record<string, string> = {
   concept: "No concept resource yet",
   practice: "No practice task yet",
-  checkpoint: "No checkpoint yet — nothing to pass",
+  checkpoint: "No checkpoint yet, nothing to pass",
 };
 
 /**
@@ -122,8 +122,7 @@ async function RoadmapBody({
       {gaps > 0 && (
         <div className="mb-5">
           <StateNotice kind="warn" title={`${gaps} resource slot${gaps === 1 ? "" : "s"} the catalogue cannot fill`}>
-            Each topic below names the roles it is missing — usually a checkpoint,
-            because a checkpoint has to be something you can fail and a blog post
+            Each topic below names the roles it is missing, usually a checkpoint, because a checkpoint has to be something you can fail and a blog post
             is not. Nothing is substituted with a generated link to make the page
             look complete.
           </StateNotice>
@@ -153,8 +152,7 @@ async function RoadmapBody({
         <section className="mt-8 border-t border-[var(--border)] pt-5">
           <h2 className="type-h4 m-0">Finished earlier</h2>
           <p className="type-small text-[var(--text-dim)] m-0 mt-1 mb-3 max-w-[72ch]">
-            These came off the plan because they stopped being gaps — you passed the
-            checkpoint or marked the work done. Kept here so the effort stays visible.
+            These came off the plan because they stopped being gaps: you passed the checkpoint or marked the work done. Kept here so the effort stays visible.
           </p>
           <ul className="list-none m-0 p-0 grid gap-2">
             {r.completed.map((c) => (
@@ -246,7 +244,7 @@ function TopicCard({ topic, persisted }: { topic: LearningTopic; persisted: bool
         </span>
         <span className="type-small text-[var(--text-dim)] tabular-nums shrink-0 inline-flex items-center gap-1">
           <Clock size={13} aria-hidden />
-          {topic.estimated_minutes ? `${topic.estimated_minutes} min` : "—"}
+          {topic.estimated_minutes ? `${topic.estimated_minutes} min` : "n/a"}
         </span>
       </div>
 
@@ -269,10 +267,10 @@ function TopicCard({ topic, persisted }: { topic: LearningTopic; persisted: bool
             </p>
             {items.length === 0 ? (
               role === "checkpoint" && topic.skill_id ? (
-                // The catalogue has no "prove it" row for this topic — but the ladder does,
+                // The catalogue has no "prove it" row for this topic, but the ladder does,
                 // so this is a link instead of a dead end.
                 <p className="type-small m-0 text-[var(--text-dim)]">
-                  No catalogue row — prove it with three questions.{" "}
+                  No catalogue row. Prove it with three questions.{" "}
                   <Link
                     href={`/assessment?skill=${topic.skill_id}`}
                     className="font-medium text-[var(--brand-strong)] hover:underline"

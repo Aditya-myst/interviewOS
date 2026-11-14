@@ -6,7 +6,7 @@ import { describeReason, describeUnreachable, type DataSource } from "@/lib/api"
  *
  * Green: these numbers came out of Postgres, for this user, just now.
  * Amber: the API answered but had no rows, so you are looking at its contract
- *        fixture — the screen still shows a real shape, and says so.
+ *        fixture, the screen still shows a real shape, and says so.
  * Red:   the API did not answer at all; this is fixture data read from disk.
  *
  * It renders the endpoint it actually asked for, so "is this dummy data?" is a
@@ -52,7 +52,7 @@ export default function DataSourceBadge({
       ? `${endpoint} · live rows`
       : source === "fixture"
         ? `${endpoint} · ${describeReason(reason ?? "no_rows") || "no rows"}`
-        : `${endpoint} · ${describeUnreachable(reason ?? null)} — showing saved fixtures`;
+        : `${endpoint} · ${describeUnreachable(reason ?? null)} (showing saved fixtures)`;
 
   return (
     <span

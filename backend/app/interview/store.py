@@ -2,10 +2,10 @@
 
 Two implementations behind one protocol:
 
-* `SqlSessionStore` — the real thing, writing to interview_sessions /
+* `SqlSessionStore`, the real thing, writing to interview_sessions /
   interview_messages / interview_reports, which have existed in the schema since
   001_init.sql and have been empty until now.
-* `MemorySessionStore` — used when there is no database. An interview you cannot take
+* `MemorySessionStore`, used when there is no database. An interview you cannot take
   because Postgres is not configured would be a worse demo than one that works and
   says so: the API reports `X-Data-Source: memory`, and the report carries
   `persisted: false`.
@@ -75,7 +75,7 @@ class NotFound(LookupError):
 
 
 def report_scored_by(per_skill: list[dict[str, Any]]) -> str:
-    """Which engine graded this session — derived, never assumed.
+    """Which engine graded this session, derived, never assumed.
 
     The report used to say "rubric" no matter what: with `LLM_SCORING=true` a model may have
     graded every answer, and the report still credited the rubric. Every per-skill row already

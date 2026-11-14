@@ -8,7 +8,7 @@ much of each required skill you can currently show:
 
 `held` is the verified level if an assessment produced one, otherwise the level the
 resume claims. A skill the JD requires and the resume never mentions contributes
-attainment 0 — that is the point of measuring against the JD rather than against the
+attainment 0, that is the point of measuring against the JD rather than against the
 whole taxonomy.
 
 The thresholds for the label live here, in one place, because "am I early or
@@ -20,7 +20,7 @@ from datetime import date
 
 from app.prep.priority import LEVEL_VALUE
 
-# readiness() is a percentage, so the thresholds are too — mixing the two scales is
+# readiness() is a percentage, so the thresholds are too, mixing the two scales is
 # exactly the kind of bug that silently labels a 24.9% profile "interview ready".
 LABEL_THRESHOLDS = ((75.0, "interview_ready"), (50.0, "approaching"), (25.0, "early"))
 LABEL_FLOOR = "not_ready"
@@ -89,7 +89,7 @@ def build_dashboard(
 ) -> dict:
     interviews = interviews or []
     # Only interviews that produced a score. Counting an unfinished session as 0.0 dragged
-    # the average down — ten sessions, three scored, printed "avg interview score 0.1".
+    # the average down, ten sessions, three scored, printed "avg interview score 0.1".
     scored = [i["score"] for i in interviews if i.get("score") is not None]
     score = round(sum(scored) / len(scored), 2) if scored else None
     readiness_value = readiness(rows)
@@ -105,8 +105,7 @@ def build_dashboard(
         # screen, and the sparkline would look better for it.
         "readiness_history": [{"date": day, "readiness": readiness_value}] if rows else [],
         "history_basis": (
-            "one measurement per day, recorded when skills change — "
-            "history accumulates as you work, it is not backfilled"
+            "one measurement per day, recorded when skills change. " "History accumulates as you work, it is not backfilled"
         ),
         "stats": {
             "verified_skills": sum(1 for row in rows if row.status == "verified"),

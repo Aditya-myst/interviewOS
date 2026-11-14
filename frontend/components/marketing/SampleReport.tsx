@@ -72,7 +72,7 @@ export default function SampleReport() {
             <br className="hidden sm:block" /> reason attached.
           </>
         }
-        lead="Every row is generated from three inputs — your resume, the job description, and what the assessment actually proved. Nothing is guessed, and nothing is unordered."
+        lead="Every row is generated from three inputs: your resume, the job description, and what the assessment actually proved. Nothing is guessed, and nothing is unordered."
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-6 lg:gap-8 items-stretch">

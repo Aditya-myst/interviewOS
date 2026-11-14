@@ -1,7 +1,7 @@
 """Semantic grading: an LLM can tell that "it runs out of room" means "limits".
 
 The rubric matcher is literal. An answer that explains token budgets and context windows
-perfectly, without saying the word "limits", loses a rubric point — honest, reproducible, and
+perfectly, without saying the word "limits", loses a rubric point, honest, reproducible, and
 blunt. This module is the other half: when a provider is configured *and* the caller asks for
 it (`LLM_SCORING=true`), a model reads the answer against the same rubric terms and returns a
 verdict.
@@ -11,7 +11,7 @@ Three rules keep that from becoming a slot machine:
 1. **Evidence beats eloquence.** A verdict must quote the answer verbatim; the quote is
    checked against the text, so a paraphrase is discarded. Where the matcher already found a
    quotable point, the model may only move the score within `MAX_DISAGREEMENT` of it.
-2. **The deterministic hard floors stay.** No quote, too short, no specifics — those caps are
+2. **The deterministic hard floors stay.** No quote, too short, no specifics, those caps are
    applied by `questions.score_answer` to whatever this returns. A language model cannot buy
    credit for an answer with nothing to point at.
 3. **Failure is silent and safe.** No key, an outage, a timeout, invalid JSON: return None and
@@ -47,7 +47,7 @@ MIN_QUOTE_CHARS = 25
 
 # How far the model may move a score the matcher already understood. When the literal matcher
 # found a quotable rubric point it has real evidence, so the model only gets a narrow band to
-# argue with it. When the matcher found *nothing* — the vocabulary gap this module exists for —
+# argue with it. When the matcher found *nothing*, the vocabulary gap this module exists for,
 # there is no evidence to defend, and the model's verified quote is the only evidence in the
 # room; the caller allows it through and relies on the vocabulary-independent floors (length,
 # specifics, no-quote) to keep a silver-tongued non-answer down.
@@ -65,7 +65,7 @@ How to score:
 - An answer that is fluent but says nothing concrete scores below 40.
 - An answer with a real example, a number or an explicit trade-off scores higher.
 - Never reward confidence, length or politeness.
-- "quote" must be copied character for character from the answer — the single sentence that
+- "quote" must be copied character for character from the answer, the single sentence that
   earned the most credit. Paraphrasing it, or combining two sentences, invalidates your score:
   the quote is checked against the answer text and a mismatch throws the whole verdict away.
 
@@ -146,7 +146,7 @@ def _parse(raw: str, rubric_keys: list[str]) -> dict[str, Any] | None:
 def grade(
     *, question: str, skill: str, rubric: dict[str, str], answer: str
 ) -> Verdict | None:
-    """A model's verdict, or None — never an exception, never a guess."""
+    """A model's verdict, or None, never an exception, never a guess."""
     if not enabled():
         return None
     text = (answer or "").strip()
@@ -162,9 +162,9 @@ def grade(
             validator=lambda raw: _parse(raw, keys),
         )
         parsed = _parse(result.text, keys)
-    except Exception as exc:  # noqa: BLE001 — grading must never fail a request
+    except Exception as exc:  # noqa: BLE001, grading must never fail a request
         # includes LLMUnavailable, provider timeouts and a validator that raises
-        log.warning("llm grading unavailable (%s) — the rubric stands", type(exc).__name__)
+        log.warning("llm grading unavailable (%s), the rubric stands", type(exc).__name__)
         return None
 
     if parsed is None:
@@ -173,7 +173,7 @@ def grade(
     # The quote is the one part of a verdict that can be checked mechanically: it either
     # appears in the answer or it does not. A paraphrase is a hallucination with good manners.
     if parsed["quote"] not in " ".join((answer or "").split()):
-        log.info("llm quote was not verbatim — verdict discarded")
+        log.info("llm quote was not verbatim, verdict discarded")
         return None
 
     return Verdict(

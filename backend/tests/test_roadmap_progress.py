@@ -6,7 +6,7 @@ start writing it, and both are tested here:
 
 1. **A re-plan must not reset progress.** Running the JD analysis again rewrites the plan.
    If that sync touched `status`, a candidate who finished two topics would find them
-   unfinished — a worse bug than the frozen counter it replaces.
+   unfinished, a worse bug than the frozen counter it replaces.
 2. **A re-order must not collide.** `learning_topics` is unique on (path_id, order_index),
    so swapping two topics in place hits the constraint mid-update. The first version of this
    code parked rows with a modulo, landed an in-plan row exactly on an archived one, raised
@@ -156,7 +156,7 @@ def test_progress_survives_a_replan(db):
     progress.sync_plan(db, user_id=USER, plan=_plan(a, b))
     progress.set_status(db, user_id=USER, topic_id=a["id"], status="done")
 
-    # a different plan entirely — the embedding topic is gone
+    # a different plan entirely, the embedding topic is gone
     progress.sync_plan(db, user_id=USER, plan=_plan(_topic(0, "docker", "Images")))
     # and back again
     progress.sync_plan(db, user_id=USER, plan=_plan(a, b))
@@ -230,7 +230,7 @@ def test_set_status_derives_progress_and_rejects_unknown_topics(db):
 
 
 def test_another_candidates_topic_is_not_writable(db):
-    """A topic id is a uuid5 of the curriculum, so it is guessable — ownership is checked."""
+    """A topic id is a uuid5 of the curriculum, so it is guessable, ownership is checked."""
     a = _topic(0, "llm-rag", "Tokens")
     progress.sync_plan(db, user_id=USER, plan=_plan(a))
     other = "33333333-3333-4333-8333-333333333333"

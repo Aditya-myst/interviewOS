@@ -14,7 +14,7 @@ const FAQS = [
   },
   {
     q: "Do you store my resume?",
-    a: "Yes — privately, inside your own account and protected by row-level security, so your evidence survives between sessions. You can delete your documents at any time.",
+    a: "Yes, privately, inside your own account and protected by row-level security, so your evidence survives between sessions. You can delete your documents at any time.",
   },
   {
     q: "What models power the analysis?",
@@ -22,7 +22,7 @@ const FAQS = [
   },
   {
     q: "Does it do voice interviews?",
-    a: "Yes, push-to-talk with free speech-to-text. Voice is a beta mode, and the report is always generated from the transcript — we never claim to score delivery.",
+    a: "Yes, push-to-talk with free speech-to-text. Voice is a beta mode, and the report is always generated from the transcript. We never claim to score delivery.",
   },
   {
     q: "How accurate is the assessment?",
@@ -44,7 +44,7 @@ export default function FAQ() {
             lead="Short answers, and the honest limits behind them."
             className="mb-8"
           />
-          {/* This used to be a button with no handler — it looked clickable and
+          {/* This used to be a button with no handler, it looked clickable and
               did nothing. It points at the page that answers the next question. */}
           <IosButton href="/privacy" variant="secondary" size="md" arrow>
             How we handle your data

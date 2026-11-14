@@ -8,7 +8,7 @@ import IosButton from "@/components/primitives/IosButton";
 import SkillPill, { type SkillStatus } from "@/components/primitives/SkillPill";
 import { loadInterviewReport } from "@/lib/api";
 
-export const metadata = { title: "Interview report — InterviewOS" };
+export const metadata = { title: "Interview report · InterviewOS" };
 
 /**
  * The API's reason strings are written for the per-skill row, where there is room to
@@ -35,7 +35,7 @@ function compactReason(text: string): string {
  *
  * Two ways in, and it never pretends otherwise:
  *
- *   ?session=<id>  a session that just ended — live, scored from that transcript
+ *   ?session=<id>  a session that just ended, live, scored from that transcript
  *   no session     the recorded fixture, so the screen is reviewable before anyone
  *                  has taken an interview
  *
@@ -53,9 +53,9 @@ const SCORE_TONE: Record<string, string> = {
 
 /** What "scored by" means, in the candidate's words rather than a flag name. */
 const SCORED_BY_HINT: Record<string, string> = {
-  rubric: "deterministic rubric — same answer, same score",
+  rubric: "deterministic rubric: same answer, same score",
   llm: "a model read each answer; its quote was checked against your text",
-  "rubric+llm": "some answers by the rubric, some by a model — each says which",
+  "rubric+llm": "some answers by the rubric, some by a model, and each says which",
 };
 
 export default async function ReportPage({
@@ -93,7 +93,7 @@ async function ReportBody({
         description={
           live
             ? "Built from the transcript you just produced. Every score below has a quote behind it."
-            : "No session in hand, so this is a recorded run kept as a fixture — useful to see the shape of the output, not a claim about you."
+            : "No session in hand, so this is a recorded run kept as a fixture: useful for seeing the shape of the output, not a claim about you."
         }
         actions={
           <IosButton href="/interview" variant="secondary" arrow>
@@ -140,13 +140,13 @@ async function ReportBody({
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <Stat
                 label="Role core"
-                value={core == null ? "—" : `${Math.round(core * 100)}`}
+                value={core == null ? "n/a" : `${Math.round(core * 100)}`}
                 hint="your three most-required skills"
               />
               <Stat
                 label="Communication"
-                value={comms == null ? "—" : `${Math.round(comms * 100)}`}
-                hint="from the transcript only — no accent, pace or confidence"
+                value={comms == null ? "n/a" : `${Math.round(comms * 100)}`}
+                hint="from the transcript only: no accent, pace or confidence"
               />
               <Stat
                 label="Scored by"
@@ -253,7 +253,7 @@ async function ReportBody({
                       {item.better_answer_outline.map((step) => (
                         <li key={step} className="type-small text-[var(--text-dim)] flex gap-2">
                           <span aria-hidden className="text-[var(--brand-strong)]">
-                            —
+                            ·
                           </span>
                           {step}
                         </li>

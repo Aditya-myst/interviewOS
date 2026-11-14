@@ -1,8 +1,8 @@
 -- ═══════════════════════════════════════════════════════════════════════════
--- InterviewOS — 002_seed.sql
+-- InterviewOS · 002_seed.sql
 -- Seeds the global vocabulary and the tier-0 resource catalogue.
 --
--- GENERATED FILE — do not edit by hand.
+-- GENERATED FILE: do not edit by hand.
 --   source: data/taxonomy.yaml (41 skills / 137 subtopics)
 --           data/curated.yaml  (75 hand-curated resources)
 --   regenerate: python scripts/gen_seed.py
@@ -214,85 +214,85 @@ on conflict (skill_id, subtopic_id) do update set
 -- curated_skill_id / curated_subtopic_id record which subtopic each row is the
 -- canonical answer for. verified_at uses the catalogue's own assembly date
 -- (taxonomy.yaml `updated: {stamp}`) for links marked `verified: true` in
--- curated.yaml — it is the date the link was hand-checked, not the date this
+-- curated.yaml: it is the date the link was hand-checked, not the date this
 -- file ran. Everything else is stamped by the link-check job.
 insert into public.resources
   (url, title, provider, kind, is_paid, license, tier,
    curated_skill_id, curated_subtopic_id, verified_at)
 values
-  ('https://docs.python.org/3/tutorial/introduction.html', 'The Python Tutorial — An Informal Introduction', 'Python Docs', 'docs'::public.resource_kind, false, 'PSF', 0, 'python', 'syntax-types', timestamptz '2026-11-01 00:00:00+00'),
-  ('https://exercism.org/tracks/python', 'Python track — hands-on exercises', 'Exercism', 'exercise'::public.resource_kind, false, 'MIT', 0, 'python', 'syntax-types', timestamptz '2026-11-01 00:00:00+00'),
-  ('https://docs.python.org/3/library/asyncio-task.html', 'asyncio — Coroutines and Tasks', 'Python Docs', 'docs'::public.resource_kind, false, 'PSF', 0, 'python', 'async-io', timestamptz '2026-11-01 00:00:00+00'),
+  ('https://docs.python.org/3/tutorial/introduction.html', 'The Python Tutorial: An Informal Introduction', 'Python Docs', 'docs'::public.resource_kind, false, 'PSF', 0, 'python', 'syntax-types', timestamptz '2026-11-01 00:00:00+00'),
+  ('https://exercism.org/tracks/python', 'Python track: hands-on exercises', 'Exercism', 'exercise'::public.resource_kind, false, 'MIT', 0, 'python', 'syntax-types', timestamptz '2026-11-01 00:00:00+00'),
+  ('https://docs.python.org/3/library/asyncio-task.html', 'asyncio: Coroutines and Tasks', 'Python Docs', 'docs'::public.resource_kind, false, 'PSF', 0, 'python', 'async-io', timestamptz '2026-11-01 00:00:00+00'),
   ('https://realpython.com/async-io-python/', 'Async IO in Python: A Complete Walkthrough', 'Real Python', 'article'::public.resource_kind, false, null, 0, 'python', 'async-io', timestamptz '2026-11-01 00:00:00+00'),
-  ('https://docs.pytest.org/en/stable/getting-started.html', 'pytest — Get Started', 'pytest Docs', 'docs'::public.resource_kind, false, 'MIT', 0, 'python', 'typing-testing', timestamptz '2026-11-01 00:00:00+00'),
-  ('https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Methods', 'MDN — HTTP request methods', 'MDN', 'docs'::public.resource_kind, false, 'CC-BY-SA', 0, 'fastapi', 'http-fundamentals', timestamptz '2026-11-01 00:00:00+00'),
-  ('https://fastapi.tiangolo.com/tutorial/path-params/', 'FastAPI — Path Parameters', 'FastAPI Docs', 'docs'::public.resource_kind, false, 'MIT', 0, 'fastapi', 'routing', timestamptz '2026-11-01 00:00:00+00'),
-  ('https://fastapi.tiangolo.com/tutorial/query-params/', 'FastAPI — Query Parameters', 'FastAPI Docs', 'docs'::public.resource_kind, false, 'MIT', 0, 'fastapi', 'routing', timestamptz '2026-11-01 00:00:00+00'),
-  ('https://fastapi.tiangolo.com/tutorial/body/', 'FastAPI — Request Body and Pydantic models', 'FastAPI Docs', 'docs'::public.resource_kind, false, 'MIT', 0, 'fastapi', 'models-validation', timestamptz '2026-11-01 00:00:00+00'),
-  ('https://fastapi.tiangolo.com/tutorial/dependencies/', 'FastAPI — Dependencies', 'FastAPI Docs', 'docs'::public.resource_kind, false, 'MIT', 0, 'fastapi', 'dependency-injection', timestamptz '2026-11-01 00:00:00+00'),
-  ('https://fastapi.tiangolo.com/advanced/testing-dependencies/', 'FastAPI — Testing dependencies with overrides', 'FastAPI Docs', 'exercise'::public.resource_kind, false, 'MIT', 0, 'fastapi', 'dependency-injection', timestamptz '2026-11-01 00:00:00+00'),
-  ('https://github.com/fastapi/full-stack-fastapi-template', 'Full Stack FastAPI Template — test suite', 'GitHub', 'repo'::public.resource_kind, false, 'MIT', 0, 'fastapi', 'dependency-injection', timestamptz '2026-11-01 00:00:00+00'),
-  ('https://fastapi.tiangolo.com/tutorial/security/', 'FastAPI — Security (OAuth2 and JWT)', 'FastAPI Docs', 'docs'::public.resource_kind, false, 'MIT', 0, 'fastapi', 'auth', timestamptz '2026-11-01 00:00:00+00'),
-  ('https://fastapi.tiangolo.com/async/', 'FastAPI — Concurrency and async / await', 'FastAPI Docs', 'docs'::public.resource_kind, false, 'MIT', 0, 'fastapi', 'async-endpoints', timestamptz '2026-11-01 00:00:00+00'),
-  ('https://fastapi.tiangolo.com/tutorial/sql-databases/', 'FastAPI — SQL (Relational) Databases', 'FastAPI Docs', 'docs'::public.resource_kind, false, 'MIT', 0, 'fastapi', 'db-integration', timestamptz '2026-11-01 00:00:00+00'),
-  ('https://fastapi.tiangolo.com/tutorial/testing/', 'FastAPI — Testing', 'FastAPI Docs', 'docs'::public.resource_kind, false, 'MIT', 0, 'fastapi', 'fastapi-testing', timestamptz '2026-11-01 00:00:00+00'),
-  ('https://fastapi.tiangolo.com/deployment/concepts/', 'FastAPI — Deployment concepts', 'FastAPI Docs', 'docs'::public.resource_kind, false, 'MIT', 0, 'fastapi', 'fastapi-deploy', timestamptz '2026-11-01 00:00:00+00'),
-  ('https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-an-image/', 'Docker — What is an image?', 'Docker Docs', 'docs'::public.resource_kind, false, null, 0, 'docker', 'images-containers', timestamptz '2026-11-01 00:00:00+00'),
-  ('https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-a-container/', 'Docker — What is a container?', 'Docker Docs', 'docs'::public.resource_kind, false, null, 0, 'docker', 'images-containers', timestamptz '2026-11-01 00:00:00+00'),
-  ('https://docs.docker.com/get-started/docker-concepts/building-images/', 'Docker — Building images', 'Docker Docs', 'docs'::public.resource_kind, false, null, 0, 'docker', 'dockerfile', timestamptz '2026-11-01 00:00:00+00'),
-  ('https://github.com/docker/awesome-compose', 'Awesome Compose — reference stacks', 'GitHub', 'repo'::public.resource_kind, false, 'Apache-2.0', 0, 'docker', 'compose', timestamptz '2026-11-01 00:00:00+00'),
-  ('https://docs.docker.com/reference/cli/docker/container/logs/', 'Docker — Debugging containers', 'Docker Docs', 'docs'::public.resource_kind, false, null, 0, 'docker', 'debugging', null),
-  ('https://sqlbolt.com/', 'SQLBolt — Interactive SQL lessons', 'SQLBolt', 'exercise'::public.resource_kind, false, null, 0, 'sql', 'joins', timestamptz '2026-11-01 00:00:00+00'),
-  ('https://pgexercises.com/', 'PG Exercises — Indexes and performance', 'PG Exercises', 'exercise'::public.resource_kind, false, null, 0, 'sql', 'indexing', timestamptz '2026-11-01 00:00:00+00'),
-  ('https://www.postgresqltutorial.com/postgresql-window-function/', 'PostgreSQL Tutorial — Window functions', 'PostgreSQL Tutorial', 'article'::public.resource_kind, false, null, 0, 'sql', 'aggregation', null),
-  ('https://www.postgresql.org/docs/current/using-explain.html', 'PostgreSQL Docs — Using EXPLAIN', 'PostgreSQL Docs', 'docs'::public.resource_kind, false, 'PostgreSQL', 0, 'postgresql', 'pg-index', timestamptz '2026-11-01 00:00:00+00'),
-  ('https://www.postgresql.org/docs/current/ddl.html', 'PostgreSQL Docs — Data definition', 'PostgreSQL Docs', 'docs'::public.resource_kind, false, 'PostgreSQL', 0, 'postgresql', 'pg-schema', timestamptz '2026-11-01 00:00:00+00'),
-  ('https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview', 'Anthropic — Introduction to prompt design', 'Anthropic Docs', 'docs'::public.resource_kind, false, null, 0, 'llm-rag', 'llm-basics', null),
+  ('https://docs.pytest.org/en/stable/getting-started.html', 'pytest: Get Started', 'pytest Docs', 'docs'::public.resource_kind, false, 'MIT', 0, 'python', 'typing-testing', timestamptz '2026-11-01 00:00:00+00'),
+  ('https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Methods', 'MDN: HTTP request methods', 'MDN', 'docs'::public.resource_kind, false, 'CC-BY-SA', 0, 'fastapi', 'http-fundamentals', timestamptz '2026-11-01 00:00:00+00'),
+  ('https://fastapi.tiangolo.com/tutorial/path-params/', 'FastAPI: Path Parameters', 'FastAPI Docs', 'docs'::public.resource_kind, false, 'MIT', 0, 'fastapi', 'routing', timestamptz '2026-11-01 00:00:00+00'),
+  ('https://fastapi.tiangolo.com/tutorial/query-params/', 'FastAPI: Query Parameters', 'FastAPI Docs', 'docs'::public.resource_kind, false, 'MIT', 0, 'fastapi', 'routing', timestamptz '2026-11-01 00:00:00+00'),
+  ('https://fastapi.tiangolo.com/tutorial/body/', 'FastAPI: Request Body and Pydantic models', 'FastAPI Docs', 'docs'::public.resource_kind, false, 'MIT', 0, 'fastapi', 'models-validation', timestamptz '2026-11-01 00:00:00+00'),
+  ('https://fastapi.tiangolo.com/tutorial/dependencies/', 'FastAPI: Dependencies', 'FastAPI Docs', 'docs'::public.resource_kind, false, 'MIT', 0, 'fastapi', 'dependency-injection', timestamptz '2026-11-01 00:00:00+00'),
+  ('https://fastapi.tiangolo.com/advanced/testing-dependencies/', 'FastAPI: Testing dependencies with overrides', 'FastAPI Docs', 'exercise'::public.resource_kind, false, 'MIT', 0, 'fastapi', 'dependency-injection', timestamptz '2026-11-01 00:00:00+00'),
+  ('https://github.com/fastapi/full-stack-fastapi-template', 'Full Stack FastAPI Template: test suite', 'GitHub', 'repo'::public.resource_kind, false, 'MIT', 0, 'fastapi', 'dependency-injection', timestamptz '2026-11-01 00:00:00+00'),
+  ('https://fastapi.tiangolo.com/tutorial/security/', 'FastAPI: Security (OAuth2 and JWT)', 'FastAPI Docs', 'docs'::public.resource_kind, false, 'MIT', 0, 'fastapi', 'auth', timestamptz '2026-11-01 00:00:00+00'),
+  ('https://fastapi.tiangolo.com/async/', 'FastAPI: Concurrency and async / await', 'FastAPI Docs', 'docs'::public.resource_kind, false, 'MIT', 0, 'fastapi', 'async-endpoints', timestamptz '2026-11-01 00:00:00+00'),
+  ('https://fastapi.tiangolo.com/tutorial/sql-databases/', 'FastAPI: SQL (Relational) Databases', 'FastAPI Docs', 'docs'::public.resource_kind, false, 'MIT', 0, 'fastapi', 'db-integration', timestamptz '2026-11-01 00:00:00+00'),
+  ('https://fastapi.tiangolo.com/tutorial/testing/', 'FastAPI: Testing', 'FastAPI Docs', 'docs'::public.resource_kind, false, 'MIT', 0, 'fastapi', 'fastapi-testing', timestamptz '2026-11-01 00:00:00+00'),
+  ('https://fastapi.tiangolo.com/deployment/concepts/', 'FastAPI: Deployment concepts', 'FastAPI Docs', 'docs'::public.resource_kind, false, 'MIT', 0, 'fastapi', 'fastapi-deploy', timestamptz '2026-11-01 00:00:00+00'),
+  ('https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-an-image/', 'Docker: What is an image?', 'Docker Docs', 'docs'::public.resource_kind, false, null, 0, 'docker', 'images-containers', timestamptz '2026-11-01 00:00:00+00'),
+  ('https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-a-container/', 'Docker: What is a container?', 'Docker Docs', 'docs'::public.resource_kind, false, null, 0, 'docker', 'images-containers', timestamptz '2026-11-01 00:00:00+00'),
+  ('https://docs.docker.com/get-started/docker-concepts/building-images/', 'Docker: Building images', 'Docker Docs', 'docs'::public.resource_kind, false, null, 0, 'docker', 'dockerfile', timestamptz '2026-11-01 00:00:00+00'),
+  ('https://github.com/docker/awesome-compose', 'Awesome Compose: reference stacks', 'GitHub', 'repo'::public.resource_kind, false, 'Apache-2.0', 0, 'docker', 'compose', timestamptz '2026-11-01 00:00:00+00'),
+  ('https://docs.docker.com/reference/cli/docker/container/logs/', 'Docker: Debugging containers', 'Docker Docs', 'docs'::public.resource_kind, false, null, 0, 'docker', 'debugging', null),
+  ('https://sqlbolt.com/', 'SQLBolt: Interactive SQL lessons', 'SQLBolt', 'exercise'::public.resource_kind, false, null, 0, 'sql', 'joins', timestamptz '2026-11-01 00:00:00+00'),
+  ('https://pgexercises.com/', 'PG Exercises: Indexes and performance', 'PG Exercises', 'exercise'::public.resource_kind, false, null, 0, 'sql', 'indexing', timestamptz '2026-11-01 00:00:00+00'),
+  ('https://www.postgresqltutorial.com/postgresql-window-function/', 'PostgreSQL Tutorial: Window functions', 'PostgreSQL Tutorial', 'article'::public.resource_kind, false, null, 0, 'sql', 'aggregation', null),
+  ('https://www.postgresql.org/docs/current/using-explain.html', 'PostgreSQL Docs: Using EXPLAIN', 'PostgreSQL Docs', 'docs'::public.resource_kind, false, 'PostgreSQL', 0, 'postgresql', 'pg-index', timestamptz '2026-11-01 00:00:00+00'),
+  ('https://www.postgresql.org/docs/current/ddl.html', 'PostgreSQL Docs: Data definition', 'PostgreSQL Docs', 'docs'::public.resource_kind, false, 'PostgreSQL', 0, 'postgresql', 'pg-schema', timestamptz '2026-11-01 00:00:00+00'),
+  ('https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview', 'Anthropic: Introduction to prompt design', 'Anthropic Docs', 'docs'::public.resource_kind, false, null, 0, 'llm-rag', 'llm-basics', null),
   ('https://arxiv.org/abs/2005.11401', 'RAG for Knowledge-Intensive NLP Tasks (paper)', 'arXiv', 'paper'::public.resource_kind, false, null, 0, 'llm-rag', 'rag-architecture', timestamptz '2026-11-01 00:00:00+00'),
-  ('https://docs.ragas.io/', 'Ragas — evaluation documentation', 'Ragas', 'docs'::public.resource_kind, false, 'Apache-2.0', 0, 'llm-rag', 'rag-evaluation', null),
-  ('https://docs.ragas.io/en/stable/getstarted/', 'Ragas — get started', 'Ragas', 'exercise'::public.resource_kind, false, 'Apache-2.0', 0, 'llm-rag', 'rag-evaluation', null),
-  ('https://github.com/pgvector/pgvector', 'pgvector — README and index types', 'GitHub', 'repo'::public.resource_kind, false, 'PostgreSQL', 0, 'llm-rag', 'retrieval-quality', timestamptz '2026-11-01 00:00:00+00'),
-  ('https://docs.langchain.com/oss/python/deepagents/rag', 'LangChain — Build a RAG app (grounding patterns)', 'LangChain Docs', 'docs'::public.resource_kind, false, 'MIT', 0, 'llm-rag', 'hallucination', null),
+  ('https://docs.ragas.io/', 'Ragas: evaluation documentation', 'Ragas', 'docs'::public.resource_kind, false, 'Apache-2.0', 0, 'llm-rag', 'rag-evaluation', null),
+  ('https://docs.ragas.io/en/stable/getstarted/', 'Ragas: get started', 'Ragas', 'exercise'::public.resource_kind, false, 'Apache-2.0', 0, 'llm-rag', 'rag-evaluation', null),
+  ('https://github.com/pgvector/pgvector', 'pgvector: README and index types', 'GitHub', 'repo'::public.resource_kind, false, 'PostgreSQL', 0, 'llm-rag', 'retrieval-quality', timestamptz '2026-11-01 00:00:00+00'),
+  ('https://docs.langchain.com/oss/python/deepagents/rag', 'LangChain: Build a RAG app (grounding patterns)', 'LangChain Docs', 'docs'::public.resource_kind, false, 'MIT', 0, 'llm-rag', 'hallucination', null),
   ('https://github.com/donnemartin/system-design-primer', 'The System Design Primer', 'GitHub', 'repo'::public.resource_kind, false, 'CC-BY-4.0', 0, 'system-design', 'requirements', timestamptz '2026-11-01 00:00:00+00'),
-  ('https://github.com/ByteByteGoHq/system-design-101', 'System Design 101 — visual walkthroughs', 'GitHub', 'repo'::public.resource_kind, false, 'CC-BY-4.0', 0, 'system-design', 'scaling', timestamptz '2026-11-01 00:00:00+00'),
+  ('https://github.com/ByteByteGoHq/system-design-101', 'System Design 101: visual walkthroughs', 'GitHub', 'repo'::public.resource_kind, false, 'CC-BY-4.0', 0, 'system-design', 'scaling', timestamptz '2026-11-01 00:00:00+00'),
   ('https://dataintensive.net/', 'Designing Data-Intensive Applications (book)', 'dataintensive.net', 'book'::public.resource_kind, true, null, 0, 'system-design', 'data-consistency', timestamptz '2026-11-01 00:00:00+00'),
-  ('https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell', 'Pro Git — Branching', 'Git SCM', 'docs'::public.resource_kind, false, 'GPL-4.0-docs', 0, 'git', 'branching', timestamptz '2026-11-01 00:00:00+00'),
-  ('https://learngitbranching.js.org/', 'Learn Git Branching — interactive', 'learngitbranching.js.org', 'exercise'::public.resource_kind, false, null, 0, 'git', 'branching', timestamptz '2026-11-01 00:00:00+00'),
-  ('https://github.com/promptfoo/promptfoo', 'promptfoo — testing and evals for LLM apps', 'GitHub', 'repo'::public.resource_kind, false, 'MIT', 0, 'testing', 'llm-testing', timestamptz '2026-11-01 00:00:00+00'),
+  ('https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell', 'Pro Git: Branching', 'Git SCM', 'docs'::public.resource_kind, false, 'GPL-4.0-docs', 0, 'git', 'branching', timestamptz '2026-11-01 00:00:00+00'),
+  ('https://learngitbranching.js.org/', 'Learn Git Branching: interactive', 'learngitbranching.js.org', 'exercise'::public.resource_kind, false, null, 0, 'git', 'branching', timestamptz '2026-11-01 00:00:00+00'),
+  ('https://github.com/promptfoo/promptfoo', 'promptfoo: testing and evals for LLM apps', 'GitHub', 'repo'::public.resource_kind, false, 'MIT', 0, 'testing', 'llm-testing', timestamptz '2026-11-01 00:00:00+00'),
   ('https://blog.hubspot.com/marketing/content-marketing', 'Content marketing: the complete guide', 'HubSpot', 'article'::public.resource_kind, false, 'All rights reserved', 0, 'content-strategy', 'audience-research', timestamptz '2026-11-02 00:00:00+00'),
-  ('https://copyhackers.com/', 'Copyhackers — conversion copywriting guides', 'Copyhackers', 'article'::public.resource_kind, false, 'All rights reserved', 0, 'content-strategy', 'hook-craft', timestamptz '2026-11-02 00:00:00+00'),
+  ('https://copyhackers.com/', 'Copyhackers: conversion copywriting guides', 'Copyhackers', 'article'::public.resource_kind, false, 'All rights reserved', 0, 'content-strategy', 'hook-craft', timestamptz '2026-11-02 00:00:00+00'),
   ('https://blog.hubspot.com/marketing/storytelling', 'Storytelling in marketing', 'HubSpot', 'article'::public.resource_kind, false, 'All rights reserved', 0, 'content-strategy', 'storytelling-arcs', timestamptz '2026-11-02 00:00:00+00'),
   ('https://www.shopify.com/blog/content-calendar', 'How to create a content calendar', 'Shopify', 'article'::public.resource_kind, false, 'All rights reserved', 0, 'content-strategy', 'content-systems', timestamptz '2026-11-02 00:00:00+00'),
-  ('https://academy.hubspot.com/courses/content-marketing', 'HubSpot Academy — Content Marketing certification', 'HubSpot Academy', 'course'::public.resource_kind, false, 'All rights reserved', 0, 'content-strategy', 'content-systems', timestamptz '2026-11-02 00:00:00+00'),
+  ('https://academy.hubspot.com/courses/content-marketing', 'HubSpot Academy: Content Marketing certification', 'HubSpot Academy', 'course'::public.resource_kind, false, 'All rights reserved', 0, 'content-strategy', 'content-systems', timestamptz '2026-11-02 00:00:00+00'),
   ('https://www.semrush.com/blog/content-marketing-strategy-guide/', 'Building a content marketing strategy', 'Semrush', 'article'::public.resource_kind, false, 'All rights reserved', 0, 'content-strategy', 'content-systems', timestamptz '2026-11-02 00:00:00+00'),
-  ('https://buffer.com/resources/', 'Buffer Resources — social marketing library', 'Buffer', 'article'::public.resource_kind, false, 'All rights reserved', 0, 'social-growth', 'profile-funnel', timestamptz '2026-11-02 00:00:00+00'),
-  ('https://academy.hubspot.com/courses/social-media-marketing', 'HubSpot Academy — Social Media Marketing certification', 'HubSpot Academy', 'course'::public.resource_kind, false, 'All rights reserved', 0, 'social-growth', 'posting-cadence', timestamptz '2026-11-02 00:00:00+00'),
+  ('https://buffer.com/resources/', 'Buffer Resources: social marketing library', 'Buffer', 'article'::public.resource_kind, false, 'All rights reserved', 0, 'social-growth', 'profile-funnel', timestamptz '2026-11-02 00:00:00+00'),
+  ('https://academy.hubspot.com/courses/social-media-marketing', 'HubSpot Academy: Social Media Marketing certification', 'HubSpot Academy', 'course'::public.resource_kind, false, 'All rights reserved', 0, 'social-growth', 'posting-cadence', timestamptz '2026-11-02 00:00:00+00'),
   ('https://buffer.com/resources/social-media-marketing-strategy/', 'How to build a social media strategy', 'Buffer', 'article'::public.resource_kind, false, 'All rights reserved', 0, 'social-growth', 'distribution-loops', timestamptz '2026-11-02 00:00:00+00'),
   ('https://buffer.com/resources/social-media-metrics/', 'Social media metrics that matter', 'Buffer', 'article'::public.resource_kind, false, 'All rights reserved', 0, 'social-growth', 'audience-metrics', timestamptz '2026-11-02 00:00:00+00'),
   ('https://later.com/blog/social-media-analytics/', 'Social media analytics: what to track', 'Later', 'article'::public.resource_kind, false, 'All rights reserved', 0, 'social-growth', 'audience-metrics', timestamptz '2026-11-02 00:00:00+00'),
-  ('https://academy.hubspot.com/courses/email-marketing-certification-en', 'HubSpot Academy — Email Marketing certification', 'HubSpot Academy', 'course'::public.resource_kind, false, 'All rights reserved', 0, 'newsletter', 'issue-structure', timestamptz '2026-11-02 00:00:00+00'),
+  ('https://academy.hubspot.com/courses/email-marketing-certification-en', 'HubSpot Academy: Email Marketing certification', 'HubSpot Academy', 'course'::public.resource_kind, false, 'All rights reserved', 0, 'newsletter', 'issue-structure', timestamptz '2026-11-02 00:00:00+00'),
   ('https://mailchimp.com/resources/email-marketing-benchmarks/', 'Email marketing benchmarks by industry', 'Mailchimp', 'docs'::public.resource_kind, false, 'All rights reserved', 0, 'newsletter', 'list-growth', timestamptz '2026-11-02 00:00:00+00'),
   ('https://www.campaignmonitor.com/resources/guides/email-marketing-benchmarks/', 'Email marketing metrics and benchmarks', 'Campaign Monitor', 'docs'::public.resource_kind, false, 'All rights reserved', 0, 'newsletter', 'open-click', timestamptz '2026-11-02 00:00:00+00'),
   ('https://www.semrush.com/blog/keyword-research/', 'Keyword research: the beginner''s guide', 'Semrush', 'article'::public.resource_kind, false, 'All rights reserved', 0, 'seo', 'keyword-intent', timestamptz '2026-11-02 00:00:00+00'),
-  ('https://developers.google.com/search/docs/fundamentals/seo-starter-guide', 'Google Search Central — SEO starter guide', 'Google', 'docs'::public.resource_kind, false, 'CC BY 4.0', 0, 'seo', 'on-page', timestamptz '2026-11-02 00:00:00+00'),
+  ('https://developers.google.com/search/docs/fundamentals/seo-starter-guide', 'Google Search Central: SEO starter guide', 'Google', 'docs'::public.resource_kind, false, 'CC BY 4.0', 0, 'seo', 'on-page', timestamptz '2026-11-02 00:00:00+00'),
   ('https://developers.google.com/search/docs/appearance/title-link', 'Influencing title links in search results', 'Google', 'docs'::public.resource_kind, false, 'CC BY 4.0', 0, 'seo', 'on-page', timestamptz '2026-11-02 00:00:00+00'),
   ('https://moz.com/beginners-guide-to-seo', 'The Beginner''s Guide to SEO', 'Mozilla (Moz)', 'article'::public.resource_kind, false, 'All rights reserved', 0, 'seo', 'topical-authority', timestamptz '2026-11-02 00:00:00+00'),
   ('https://ahrefs.com/seo/seo-basics', 'SEO basics: a complete beginner''s guide', 'Ahrefs', 'article'::public.resource_kind, false, 'All rights reserved', 0, 'seo', 'seo-measurement', timestamptz '2026-11-02 00:00:00+00'),
   ('https://support.google.com/analytics/answer/9212670', 'GA4 metrics and dimensions reference', 'Google Analytics Help', 'docs'::public.resource_kind, false, 'All rights reserved', 0, 'marketing-analytics', 'metric-tree', timestamptz '2026-11-02 00:00:00+00'),
   ('https://support.google.com/analytics/answer/9304153', 'Find your reports in GA4', 'Google Analytics Help', 'docs'::public.resource_kind, false, 'All rights reserved', 0, 'marketing-analytics', 'reading-dashboards', timestamptz '2026-11-02 00:00:00+00'),
   ('https://www.semrush.com/blog/marketing-attribution/', 'Marketing attribution: how to model it', 'Semrush', 'article'::public.resource_kind, false, 'All rights reserved', 0, 'marketing-analytics', 'attribution-limits', timestamptz '2026-11-02 00:00:00+00'),
-  ('https://academy.hubspot.com/courses/analytics', 'HubSpot Academy — Marketing Analytics certification', 'HubSpot Academy', 'course'::public.resource_kind, false, 'All rights reserved', 0, 'marketing-analytics', 'reporting', timestamptz '2026-11-02 00:00:00+00'),
+  ('https://academy.hubspot.com/courses/analytics', 'HubSpot Academy: Marketing Analytics certification', 'HubSpot Academy', 'course'::public.resource_kind, false, 'All rights reserved', 0, 'marketing-analytics', 'reporting', timestamptz '2026-11-02 00:00:00+00'),
   ('https://www.optimizely.com/optimization-glossary/ab-testing', 'A/B testing glossary entry', 'Optimizely', 'article'::public.resource_kind, false, 'All rights reserved', 0, 'experimentation', 'hypothesis-design', timestamptz '2026-11-02 00:00:00+00'),
   ('https://blog.hubspot.com/marketing/growth-marketing', 'Growth marketing: what it is and how it works', 'HubSpot', 'article'::public.resource_kind, false, 'All rights reserved', 0, 'experimentation', 'test-design', timestamptz '2026-11-02 00:00:00+00'),
-  ('https://www.storytellingwithdata.com/blog', 'Storytelling with Data — blog', 'Storytelling with Data', 'article'::public.resource_kind, false, 'All rights reserved', 0, 'experimentation', 'reading-results', timestamptz '2026-11-02 00:00:00+00'),
+  ('https://www.storytellingwithdata.com/blog', 'Storytelling with Data: blog', 'Storytelling with Data', 'article'::public.resource_kind, false, 'All rights reserved', 0, 'experimentation', 'reading-results', timestamptz '2026-11-02 00:00:00+00'),
   ('https://buffer.com/resources/short-form-video/', 'Short-form video: what it is and how to use it', 'Buffer', 'article'::public.resource_kind, false, 'All rights reserved', 0, 'short-form-video', 'video-hooks', timestamptz '2026-11-02 00:00:00+00'),
   ('https://blog.hootsuite.com/short-form-video/', 'Short-form video strategy: the complete guide', 'Hootsuite', 'article'::public.resource_kind, false, 'All rights reserved', 0, 'short-form-video', 'retention-editing', timestamptz '2026-11-02 00:00:00+00'),
   ('https://blog.hootsuite.com/social-media-metrics/', 'Social media metrics you should track', 'Hootsuite', 'article'::public.resource_kind, false, 'All rights reserved', 0, 'short-form-video', 'video-metrics', timestamptz '2026-11-02 00:00:00+00'),
   ('https://www.nngroup.com/articles/f-shaped-pattern-reading-web-content/', 'F-shaped pattern for reading web content', 'Nielsen Norman Group', 'article'::public.resource_kind, false, 'All rights reserved', 0, 'copywriting', 'clarity-first', timestamptz '2026-11-02 00:00:00+00'),
-  ('https://academy.hubspot.com/courses/copywriting', 'HubSpot Academy — Copywriting certification', 'HubSpot Academy', 'course'::public.resource_kind, false, 'All rights reserved', 0, 'copywriting', 'voice-tone', timestamptz '2026-11-02 00:00:00+00'),
+  ('https://academy.hubspot.com/courses/copywriting', 'HubSpot Academy: Copywriting certification', 'HubSpot Academy', 'course'::public.resource_kind, false, 'All rights reserved', 0, 'copywriting', 'voice-tone', timestamptz '2026-11-02 00:00:00+00'),
   ('https://www.nngroup.com/articles/visual-hierarchy-ux-definition/', 'Visual hierarchy: definition and examples', 'Nielsen Norman Group', 'article'::public.resource_kind, false, 'All rights reserved', 0, 'visual-design', 'layout-basics', timestamptz '2026-11-02 00:00:00+00'),
   ('https://www.figma.com/best-practices/', 'Figma best practices for files and components', 'Figma', 'docs'::public.resource_kind, false, 'All rights reserved', 0, 'visual-design', 'asset-systems', timestamptz '2026-11-02 00:00:00+00'),
-  ('https://huggingface.co/learn/llm-course/chapter1/1', 'Hugging Face LLM course — chapter 1', 'Hugging Face', 'course'::public.resource_kind, false, 'Apache-2.0', 0, 'ai-workflows', 'tool-selection', timestamptz '2026-11-02 00:00:00+00'),
+  ('https://huggingface.co/learn/llm-course/chapter1/1', 'Hugging Face LLM course: chapter 1', 'Hugging Face', 'course'::public.resource_kind, false, 'Apache-2.0', 0, 'ai-workflows', 'tool-selection', timestamptz '2026-11-02 00:00:00+00'),
   ('https://www.anthropic.com/research/building-effective-agents', 'Building effective agents', 'Anthropic', 'article'::public.resource_kind, false, 'All rights reserved', 0, 'ai-workflows', 'workflow-automation', timestamptz '2026-11-02 00:00:00+00'),
   ('https://developers.openai.com/api/docs/guides/prompt-engineering', 'Prompt engineering guide', 'OpenAI', 'docs'::public.resource_kind, false, 'All rights reserved', 0, 'ai-workflows', 'quality-control', timestamptz '2026-11-02 00:00:00+00')
 on conflict (url) do update set
@@ -321,11 +321,11 @@ begin
   select count(*) into n_resources from public.resources;
   raise notice 'seeded: % skills, % subtopics, % resources', n_skills, n_subtopics, n_resources;
   if n_skills <> 41 then
-    raise warning 'expected 41 skills, found % — is the seed out of date? '
+    raise warning 'expected 41 skills, found %: is the seed out of date? '
       'Run: python scripts/gen_seed.py', n_skills;
   end if;
   if n_subtopics < 137 then
-    raise warning 'expected at least 137 subtopics, found % — is the seed out of date?',
+    raise warning 'expected at least 137 subtopics, found %: is the seed out of date?',
       n_subtopics;
   end if;
 end;

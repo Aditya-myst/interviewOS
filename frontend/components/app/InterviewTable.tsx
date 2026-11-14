@@ -61,11 +61,11 @@ export default function InterviewTable({
                         : "text-[var(--weak)]"
                   }`}
                 >
-                  {s.score ?? "—"}
+                  {s.score ?? "n/a"}
                 </span>
               </td>
               <td className="py-3 pr-4 type-small text-[var(--text-dim)] tabular-nums hidden sm:table-cell">
-                {s.duration_minutes ? `${s.duration_minutes} min` : "—"}
+                {s.duration_minutes ? `${s.duration_minutes} min` : "n/a"}
               </td>
               <td className="py-3 type-small text-[var(--text-dim)] tabular-nums">
                 {formatDate(s.created_at)}

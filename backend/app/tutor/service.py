@@ -1,4 +1,4 @@
-"""The tutor — retrieval over the candidate's own rows, then composition.
+"""The tutor, retrieval over the candidate's own rows, then composition.
 
 Four rules, all of them testable:
 
@@ -165,7 +165,7 @@ def _resolve_scope(
 
 def _vocabulary() -> set[str]:
     """Every word the curriculum can talk about. A question that touches none of it is
-    off-domain, and the honest reply is "not in my sources" — not the user's top gap."""
+    off-domain, and the honest reply is "not in my sources", not the user's top gap."""
     words: set[str] = set()
     for skill in taxonomy.load().values():
         for term in skill.terms:
@@ -252,7 +252,7 @@ def ask(
                 unknown={
                     "reason": (
                         "I could not tie that to a skill on your profile or a subtopic in the "
-                        f"curriculum — no row mentions {' or '.join(sorted(strays))}."
+                        f"curriculum: no row mentions {' or '.join(sorted(strays))}."
                     ),
                     "can_answer": _answerable(profile),
                     "next": "Name a skill or a subtopic and I will answer from its rows.",
@@ -281,7 +281,7 @@ def ask(
         expected = row.get("expected_level")
         band = row.get("priority_band")
         standing = (
-            f"{row.get('name', skill.name)} is {row.get('status', 'on your profile')} — "
+            f"{row.get('name', skill.name)} is {row.get('status', 'on your profile')}: "
             f"verified {verified or 'not yet'}"
             + (f", the JD asks for {expected}" if expected else "")
             + (f", {band} priority" if band else "")
@@ -309,7 +309,7 @@ def ask(
             row.get("expected_level") if row else None,
         )
         if row and gap_note:
-            why = f"{gap_note} — {sub.get('level', 'beginner')}-level work closes part of it."
+            why = f"{gap_note}. {sub.get('level', 'beginner')}-level work closes part of it."
         elif row:
             why = f"Keeps {row.get('verified_level') or 'your'} level honest for {skill.name}."
         else:
@@ -362,11 +362,11 @@ def ask(
     limits.append("The tutor does not grade. Scores still come from a rubric answer with a quote.")
 
     lead = (
-        f"{skill.name} ({skill.category}) — {len(focus)} subtopics from the curriculum, "
+        f"{skill.name} ({skill.category}): {len(focus)} subtopics from the curriculum, "
         f"{sum(len(f.resources) for f in focus)} curated links."
     )
     if not row:
-        lead = f"{skill.name} ({skill.category}) — not on your profile yet. " + lead.split("— ", 1)[1]
+        lead = f"{skill.name} ({skill.category}): not on your profile yet. " + lead.split(": ", 1)[1]
 
     return Answer(
         matched=True,

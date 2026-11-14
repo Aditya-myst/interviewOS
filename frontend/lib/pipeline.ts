@@ -3,7 +3,7 @@
 /**
  * Browser client for the parsing pipeline.
  *
- * `uploadResume` sends the file untouched — the browser sets the multipart boundary and
+ * `uploadResume` sends the file untouched, the browser sets the multipart boundary and
  * the route handler forwards the bytes, so nothing re-encodes a PDF on the way.
  *
  * Both calls come back with `persisted`, which is the field the screen needs: without a
@@ -72,7 +72,7 @@ export interface JdAnalysis {
  */
 const ADVICE: Record<string, string> = {
   pdf_unreadable:
-    "We could not read that PDF — it is scanned images or damaged. Export a text PDF, DOCX or TXT and try again.",
+    "We could not read that PDF. It is scanned images or damaged. Export a text PDF, DOCX or TXT and try again.",
   unsupported_type: "That file type is not supported. Upload a PDF, DOCX, TXT or Markdown file.",
   empty_file: "That file is empty. Pick the document you actually want analysed.",
   too_large: "That file is larger than the 10 MB limit.",
@@ -106,7 +106,7 @@ async function call<T>(path: string, init: RequestInit): Promise<Result<T>> {
     return {
       ok: false,
       status: 0,
-      message: "the API did not answer — is uvicorn running on :8000?",
+      message: "the API did not answer. Is uvicorn running on :8000?",
     };
   }
 }

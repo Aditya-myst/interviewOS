@@ -2,7 +2,7 @@
 
 `contracts/openapi.yaml` specified these five paths before any engine did: start,
 answer, transcript, evaluate, report. The paths and payloads here follow that spec
-rather than inventing new ones — `audio_url` is in the answer body because voice was
+rather than inventing new ones, `audio_url` is in the answer body because voice was
 planned, and `channel` is in the start body for the same reason.
 
 The read endpoints in this app serve fixtures until a database answers; the interview
@@ -64,7 +64,7 @@ def _backend(response: Response) -> Iterator[tuple[list[dict[str, Any]], Any, An
     """
     # The setup is inside the try; the yield is NOT. A context manager that yields inside a
     # try/except turns an endpoint's own HTTPException into `RuntimeError: generator didn't
-    # stop after throw()` — a 404 for "skill not in your profile" arrived as a 500, and the
+    # stop after throw()`, a 404 for "skill not in your profile" arrived as a 500, and the
     # handler then went on to yield the fixture fallback, which is how a live request can
     # quietly answer from fixtures.
     db = None
@@ -78,7 +78,7 @@ def _backend(response: Response) -> Iterator[tuple[list[dict[str, Any]], Any, An
         except store.UserUnresolved:
             response.headers["X-Fallback-Reason"] = "no_profile"
         except Exception:
-            log.exception("interview backend read failed — using memory")
+            log.exception("interview backend read failed, using memory")
             response.headers["X-Fallback-Reason"] = "db_error"
 
     if skills and db is not None and user_id:
@@ -158,7 +158,7 @@ def evaluate(session_id: str, response: Response) -> dict[str, Any]:
     """Re-score a session from its transcript.
 
     Idempotent by construction: the report is a function of the stored messages, so
-    evaluating twice returns the same numbers. That is also the audit path — a
+    evaluating twice returns the same numbers. That is also the audit path, a
     reviewer can re-run scoring without trusting the stored report.
     """
     with _backend(response) as (skills, store_obj, _db, _user):

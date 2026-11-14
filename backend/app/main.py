@@ -19,7 +19,7 @@ from starlette.responses import JSONResponse as _StarletteJSON
 class UTF8JSONResponse(_StarletteJSON):
     """JSON that declares its encoding.
 
-    RFC 8259 says JSON is UTF-8, so most clients assume it — the browser does, and curl
+    RFC 8259 says JSON is UTF-8, so most clients assume it, the browser does, and curl
     does. Windows PowerShell 5.1 does not: without a charset it decodes the bytes as
     latin-1, and every curly quote and em dash in a resume quote arrives as "â€œ". The
     header costs nothing and stops that.
@@ -45,12 +45,12 @@ def create_app() -> FastAPI:
         status = db_status()
         data = "database" if status["state"] == "connected" else "fixture"
         if status["state"] not in ("connected", "unconfigured"):
-            log.warning("database configured but unusable (%s) — serving fixtures", status.get("detail"))
+            log.warning("database configured but unusable (%s), serving fixtures", status.get("detail"))
         try:
             llm = ", ".join(get_gateway().available_providers()) or "none"
-        except Exception as exc:  # noqa: BLE001 — a key problem is not a startup failure
+        except Exception as exc:  # noqa: BLE001, a key problem is not a startup failure
             llm = f"unavailable ({type(exc).__name__})"
-        log.info("interviewos ready — env=%s data=%s llm=%s", settings.env, data, llm)
+        log.info("interviewos ready, env=%s data=%s llm=%s", settings.env, data, llm)
         yield
 
     app = FastAPI(

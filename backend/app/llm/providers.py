@@ -16,7 +16,7 @@ class ProviderHTTPError(RuntimeError):
     """A provider said no, and here is what it actually said.
 
     httpx's raise_for_status() gives you "Client error '400 Bad Request' for url
-    ..." and drops the response body — which is the only part that tells you
+    ..." and drops the response body, which is the only part that tells you
     whether the key is wrong, the model name is wrong, or the daily quota is
     gone. That message is what we surface instead.
     """
@@ -32,7 +32,7 @@ def _error_message(resp: httpx.Response) -> str:
     """Gemini and Groq both put the useful sentence in different places."""
     try:
         data = resp.json()
-    except Exception:  # noqa: BLE001 — not JSON, fall back to the text
+    except Exception:  # noqa: BLE001, not JSON, fall back to the text
         return resp.text.strip()[:300] or resp.reason_phrase
 
     err = data.get("error") if isinstance(data, dict) else None
@@ -266,7 +266,7 @@ def default_chain() -> list:
             chain.append(provider)
 
     # A blank or misspelled LLM_FALLBACK used to leave the chain with a single
-    # provider and no warning. Adding the other known provider costs nothing — the
+    # provider and no warning. Adding the other known provider costs nothing, the
     # gateway skips any provider without a key, and `available()` is what decides
     # whether it is ever called. Silence is the only thing this prevents.
     for name, provider in known.items():

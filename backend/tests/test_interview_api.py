@@ -4,7 +4,7 @@ No database in tests, which is exactly the mode this exercises: sessions that wo
 say they are not saved, rather than a 503.
 
 The contract requires 3–12 questions per session, so the shortest real session is three
-answers — tests play all three rather than inventing a one-question special case.
+answers, tests play all three rather than inventing a one-question special case.
 """
 from fastapi.testclient import TestClient
 

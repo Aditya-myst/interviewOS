@@ -52,7 +52,7 @@ paths:
     get:
       tags: [health]
       security: []
-      summary: Dev-only — JSON twin of docs/sql/004_verify.sql (expected vs actual per check)
+      summary: Dev-only, JSON twin of docs/sql/004_verify.sql (expected vs actual per check)
       description: |
         Returns every handover expectation with both `expected` and `actual`, so a wrong
         Supabase project is obvious instead of "looks fine". Answer 200 with
@@ -64,7 +64,7 @@ paths:
     get:
       tags: [health]
       security: []
-      summary: Dev-only — the models each key can actually call, plus what "auto" picks
+      summary: Dev-only, the models each key can actually call, plus what "auto" picks
       responses:
         "200": { description: live model lists }
 
@@ -72,13 +72,13 @@ paths:
     get:
       tags: [health]
       security: []
-      summary: Dev-only — provider chain, resolved model, cache backend (spends no quota)
+      summary: Dev-only, provider chain, resolved model, cache backend (spends no quota)
       responses:
         "200": { description: chain }
     post:
       tags: [health]
       security: []
-      summary: Dev-only gateway probe — which provider answered, or why none could
+      summary: Dev-only gateway probe, which provider answered, or why none could
       responses:
         "200": { description: answered }
         "503": { $ref: "#/components/responses/Error" }
@@ -187,7 +187,7 @@ paths:
   /assessment/{assessment_id}:
     get:
       tags: [assessment]
-      summary: Resume a ladder — the state, including the rungs answered so far
+      summary: Resume a ladder, the state, including the rungs answered so far
       parameters:
         - name: assessment_id
           in: path
@@ -200,7 +200,7 @@ paths:
   /tutor/ask:
     post:
       tags: [tutor]
-      summary: One question in, one composed answer out — from rows, with citations
+      summary: One question in, one composed answer out, from rows, with citations
       parameters:
         - name: state
           in: query
@@ -233,7 +233,7 @@ paths:
       tags: [learning]
       summary: Persist the computed plan (idempotent)
       description: >
-        The UI never needs this — reading /learning/roadmap already stores the plan — but an
+        The UI never needs this, reading /learning/roadmap already stores the plan, but an
         explicit, retry-safe verb is useful for scripts. Same body as GET /learning/roadmap.
       responses:
         "200": { description: roadmap, content: { application/json: { schema: { $ref: "#/components/schemas/Roadmap" } } } }
@@ -310,7 +310,7 @@ paths:
         "200":
           description: |
             The session state plus what the last answer earned. `feedback.quote` is a
-            verbatim substring of the answer, or null — null means the answer was worth
+            verbatim substring of the answer, or null, null means the answer was worth
             no credit, not that the quote was left out. `report` appears only on the
             answer that closes the session.
           content: { application/json: { schema: { $ref: "#/components/schemas/InterviewAnswerResult" } } }
@@ -618,7 +618,7 @@ components:
           description: the persisted learning_paths row; reading the roadmap creates it
         persisted:
           type: boolean
-          description: false when the plan could not be written — progress will not be saved
+          description: false when the plan could not be written, progress will not be saved
 
     PreparationPlan:
       type: object
@@ -870,7 +870,7 @@ components:
         question: { type: string }
         matched:
           type: boolean
-          description: false means "not in my sources" — never a guess dressed as an answer
+          description: false means "not in my sources", never a guess dressed as an answer
         scope:
           type: object
           nullable: true

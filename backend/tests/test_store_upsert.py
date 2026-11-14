@@ -3,14 +3,14 @@
 The bug this file exists for: `on conflict do update set status = excluded.status` made
 every resume re-upload reset a graded skill to `unverified`. The schema's transition guard
 refused the downgrade (`illegal transition weak -> unverified`) and the upload died with a
-500 — a crash caused by the storage layer overwriting state it did not own.
+500, a crash caused by the storage layer overwriting state it did not own.
 
 Two layers of protection, because the SQL text test runs everywhere and the database test
 only runs where there is a database:
 
-1. `test_upsert_never_writes_status` — the statement has no `status =` assignment in its
+1. `test_upsert_never_writes_status`, the statement has no `status =` assignment in its
    conflict branch, so no future edit can reintroduce it silently.
-2. `test_upsert_preserves_verification_against_a_real_database` — the whole thing against
+2. `test_upsert_preserves_verification_against_a_real_database`, the whole thing against
    Postgres, including the trigger, the evidence history and the null-preserving coalesce.
    Skipped unless INTERVIEWOS_TEST_DATABASE_URL points at a database with docs/sql applied.
 """
@@ -61,7 +61,7 @@ def test_upsert_never_writes_status():
         if "=" in line and not line.strip().startswith("--")
     ]
     assert "status" not in assignments, (
-        "the conflict branch must not assign status — that is what crashed the upload"
+        "the conflict branch must not assign status, that is what crashed the upload"
     )
     assert "verified_level" in assignments
 
@@ -144,7 +144,7 @@ def test_upsert_preserves_verification_against_a_real_database():
     types = [item["type"] for item in items]
     assert "assessment_answer" in types, "the interview quote was deleted by the recompute"
     assert "jd_requirement" in types, "the new JD quote was not added"
-    assert float(priority) > 0.7, "scores still update — only the verification state is frozen"
+    assert float(priority) > 0.7, "scores still update, only the verification state is frozen"
 
 
 def test_prune_never_touches_a_graded_row():

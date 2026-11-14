@@ -1,4 +1,4 @@
-"""Environment doctor — run this before debugging anything else.
+"""Environment doctor, run this before debugging anything else.
 
     python scripts/doctor.py
 
@@ -8,7 +8,7 @@ import X" on Windows is one of these three:
 
   1. a *user* site-packages directory (`%APPDATA%\\Python\\Python311\\site-packages`)
      leaking into a venv, so `pydantic` comes from the venv and an older
-     `pydantic_core` binary comes from the user directory — which fails with
+     `pydantic_core` binary comes from the user directory, which fails with
      `cannot import name 'ArgsKwargs' from 'pydantic_core._pydantic_core' (unknown location)`
   2. a half-installed compiled wheel (interrupted download, antivirus quarantine)
   3. a global install plus a `--user` install layered on top of each other
@@ -77,7 +77,7 @@ def site_dirs() -> list[str]:
 def user_site() -> str:
     try:
         return site.getusersitepackages()
-    except Exception:  # noqa: BLE001 — absent user site is not an error
+    except Exception:  # noqa: BLE001, absent user site is not an error
         return ""
 
 
@@ -90,20 +90,20 @@ def check_interpreter() -> None:
     if in_venv:
         ok("running inside a virtual environment")
     else:
-        warn("not inside a virtual environment — installs land in a shared Python")
+        warn("not inside a virtual environment, installs land in a shared Python")
 
     # A half-deleted venv has no pyvenv.cfg, which is what makes uv and venv both
     # report "failed to locate pyvenv.cfg" while still pretending to be activated.
     cfg = Path(sys.prefix) / "pyvenv.cfg"
     real_venv = sys.prefix != sys.base_prefix
     if real_venv and not cfg.exists():
-        bad(f"{sys.prefix} looks like a virtual environment but has no pyvenv.cfg — it is "
+        bad(f"{sys.prefix} looks like a virtual environment but has no pyvenv.cfg, it is "
             "half-deleted; delete it and rebuild (scripts/fix_windows_env.ps1)")
     elif real_venv:
         ok(f"pyvenv.cfg present in {sys.prefix}")
     stale = os.environ.get("VIRTUAL_ENV")
     if stale and not (Path(stale) / "pyvenv.cfg").exists():
-        bad(f"VIRTUAL_ENV points at {stale}, which is not a usable venv — close that terminal "
+        bad(f"VIRTUAL_ENV points at {stale}, which is not a usable venv, close that terminal "
             "or run: Remove-Item Env:VIRTUAL_ENV")
 
     if hasattr(sys, "flags") and sys.flags.no_user_site == 0:
@@ -113,7 +113,7 @@ def check_interpreter() -> None:
             warn(
                 "the *user* site-packages directory is on this interpreter's path and is "
                 f"not empty: {user} ({', '.join(entries) or 'no packages'}). Venvs inherit it "
-                "unless PYTHONNOUSERSITE is set — this is the usual cause of a broken "
+                "unless PYTHONNOUSERSITE is set, this is the usual cause of a broken "
                 "pydantic/pydantic_core pair."
             )
 
@@ -131,7 +131,7 @@ def check_paths() -> None:
     leaks = [d for d in dirs if user and os.path.normcase(d) == os.path.normcase(user)]
     if leaks and sys.prefix != sys.base_prefix:
         bad(
-            "a venv is active but the user site-packages directory is also being searched — "
+            "a venv is active but the user site-packages directory is also being searched, "
             "compiled packages can resolve to two different versions"
         )
     elif leaks:
@@ -160,7 +160,7 @@ def check_imports() -> None:
     for name in REQUIRED:
         try:
             module = importlib.import_module(name)
-        except Exception as exc:  # noqa: BLE001 — the error text is the finding
+        except Exception as exc:  # noqa: BLE001, the error text is the finding
             bad(f"{name}: {type(exc).__name__}: {exc}")
             suspects = shadow_copies(name, "pydantic_core")
             for suspect in dict.fromkeys(suspects):
@@ -180,7 +180,7 @@ def check_imports() -> None:
 
     for name in OPTIONAL:
         if importlib.util.find_spec(name) is None:
-            warn(f"{name} is not installed — the test suite and linter need it")
+            warn(f"{name} is not installed, the test suite and linter need it")
         else:
             ok(f"{name} present")
 
@@ -194,7 +194,7 @@ def check_pydantic_pair() -> None:
         bad(f"cannot import the pair: {type(exc).__name__}: {exc}")
         if "ArgsKwargs" in str(exc) or "unknown location" in str(exc):
             bad(
-                "the two halves disagree — reinstall them together: "
+                "the two halves disagree, reinstall them together: "
                 "pip install --force-reinstall --no-cache-dir pydantic pydantic-core"
             )
         return
@@ -217,7 +217,7 @@ def check_project() -> None:
         count = len(list(fixtures.glob("*.json")))
         ok(f"contracts/fixtures present ({count} json files)")
     else:
-        bad(f"missing {fixtures} — is the repository complete?")
+        bad(f"missing {fixtures}, is the repository complete?")
 
     env_file = repo / ".env"
     print(f"  .env          {'present' if env_file.exists() else 'absent (defaults apply)'}")
@@ -235,18 +235,18 @@ def check_project() -> None:
         source = "environment"
 
     if not url:
-        ok("DATABASE_URL empty — the API will serve contracts/fixtures (fine for a demo)")
+        ok("DATABASE_URL empty, the API will serve contracts/fixtures (fine for a demo)")
     else:
         scheme = url.split("://", 1)[0]
         print(f"  DATABASE_URL  set in {source}, scheme {scheme!r}")
         if scheme in ("postgres", "postgresql"):
-            ok("bare postgres URL — the app rewrites it to postgresql+psycopg:// (psycopg 3)")
+            ok("bare postgres URL, the app rewrites it to postgresql+psycopg:// (psycopg 3)")
         if "%40" not in url and url.count("@") > 3:
-            warn("the password may contain an unescaped '@' — encode it as %40")
+            warn("the password may contain an unescaped '@', encode it as %40")
         try:
             import psycopg  # noqa: F401
 
-            ok("psycopg importable — the database should connect")
+            ok("psycopg importable, the database should connect")
         except Exception as exc:  # noqa: BLE001
             bad(f"DATABASE_URL is set but psycopg is missing: {exc}")
 
@@ -294,7 +294,7 @@ def main() -> int:
     if NOTES:
         print(f"  usable, with {len(NOTES)} note(s) worth reading above")
     else:
-        print("  usable — no problems found")
+        print("  usable, no problems found")
     print("\n  Next:  python -m pytest -q   then   python -m uvicorn app.main:app --reload --port 8000")
     return 0
 

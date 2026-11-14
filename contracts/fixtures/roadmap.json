@@ -12,8 +12,8 @@
       "status": "in_progress", "depth": "deep_dive", "order_index": 0, "estimated_minutes": 120, "progress": 0.35,
       "subtopics": ["Chunking strategies", "Retrieval metrics (recall@k, MRR)", "Answer faithfulness vs relevance", "Building a 30-question eval set", "Guardrails and refusal"],
       "resources": [
-        { "id": "55555555-5555-4555-8555-555555555551", "role": "concept", "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks", "url": "https://arxiv.org/abs/2005.11401", "provider": "arXiv", "author": "Lewis et al.", "kind": "paper", "duration_minutes": 45, "is_paid": false, "license": "arXiv non-exclusive", "verified_at": "2026-10-30T06:10:00Z", "why": "Original RAG formulation — most interviewers expect you to know what retrieval buys you." },
-        { "id": "55555555-5555-4555-8555-555555555552", "role": "practice", "title": "Ragas documentation — evaluating RAG", "url": "https://docs.ragas.io/", "provider": "Ragas", "kind": "docs", "duration_minutes": 40, "is_paid": false, "license": "Apache-2.0", "verified_at": "2026-10-30T06:10:00Z", "why": "Gives you concrete faithfulness/relevance metrics you can actually run on your CampusRAG project." },
+        { "id": "55555555-5555-4555-8555-555555555551", "role": "concept", "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks", "url": "https://arxiv.org/abs/2005.11401", "provider": "arXiv", "author": "Lewis et al.", "kind": "paper", "duration_minutes": 45, "is_paid": false, "license": "arXiv non-exclusive", "verified_at": "2026-10-30T06:10:00Z", "why": "Original RAG formulation: most interviewers expect you to know what retrieval buys you." },
+        { "id": "55555555-5555-4555-8555-555555555552", "role": "practice", "title": "Ragas documentation: evaluating RAG", "url": "https://docs.ragas.io/", "provider": "Ragas", "kind": "docs", "duration_minutes": 40, "is_paid": false, "license": "Apache-2.0", "verified_at": "2026-10-30T06:10:00Z", "why": "Gives you concrete faithfulness/relevance metrics you can actually run on your CampusRAG project." },
         { "id": "55555555-5555-4555-8555-555555555553", "role": "checkpoint", "title": "Write a 30-question eval set for CampusRAG", "url": "https://docs.ragas.io/en/stable/getstarted/", "provider": "Ragas", "kind": "exercise", "duration_minutes": 35, "is_paid": false, "verified_at": "2026-10-30T06:10:00Z", "why": "Turns the concept into evidence you can quote in an interview." }
       ]
     },
@@ -24,8 +24,8 @@
       "status": "not_started", "depth": "core", "order_index": 1, "estimated_minutes": 90, "progress": 0.0,
       "subtopics": ["Dependencies and Depends", "Dependency overrides in tests", "Pydantic request/response models", "Async vs sync endpoints", "Background tasks"],
       "resources": [
-        { "id": "55555555-5555-4555-8555-555555555554", "role": "concept", "title": "FastAPI — Dependencies", "url": "https://fastapi.tiangolo.com/tutorial/dependencies/", "provider": "FastAPI Docs", "kind": "docs", "duration_minutes": 30, "is_paid": false, "license": "MIT", "verified_at": "2026-10-30T06:11:00Z", "why": "Directly targets the gap your assessment exposed." },
-        { "id": "55555555-5555-4555-8555-555555555555", "role": "practice", "title": "FastAPI — Testing dependencies with overrides", "url": "https://fastapi.tiangolo.com/advanced/testing-dependencies/", "provider": "FastAPI Docs", "kind": "exercise", "duration_minutes": 35, "is_paid": false, "license": "MIT", "verified_at": "2026-10-30T06:11:00Z", "why": "The exact interview follow-up: 'how would you test that?'" },
+        { "id": "55555555-5555-4555-8555-555555555554", "role": "concept", "title": "FastAPI: Dependencies", "url": "https://fastapi.tiangolo.com/tutorial/dependencies/", "provider": "FastAPI Docs", "kind": "docs", "duration_minutes": 30, "is_paid": false, "license": "MIT", "verified_at": "2026-10-30T06:11:00Z", "why": "Directly targets the gap your assessment exposed." },
+        { "id": "55555555-5555-4555-8555-555555555555", "role": "practice", "title": "FastAPI: Testing dependencies with overrides", "url": "https://fastapi.tiangolo.com/advanced/testing-dependencies/", "provider": "FastAPI Docs", "kind": "exercise", "duration_minutes": 35, "is_paid": false, "license": "MIT", "verified_at": "2026-10-30T06:11:00Z", "why": "The exact interview follow-up: 'how would you test that?'" },
         { "id": "55555555-5555-4555-8555-555555555556", "role": "checkpoint", "title": "Reference project structure and test suite", "url": "https://github.com/tiangolo/full-stack-fastapi-template", "provider": "GitHub", "kind": "repo", "duration_minutes": 25, "is_paid": false, "license": "MIT", "verified_at": "2026-10-30T06:11:00Z", "why": "Read a real project layout and test the API layer end to end." }
       ]
     },
@@ -47,8 +47,8 @@
       "status": "not_started", "depth": "core", "order_index": 3, "estimated_minutes": 75, "progress": 0.0,
       "subtopics": ["Images vs containers", "Dockerfile layers and caching", "Compose for app + db", "Logs and exec debugging", "Environment and secrets"],
       "resources": [
-        { "id": "55555555-5555-4555-8555-555555555559", "role": "concept", "title": "Docker — Get started", "url": "https://docs.docker.com/get-started/", "provider": "Docker Docs", "kind": "docs", "duration_minutes": 40, "is_paid": false, "verified_at": "2026-10-30T06:13:00Z", "why": "Official, current, and matches the JD's deployment requirement." },
-        { "id": "55555555-5555-4555-8555-555555555560", "role": "practice", "title": "Awesome Compose — reference stacks", "url": "https://github.com/docker/awesome-compose", "provider": "GitHub", "kind": "repo", "duration_minutes": 35, "is_paid": false, "license": "Apache-2.0", "verified_at": "2026-10-30T06:13:00Z", "why": "Copy a compose file for FastAPI + Postgres instead of writing one from scratch." }
+        { "id": "55555555-5555-4555-8555-555555555559", "role": "concept", "title": "Docker: Get started", "url": "https://docs.docker.com/get-started/", "provider": "Docker Docs", "kind": "docs", "duration_minutes": 40, "is_paid": false, "verified_at": "2026-10-30T06:13:00Z", "why": "Official, current, and matches the JD's deployment requirement." },
+        { "id": "55555555-5555-4555-8555-555555555560", "role": "practice", "title": "Awesome Compose: reference stacks", "url": "https://github.com/docker/awesome-compose", "provider": "GitHub", "kind": "repo", "duration_minutes": 35, "is_paid": false, "license": "Apache-2.0", "verified_at": "2026-10-30T06:13:00Z", "why": "Copy a compose file for FastAPI + Postgres instead of writing one from scratch." }
       ]
     },
     {
@@ -59,7 +59,7 @@
       "status": "done", "depth": "refresh", "order_index": 4, "estimated_minutes": 45, "progress": 1.0,
       "subtopics": ["Event loop", "asyncio.gather vs sequential", "run_in_executor for blocking calls", "Timeouts and cancellation"],
       "resources": [
-        { "id": "55555555-5555-4555-8555-555555555561", "role": "concept", "title": "asyncio — Coroutines and Tasks", "url": "https://docs.python.org/3/library/asyncio-task.html", "provider": "Python Docs", "kind": "docs", "duration_minutes": 30, "is_paid": false, "license": "PSF", "verified_at": "2026-10-30T06:14:00Z", "why": "Authoritative refresher for the depth gap the JD expects." },
+        { "id": "55555555-5555-4555-8555-555555555561", "role": "concept", "title": "asyncio: Coroutines and Tasks", "url": "https://docs.python.org/3/library/asyncio-task.html", "provider": "Python Docs", "kind": "docs", "duration_minutes": 30, "is_paid": false, "license": "PSF", "verified_at": "2026-10-30T06:14:00Z", "why": "Authoritative refresher for the depth gap the JD expects." },
         { "id": "55555555-5555-4555-8555-555555555562", "role": "practice", "title": "Async IO in Python: A Complete Walkthrough", "url": "https://realpython.com/async-io-python/", "provider": "Real Python", "kind": "article", "duration_minutes": 40, "is_paid": false, "verified_at": "2026-10-30T06:14:00Z", "why": "Worked examples you can convert into interview answers." }
       ]
     }

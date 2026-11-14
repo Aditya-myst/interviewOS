@@ -2,7 +2,7 @@
 
 Both scorers build rubrics out of curriculum prose, and curriculum prose is written as
 instructions: "Explain generation limits without mysticism", "Measure recall@k and improve
-retrieval quality". Left in a rubric, those words become demands — an answer that says
+retrieval quality". Left in a rubric, those words become demands, an answer that says
 everything about token limits but never says the word "mysticism" is scored as incomplete.
 
 Keeping one list means the interview and the assessment cannot disagree about what counts
@@ -46,7 +46,7 @@ INSTRUCTION_WORDS = frozenset(
 # "do these mean the same thing", so the dictionary is explicit and small: one entry per
 # curriculum concept that candidates reliably phrase another way. Keys are rubric terms
 # (lower case); values are alternates that count as the same point. Anything not listed
-# still has to be said in the rubric's own vocabulary — this widens the door, it does not
+# still has to be said in the rubric's own vocabulary, this widens the door, it does not
 # open it: the answer must still be specific, quotable and sentence-length to score.
 CONCEPT_SYNONYMS: dict[str, tuple[str, ...]] = {
     # system design

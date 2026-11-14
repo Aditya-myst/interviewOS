@@ -11,7 +11,7 @@
  *   database     rows came out of Postgres for this user
  *   fixture      the API answered, but served its contract fixture (with a reason)
  *   unreachable  the API did not answer at all, so this page is showing fixtures
- *                it read from disk — the screen must say so
+ *                it read from disk, the screen must say so
  *
  * `endpoint` travels with the payload so a badge can print exactly what was asked,
  * which is the difference between a demo and a claim.
@@ -47,8 +47,8 @@ const BASE = (process.env.INTERVIEWOS_API_URL ?? "http://127.0.0.1:8000").replac
 const TIMEOUT_MS = 10_000;
 
 /**
- * `unreachable` covers three different things — a network error, a timeout and a
- * non-2xx response — and printing one sentence for all three is how a 500 hides.
+ * `unreachable` covers three different things, a network error, a timeout and a
+ * non-2xx response, and printing one sentence for all three is how a 500 hides.
  */
 export function describeUnreachable(reason: string | null): string {
   if (!reason) return "the API did not answer";
@@ -61,7 +61,7 @@ const REASON_TEXT: Record<string, string> = {
   no_db: "the API has no database configured",
   no_profile: "no profile for this user yet",
   no_rows: "this account has no scored skills yet",
-  db_error: "the API's query failed — check the uvicorn console",
+  db_error: "the API's query failed. Check the uvicorn console.",
 };
 
 /** Human sentence for a fallback reason, so a screen never prints `db_error`. */
@@ -130,7 +130,7 @@ export const loadRoadmap = cache(
 /**
  * The report is the one screen that can be reached two ways: from a session that just
  * ended (`?session=<id>`, live) or from the nav with nothing in hand (recorded fixture).
- * The API decides, and says which it did in `X-Data-Source` — the page prints that
+ * The API decides, and says which it did in `X-Data-Source`, the page prints that
  * rather than implying a live session exists.
  */
 export const loadInterviewReport = cache(

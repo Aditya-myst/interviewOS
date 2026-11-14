@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
  *
  * Before this existed, `topics_done` on the dashboard counted `learning_topics` rows and
  * nothing ever wrote one, so the number could not move. The buttons are deliberately
- * explicit — "Mark done" / "Reopen" — rather than a checkbox: a topic is finished when the
+ * explicit, "Mark done" / "Reopen", rather than a checkbox: a topic is finished when the
  * candidate says so, and undoing it has to be as easy as doing it.
  *
  * Optimistic, then honest: the label flips immediately, and if the write fails the button
@@ -73,7 +73,7 @@ export default function TopicProgressControl({
 
       {error && (
         <span className="type-micro text-[var(--critical)] max-w-[42ch]">
-          not saved — {error}
+          not saved: {error}
         </span>
       )}
     </div>

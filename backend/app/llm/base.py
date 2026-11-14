@@ -1,7 +1,7 @@
 """Provider contract. A provider is a thing that turns a prompt into text.
 
 Two rules keep this honest:
-  1. `available()` never guesses — it answers "do I have credentials", nothing else.
+  1. `available()` never guesses, it answers "do I have credentials", nothing else.
   2. `complete()` raises on failure instead of returning a canned string. A
      fallback that silently invents text is worse than an outage.
 """

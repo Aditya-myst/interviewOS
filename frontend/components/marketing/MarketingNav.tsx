@@ -71,7 +71,7 @@ export default function MarketingNav() {
             variant="primary"
             size="sm"
             arrow
-            aria-label="Start free — upload your resume"
+            aria-label="Start free, upload your resume"
           >
             Start free
           </IosButton>
@@ -88,7 +88,7 @@ export default function MarketingNav() {
         </div>
       </div>
 
-      {/* How far through the page you are. Not motion — the bar only changes
+      {/* How far through the page you are. Not motion, the bar only changes
           length when the reader does something. */}
       <div
         aria-hidden

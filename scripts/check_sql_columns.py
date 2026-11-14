@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-InterviewOS — does the SQL in this repo name columns that actually exist?
+InterviewOS, does the SQL in this repo name columns that actually exist?
 
 Why this exists: `dashboard_payload` joined `interview_reports` on `r.overall_score`
 and ordered by `s.created_at`. Neither column exists (the schema has `overall_scores`
-and `started_at`). Postgres raised, the route caught it and served fixtures — so the
+and `started_at`). Postgres raised, the route caught it and served fixtures, so the
 dashboard looked *fine* and the header said `fixture`, which reads exactly like
 "this user has no data yet". A wrong column name is silent by default; this makes it
 loud.
@@ -133,7 +133,7 @@ def run(paths: list[pathlib.Path], tables: dict[str, set[str]], verbose: bool) -
             elif verbose:
                 print(f"ok   {label(path)}  {' '.join(sql.split())[:90]}")
     print(
-        f"\n{checked} queries checked against {len(tables)} tables — "
+        f"\n{checked} queries checked against {len(tables)} tables, "
         + ("schema agrees" if not failures else f"{failures} bad column reference(s)")
     )
     return 1 if failures else 0

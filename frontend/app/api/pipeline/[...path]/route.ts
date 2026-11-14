@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
  * Browser -> FastAPI for the pipeline, including the multipart resume upload.
  *
  * This one does not reuse `lib/proxy.ts` on purpose: that helper reads the body as text,
- * which is correct for JSON and fatal for `multipart/form-data` — it would rewrite the
+ * which is correct for JSON and fatal for `multipart/form-data`, it would rewrite the
  * boundary and FastAPI would answer 422 "missing file". Here the raw bytes and the
  * original content-type (boundary included) are forwarded untouched.
  */
@@ -32,7 +32,7 @@ async function proxy(request: Request, path: string[]): Promise<NextResponse> {
     return new NextResponse(body, { status: upstream.status, headers });
   } catch {
     return NextResponse.json(
-      { detail: "the API is unreachable — is uvicorn running on :8000?" },
+      { detail: "the API is unreachable. Is uvicorn running on :8000?" },
       { status: 503 },
     );
   }

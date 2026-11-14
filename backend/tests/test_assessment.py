@@ -2,7 +2,7 @@
 
 What these tests protect, in order of how much it would hurt to lose:
 
-1. The ladder is built from the curriculum, for *any* role — the marketing skills get
+1. The ladder is built from the curriculum, for *any* role, the marketing skills get
    checkpoints exactly like FastAPI does.
 2. A vague answer cannot verify anything, and one strong answer cannot carry a weak one.
 3. The session API follows the contract: start, answer, complete, and the two 404s.
@@ -60,7 +60,7 @@ def test_every_rung_probes_a_different_subtopic_with_a_rubric():
 
 
 def test_the_ladder_works_for_a_role_that_is_not_engineering():
-    """Marketing, design, teaching — the ladder cannot assume a stack."""
+    """Marketing, design, teaching, the ladder cannot assume a stack."""
     rungs = build_ladder({"skill_id": "content-strategy", "name": "Content Strategy"})
     assert len(rungs) == 3
     for rung in rungs:
@@ -233,7 +233,7 @@ def client():
 
 def test_an_unknown_skill_is_a_404_not_a_500(client):
     """Regression: the status was raised inside a context manager that yielded in its try,
-    so FastAPI saw `RuntimeError: generator didn't stop after throw()` and answered 500 —
+    so FastAPI saw `RuntimeError: generator didn't stop after throw()` and answered 500,
     after which the handler went on to yield fixture data."""
     response = client.post("/v1/assessment/start", json={"skill_id": "definitely-not-a-skill"})
     assert response.status_code == 404

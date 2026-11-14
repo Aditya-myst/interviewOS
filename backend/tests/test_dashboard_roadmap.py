@@ -164,7 +164,7 @@ def test_the_resource_query_types_its_array_parameter():
 
     Without it Postgres has to infer the parameter type from context; when that
     inference fails the endpoint 500s, and the UI can only report "the API did not
-    answer" — which reads like an outage, not a bug in one query.
+    answer", which reads like an outage, not a bug in one query.
     """
     from app import store
 

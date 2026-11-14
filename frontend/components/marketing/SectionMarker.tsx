@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 /**
- * The page's spine: `01 — THE ACTUAL PROBLEM` in mono, then a hairline that
+ * The page's spine: `01 · THE ACTUAL PROBLEM` in mono, then a hairline that
  * fades out to the right. Every landing section carries one, so the page reads
  * as a numbered document rather than a stack of unrelated blocks.
  */

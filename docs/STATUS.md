@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-03 · `main` at the roadmap-scope fix
 
-This file is the honest inventory. Anything not marked done does not exist yet — the
+This file is the honest inventory. Anything not marked done does not exist yet, the
 UI says "SOON" rather than showing a mock of it.
 
 ---
@@ -35,7 +35,7 @@ tsc + eslint + `pnpm build` clean.
 
 ---
 
-## Interview engine — done (backend)
+## Interview engine, done (backend)
 
 Five paths from the spec that already existed, now implemented rather than imagined:
 `POST /interview/start` · `POST /interview/answer` · `GET /interview/{id}/transcript` ·
@@ -57,7 +57,7 @@ Five paths from the spec that already existed, now implemented rather than imagi
 
 ---
 
-## Onboarding — wired to the real pipeline
+## Onboarding, wired to the real pipeline
 
 `/onboarding` used to be a dead button. It now runs the two endpoints that already existed:
 
@@ -67,7 +67,7 @@ Five paths from the spec that already existed, now implemented rather than imagi
 2. `POST /v1/jd/analyze {text}` → role, requirements with importance and the JD quote
    that proves each one, then a rescore of the stored resume against the JD
 
-The screen has four states — idle, working (per-step copy), error, done — and the error
+The screen has four states, idle, working (per-step copy), error, done, and the error
 state translates API codes into a sentence plus the code in small print
 (`pdf_unreadable`, `unsupported_type`, `too_large`, `jd_too_short`, API-unreachable). The
 page recovers without a reload: swap the file and press Analyse again.
@@ -77,7 +77,7 @@ stored, so the result panel says exactly that, quotes the merge reason from the 
 offers the dashboard labelled "demo data" rather than a fake redirect to a profile that
 does not exist. With a database connected the same panel shows the scored-skill count and
 links to `/dashboard` and `/gap-map`. **The persisted branch is not exercised in this
-sandbox — there is no Postgres here**; it is the same code path the upload endpoint has
+sandbox, there is no Postgres here**; it is the same code path the upload endpoint has
 always taken, reviewed but not run.
 
 ---
@@ -92,7 +92,7 @@ PL/pgSQL function enforce_skill_transition() line 31 at RAISE
 ```
 
 **Cause.** The recompute's upsert had `on conflict do update set status = excluded.status`.
-The resume/JD pass always computes a *score*, and a fresh score is `unverified` — so every
+The resume/JD pass always computes a *score*, and a fresh score is `unverified`, so every
 re-upload tried to reset a skill that an interview had already graded `weak`. The schema's
 guard refused the downgrade, correctly, and the exception escaped as a 500.
 
@@ -100,17 +100,17 @@ guard refused the downgrade, correctly, and the exception escaped as a 500.
 owned by the assessment and interview paths; the pipeline measures `gap`/`priority`/
 `importance` and must not touch it. The fix is in `store.upsert_skills`:
 
-- `status` is no longer in the conflict branch at all — scores still update, verification
+- `status` is no longer in the conflict branch at all, scores still update, verification
   stays put
 - `claimed_level` is now `coalesce(...)` like `verified_level`, so a null no longer erases
   what an assessment recorded
-- `evidence` is **appended**, not replaced — re-uploading a resume was also deleting the
+- `evidence` is **appended**, not replaced, re-uploading a resume was also deleting the
   assessment quote that justified a verified row, which would have left "verified" with
   nothing behind it
 
 **Second half of the fix: never a 500 for a write the schema refused.** Both pipeline
 endpoints catch `SQLAlchemyError` and return `200` with `persisted: false` and
-`persist_error: {code: "persist_failed", message: "<one line from the driver>"}` — the parse
+`persist_error: {code: "persist_failed", message: "<one line from the driver>"}`, the parse
 is still real and still worth showing. `persisted: true` is now set only *after* the
 transaction commits, so a rollback can no longer leave a `resume_id` for a row that is gone.
 
@@ -122,7 +122,7 @@ assertion that runs everywhere plus a live-database test gated on
 `INTERVIEWOS_TEST_DATABASE_URL`) and `test_a_database_rejection_is_a_stated_failure_not_a_500`.
 
 **Same pass, one more thing the live database exposed:** uploading a second resume left the
-first one's skills on the dashboard for ever — a marketing candidate had "LLM & RAG" at the
+first one's skills on the dashboard for ever, a marketing candidate had "LLM & RAG" at the
 top of their priority curve. `store.prune_stale_skills` now drops rows the newest resume+JD
 no longer mention, but **only** `claimed`/`unverified` ones: a `weak`/`developing`/`verified`
 row is evidence someone demonstrated something, and losing the bullet that mentioned it does
@@ -136,7 +136,7 @@ with newsletter and social-growth topics.
 
 Cause: the recompute reconciled rows with the new documents only by **deleting** the
 `claimed`/`unverified` ones. A graded row (`weak`, `developing`, `verified`) correctly
-survived — it holds earned evidence — but it kept the *old* posting's `jd_importance` and
+survived, it holds earned evidence, but it kept the *old* posting's `jd_importance` and
 `priority`, so it outranked every skill the new documents actually mention. The roadmap
 plans by priority, so it taught the stale skill first.
 
@@ -144,12 +144,12 @@ The two states now have two fates, because they mean different things:
 
 | Row | Fate |
 |---|---|
-| `claimed` / `unverified`, not mentioned any more | **deleted** — nothing was ever demonstrated |
-| graded, not mentioned any more | **retired** — status, level and evidence stay; `in_resume`/`in_jd` go false and `jd_importance`/`priority` go to 0, so it can lead nothing |
+| `claimed` / `unverified`, not mentioned any more | **deleted**, nothing was ever demonstrated |
+| graded, not mentioned any more | **retired**, status, level and evidence stay; `in_resume`/`in_jd` go false and `jd_importance`/`priority` go to 0, so it can lead nothing |
 
 Retired rows drop out of the roadmap (`build_roadmap` skips rows in neither document), the
 dashboard's coverage panel and readiness (which weights by `jd_importance`), while the gap
-map still shows them with their evidence and the explanation "Graded in an earlier session —
+map still shows them with their evidence and the explanation "Graded in an earlier session,
 the current resume and posting no longer mention it."
 
 Replayed on PostgreSQL 16.4: marketing resume+JD → plan teaches Copywriting and Marketing
@@ -158,13 +158,13 @@ Analytics; grade two of those `weak`; switch to the backend resume+JD → merge 
 the dashboard lists nine technical categories with readiness 48.8. Marketing topics leaking
 into the plan: none. Tests: `tests/test_roadmap_scope.py`.
 
-**Nothing to run in SQL** — the schema was already correct; the fix is application code.
+**Nothing to run in SQL**, the schema was already correct; the fix is application code.
 
 ---
 
-## Not built — in the order it will be built
+## Not built, in the order it will be built
 
-### 1. Interview + report screens — **done**
+### 1. Interview + report screens, **done**
 - `/interview`: one question at a time, progress bar, Ctrl+Enter, live word count,
   feedback panel (score, verbatim quote, covered vs missing rubric points), session
   summary. Questions are ranked by `priority` from the candidate's own profile, so the
@@ -176,28 +176,28 @@ into the plan: none. Tests: `tests/test_roadmap_scope.py`.
 - Browsers talk to FastAPI through `app/api/interview/[...path]/route.ts`, a server-side
   proxy, so the API URL never reaches the client and there is no CORS surface. The
   `x-data-source` header decides whether the room says "saved to your account" or
-  "not saved — demo mode"
+  "not saved, demo mode"
 - `communication_transcript_based` is capped at 0.92: a transcript can show someone
   answered at length and in full sentences, and cannot show that they were clear to
   listen to
 
 ### 2. Voice interviewer
-> Full plan with the latency table: **`docs/VOICE_PLAN.md`**. Not built — waiting on the
+> Full plan with the latency table: **`docs/VOICE_PLAN.md`**. Not built, waiting on the
 > hosted-vs-local decision.
 
 - **Recording:** browser `MediaRecorder` (opus/webm), no plugin
 - **Transcription:** Groq `whisper-large-v3` on the existing Groq key (free tier:
   2,000 requests/day), stored as an `interview_message` of role `candidate`, with the
   audio kept local unless the user opts in
-- **Interviewer voice:** browser `speechSynthesis` — free, no key, no quota
+- **Interviewer voice:** browser `speechSynthesis`, free, no key, no quota
 - **Not using:** Vapi/ElevenLabs/Deepgram (paid per minute). They would be an honest
   upgrade later; the transcript schema does not change if they are swapped in
 - **Fully local alternative** (if "free forever, no account, no upload" matters more than
-  peak accuracy): `faster-whisper` `base.en`/`small.en` int8 on 4 CPU cores — MIT-ish
-  weights, ~1 GB RAM, no network — plus **Silero VAD** for turn-end and **Piper** for the
+  peak accuracy): `faster-whisper` `base.en`/`small.en` int8 on 4 CPU cores, MIT-ish
+  weights, ~1 GB RAM, no network, plus **Silero VAD** for turn-end and **Piper** for the
   interviewer's voice (runs ~10× real time on one core, ~60 MB voice model)
 
-**Latency budget** (the number to hold the design to — candidate stops speaking to
+**Latency budget** (the number to hold the design to, candidate stops speaking to
 interviewer starts speaking):
 
 | Stage | Hosted (Groq) | Local (faster-whisper + Piper) |
@@ -214,42 +214,42 @@ trust partial transcripts instead of waiting for the final one, shrink the model
 (`base.en` → `tiny.en`), keep the process warm so no model load is paid per turn, and
 pre-render the fixed interviewer lines to audio at session start.
 - **Rule that survives:** a transcript is evidence of what was *said*. Scoring still
-  needs a quote. Communication is reported as transcript-derived only — accent, pace
+  needs a quote. Communication is reported as transcript-derived only, accent, pace
   and confidence are not measured and are not claimed
 
-### 3. Assessment ladder — **done**
+### 3. Assessment ladder, **done**
 - `POST /v1/assessment/start {skill_id}` → three rungs: conceptual, then practical, then
   applied, each drawn from a different subtopic in `data/taxonomy.yaml`
 - `POST /v1/assessment/answer {assessment_id, answer}` → graded rung, next rung, or the
   result; `GET /v1/assessment/{id}` resumes
 - **The rubric ignores instruction words.** "Use verbs and status codes *correctly*" gives
-  rubric points for verbs, status, codes — not for "correctly", which a perfect answer
+  rubric points for verbs, status, codes, not for "correctly", which a perfect answer
   never says
 - **The score is the ladder's own, and says why.** `0.85 × coverage + 0.15 × concreteness`,
   where coverage is zero without a quotable sentence. The interview's caps (which reward
   measured outcomes) would have pinned a flawless HTTP answer at 0.70, so no ladder could
   ever verify anything
 - **Verification needs consistency:** mean ≥ 0.75 *and* no rung below 0.50. One strong
-  answer cannot carry a weak one, and the level is conservative — 0.90+ for "expert"
+  answer cannot carry a weak one, and the level is conservative, 0.90+ for "expert"
 - Screen at `/assessment?skill=<id>`, linked from every gap-map row and from the roadmap's
-  empty "Prove it" cells, which used to read "no checkpoint yet — nothing to pass"
+  empty "Prove it" cells, which used to read "no checkpoint yet, nothing to pass"
 - With a database it writes `assessments`, `assessment_answers` and moves
   `candidate_skills` (confidence halfway, verified level, the quoted answer appended to
   `evidence`); without one the response says `persisted: false`
 
-### 4. Tutor chat — **done**
+### 4. Tutor chat, **done**
 `POST /v1/tutor/ask {question, skill_id?}` → the answer is *composed*, not generated: the
 candidate's skill row (levels, band, their own quote), the three most relevant curriculum
 subtopics (verbatim objectives from `data/taxonomy.yaml`), and the curated catalogue entries
-for those subtopics (free links first, `is_paid` shown). Every claim carries a citation —
-a profile row, an evidence quote, a subtopic id or a catalogue URL — and `test_tutor.py`
+for those subtopics (free links first, `is_paid` shown). Every claim carries a citation,
+a profile row, an evidence quote, a subtopic id or a catalogue URL, and `test_tutor.py`
 fails if a focus row arrives without one.
 
 Why no model writes it: asked "how do I get better at RAG", a model produces a confident
 course that may not exist. Here an unknown question returns `matched: false` with the reason
 and the topics that *can* be answered, and a skill with no catalogue still returns curriculum
 steps while saying the links are missing. Deterministic, so it works with no key, no network
-and no database — and the same question twice gives the same answer.
+and no database, and the same question twice gives the same answer.
 
 Scope resolution: explicit `skill_id` → an alias named in the question → a subtopic's words →
 the highest-priority skill on the profile. The last fallback is refused when the question
@@ -262,7 +262,7 @@ check, mark `generated: true`. A link that fails the check is dropped, not shown
 
 ### 6. Polish that is already known to be missing
 - onboarding does not upload yet ("Files stay in this browser until the parsing API
-  ships") — wire it to `POST /v1/resume/upload`
+  ships"), wire it to `POST /v1/resume/upload`
 - fixture world lacks `missing_roles`, live world shows all three gaps: align
 - roadmap is still card-based; a time-budget view (hours per week → dated plan) is
   designed but not built
@@ -276,6 +276,6 @@ mobile app, payments.
 ## The 15-day shape
 
 The engine is done and the loop closes on the backend. Remaining: the two screens that
-show it, then voice — which reuses the same session and the same scoring, with one
+show it, then voice, which reuses the same session and the same scoring, with one
 Transcription step in front. The `audio_url` field already exists in the answer body and
 `channel: "voice"` in the start body, because the contract carried them from day one.

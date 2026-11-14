@@ -82,12 +82,12 @@ Then two dialogue surfaces hang off that result:
 | 2 | segment | no | sections[] with char offsets | no headings → treat whole doc as one section |
 | 3a | skill extract | **partly** | `ExtractedSkill[]`, each with `evidence[].quote` + offsets | matcher-only; fewer skills, `parse_status=degraded` |
 | 3b | JD parse | **partly** | `JDRequirement[]` with `requirement_type`, `expected_level` | matcher-only, `expected_level` inferred from years mentioned |
-| 4 | merge | no | `candidate_skills` rows | — |
-| 5 | priority | no | `priority`, `priority_band`, `explanation` | — (pure function, unit-testable) |
+| 4 | merge | no | `candidate_skills` rows |, |
+| 5 | priority | no | `priority`, `priority_band`, `explanation` |, (pure function, unit-testable) |
 | 6 | assess | **yes** | 2–4 `{question, question_type, rubric}` per skill | template questions from subtopic objectives, marked `degraded` |
 | 7 | gate | **yes** | `inferred_level`, `status_after`, `confidence`, evidence | deterministic keyword rubric; never promotes above `developing` |
 | 8 | resolve | **partly** | `topic_resources` | curated-only, no rerank |
-| 9 | compose | no | `learning_paths`, `learning_topics`, summary | — |
+| 9 | compose | no | `learning_paths`, `learning_topics`, summary |, |
 
 **Rule that is not negotiable:** the LLM never writes `status`, `verified_level`
 or `priority`. It proposes evidence; a deterministic function converts evidence

@@ -43,7 +43,7 @@ def _find_skill(skills: list[dict[str, Any]], skill_id: str) -> dict[str, Any]:
             return row
     raise HTTPException(
         status_code=404,
-        detail=f"skill {skill_id!r} is not in this profile — nothing to assess",
+        detail=f"skill {skill_id!r} is not in this profile: nothing to assess",
     )
 
 

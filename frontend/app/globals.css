@@ -3,7 +3,7 @@
 @import "shadcn/tailwind.css";
 
 /* ─────────────────────────────────────────────────────────────
-   InterviewOS design tokens — ONE meaning per variable.
+   InterviewOS design tokens, ONE meaning per variable.
    Light (cream) is the product theme. Ink is a contrast surface
    used only for marketing slabs and the interview room.
    ───────────────────────────────────────────────────────────── */
@@ -23,7 +23,7 @@
   --text-dim: #5c6b62;
 
   /* Brand */
-  --brand: #22c55e;        /* fills only — never text on cream */
+  --brand: #22c55e;        /* fills only, never text on cream */
   --brand-strong: #15803d; /* the only green allowed as text on cream */
   --brand-soft: #dcfce7;
   --brand-hover: #16a34a;
@@ -82,7 +82,7 @@
   --ease-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
   --stagger-step: 55ms;
 
-  /* A hairline that fades out — for header rules that should not cut the page in half */
+  /* A hairline that fades out, for header rules that should not cut the page in half */
   --rule: color-mix(in srgb, var(--text) 10%, transparent);
 
   /* ── shadcn mapping: light theme ───────────────────────────── */
@@ -103,7 +103,7 @@
   --ring: var(--brand-strong);
   --radius: 0.75rem;
 
-  /* shadcn "accent" is a subtle hover surface — NOT the brand green */
+  /* shadcn "accent" is a subtle hover surface, NOT the brand green */
   --shadcn-accent: var(--surface-2);
   --shadcn-accent-foreground: var(--text);
 
@@ -219,7 +219,7 @@
     line-height: 1.6;
     /* The cream canvas is not flat: two very soft washes (brand green top-left,
        warm ochre top-right) over a 22px dot grid. At this opacity it reads as
-       paper, not decoration — and it costs one paint, no animation. */
+       paper, not decoration, and it costs one paint, no animation. */
     background-image:
       radial-gradient(60rem 40rem at 8% -12%, rgba(34, 197, 94, 0.09), transparent 60%),
       radial-gradient(48rem 34rem at 96% -8%, rgba(180, 83, 9, 0.07), transparent 60%),
@@ -295,7 +295,7 @@
   }
 
   /* Touch targets: form controls and buttons only.
-     Deliberately NOT `a` — inline links must stay inline. */
+     Deliberately NOT `a`, inline links must stay inline. */
   button,
   [role="button"],
   input,
@@ -319,7 +319,7 @@
 /* ─── Motion ───────────────────────────────────────────────────
    Three verbs only: arrive (content enters), settle (a value changed),
    breathe (something is alive). Nothing moves on scroll, and nothing
-   loops faster than 3s — motion is a signal, not a mood.
+   loops faster than 3s, motion is a signal, not a mood.
    ─────────────────────────────────────────────────────────────── */
 @keyframes riseIn {
   from { opacity: 0; transform: translateY(10px); }
@@ -372,7 +372,7 @@
 }
 
 /* ─── Typography + surface utilities ─────────────────────────────
-   NOTE: type-* is deliberately NOT text-* — `cn()` (tailwind-merge)
+   NOTE: type-* is deliberately NOT text-*, `cn()` (tailwind-merge)
    treats `text-display-2` and `text-[var(--text)]` as the same class
    group and silently drops the font size. Keep the two namespaces apart.
    ──────────────────────────────────────────────────────────────── */
@@ -479,7 +479,7 @@
     transform: translateY(0);
   }
 
-  /* Table rows: a warm wash on hover. (The edge marker below is for div rows —
+  /* Table rows: a warm wash on hover. (The edge marker below is for div rows,
      `position: relative` on a <tr> is not dependable across engines.) */
   .row-wash {
     transition: background-color 150ms var(--ease-soft);
@@ -556,7 +556,7 @@
 
   /* Big ghost numerals for the numbered landing sections. They are decoration,
      so they are aria-hidden at the call site, and they never carry contrast
-     obligations — nothing is read from them. */
+     obligations, nothing is read from them. */
   .ghost-numeral {
     font-family: var(--font-display);
     line-height: 0.8;
@@ -579,7 +579,7 @@
     to   { background-position: -30% 0; }
   }
 
-  /* A one-off sheen for ink slabs — the hero and the interview room. */
+  /* A one-off sheen for ink slabs, the hero and the interview room. */
   .sheen {
     position: relative;
     overflow: hidden;
@@ -611,7 +611,7 @@
     background: linear-gradient(90deg, var(--line-strong), var(--line) 40%, transparent);
   }
 
-  /* Long-form measure — keeps a paragraph from running the width of a 1240px page. */
+  /* Long-form measure, keeps a paragraph from running the width of a 1240px page. */
   .measure { max-width: 68ch; }
   .measure-tight { max-width: 54ch; }
   .type-mono-value {

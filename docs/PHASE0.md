@@ -1,4 +1,4 @@
-# Phase 0 — Environment checklist (Windows / PowerShell / 8 GB laptop / ₹0)
+# Phase 0, Environment checklist (Windows / PowerShell / 8 GB laptop / ₹0)
 
 Tick these in order. Each line has a verification; do not move on with an unticked box.
 
@@ -7,7 +7,7 @@ Tick these in order. Each line has a verification; do not move on with an untick
   - verify: old keys return 401/403; new keys work in the doctor script.
 - [ ] Gemini API key from aistudio.google.com (personal Gmail).
 - [ ] Groq API key from console.groq.com (also gives free Whisper STT).
-- [ ] Supabase project. **If it is still eu-north-1 and the DB is empty, recreate in Mumbai/Singapore** — you'll feel ~150 ms on every query.
+- [ ] Supabase project. **If it is still eu-north-1 and the DB is empty, recreate in Mumbai/Singapore**, you'll feel ~150 ms on every query.
   - verify: `SUPABASE_URL` subdomain == the project ref inside `DATABASE_URL`.
 - [ ] SQL Editor: `create extension if not exists vector no schema public;`
 - [ ] Storage: bucket `resumes`, **public off**.
@@ -39,9 +39,9 @@ uv run python scripts/verify_env.py
 1. `prompts/01-design-system-and-shell.md` → Antigravity → screenshot `/shell-demo` back to me.
 2. `prompts/02-landing.md`
 3. `prompts/03-dashboard.md`
-4. Backend Day 1: app skeleton, SQLAlchemy models mirroring `docs/sql/001_init.sql` (the schema already exists in Supabase — models reflect it, they do not create it), `llm_cache`, LLM gateway, `/health`, `/ready`.
+4. Backend Day 1: app skeleton, SQLAlchemy models mirroring `docs/sql/001_init.sql` (the schema already exists in Supabase, models reflect it, they do not create it), `llm_cache`, LLM gateway, `/health`, `/ready`.
 
 ## Standing rules
 - One Antigravity pack per sitting; its free quota refreshes ~ every 5 hours.
 - Never let a builder touch `contracts/`, `data/`, `lib/api.ts` or `backend/`.
-- Never paste secrets into chat again — masked values only.
+- Never paste secrets into chat again, masked values only.

@@ -7,10 +7,10 @@ Two rules shape this file:
 2. **Only skills the current documents mention get planned.** `in_resume`/`in_jd` are
    recomputed from the newest resume and posting, so a skill graded in an earlier session
    and no longer mentioned cannot sit at the top of the plan. Without this, a candidate who
-   switched from a marketing resume to a backend one still got taught newsletter growth —
+   switched from a marketing resume to a backend one still got taught newsletter growth,
    the row survived (correctly, it holds earned evidence) but its priority was stale.
 3. **A missing resource is a named gap, not an empty space.** The design calls for
-   three roles per topic — concept, practice, checkpoint. When the catalogue has no
+   three roles per topic, concept, practice, checkpoint. When the catalogue has no
    row for a role, the payload says `missing_roles: ["checkpoint"]` so the UI can
    render an honest gap instead of a card that looks finished.
 
@@ -172,7 +172,7 @@ def _subtopics(skill) -> list[dict]:
 def _summary(topics: list[dict], bands: list[str], target_role: str | None) -> str:
     if not topics:
         return (
-            "No topics yet — the roadmap is built from skills the JD asks for that your "
+            "No topics yet: the roadmap is built from skills the JD asks for that your "
             "evidence does not cover. Upload a resume and a job description first."
         )
     critical = sum(1 for b in bands if b == "critical")
@@ -182,6 +182,6 @@ def _summary(topics: list[dict], bands: list[str], target_role: str | None) -> s
     return (
         f"{len(topics)} topic{'s' if len(topics) != 1 else ''}{role}, ordered by interview impact: "
         f"{critical} critical and {high} high priority. "
-        f"{missing} topic{'s' if missing != 1 else ''} still lack a full set of resources — "
+        f"{missing} topic{'s' if missing != 1 else ''} still lack a full set of resources; "
         "shown as gaps rather than filled with links nobody checked."
     )

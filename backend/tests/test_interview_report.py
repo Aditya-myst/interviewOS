@@ -8,7 +8,7 @@ Both were wrong.
    rubric. The one field a candidate could use to know whether a model touched their score
    was a constant.
 2. **"What held up" was never empty.** When nothing reached `verified`, the list was filled
-   with "No skill reached verified in this session — that is a finding, not a failure." — a
+   with "No skill reached verified in this session, that is a finding, not a failure.", a
    sentence that is not a strength, filed under a heading that says it is. A report that
    pads a section is a report you stop reading.
 

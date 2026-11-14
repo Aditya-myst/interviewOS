@@ -10,7 +10,7 @@ const BAND: Record<string, { label: string; className: string }> = {
 };
 
 /**
- * One priority skill. `explanation` is rendered verbatim — the server wrote the
+ * One priority skill. `explanation` is rendered verbatim, the server wrote the
  * sentence and the UI is not allowed to reword it, which is the whole claim.
  */
 export default function PriorityRow({ skill }: { skill: CandidateSkill }) {

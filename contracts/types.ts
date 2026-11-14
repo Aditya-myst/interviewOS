@@ -220,7 +220,7 @@ export interface Roadmap {
   /** `done`/`total` are counted over the topics in *this* plan, never over archived ones. */
   progress?: { done: number; total: number; percent?: number };
   /**
-   * Work that left the plan because it is no longer a gap — a skill you verified stops
+   * Work that left the plan because it is no longer a gap, a skill you verified stops
    * being something to study. Kept here so passing a checkpoint leaves a trace on the page;
    * these rows are *not* in the study order and not counted in `progress`.
    */
@@ -278,7 +278,7 @@ export interface AssessmentState {
     /** Rubric points this checkpoint is scored against. */
     rubric_size?: number;
     level?: AssessmentLevel;
-    /** The curriculum subtopic this rung probes — the reason the question exists. */
+    /** The curriculum subtopic this rung probes, the reason the question exists. */
     subtopic?: string;
   } | null;
   feedback?: {
@@ -315,7 +315,7 @@ export interface AssessmentState {
   } | null;
   /** false when the ladder lived in memory and will not survive a restart. */
   persisted?: boolean;
-  /** Every rung answered so far, in order — the audit trail behind the result. */
+  /** Every rung answered so far, in order, the audit trail behind the result. */
   answers?: Array<{
     index: number;
     level: AssessmentLevel;
@@ -353,7 +353,7 @@ export interface InterviewState {
 
 /**
  * Per-answer scoring. `quote` is a verbatim substring of what the candidate said, or
- * null — and null means the answer earned no credit, not that the quote was omitted.
+ * null, and null means the answer earned no credit, not that the quote was omitted.
  */
 export interface InterviewFeedback {
   skill_id?: string | null;
@@ -394,7 +394,7 @@ export interface InterviewReport {
   scored_by?: string;
   overall_scores: {
     overall?: number; technical?: number; problem_solving?: number;
-    /** transcript-derived only — the UI must label it as such */
+    /** transcript-derived only, the UI must label it as such */
     communication_transcript_based?: number;
   };
   per_skill: Array<{

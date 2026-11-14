@@ -1,4 +1,4 @@
-# Phase 5 — resume + JD → evidenced skill profile
+# Phase 5, resume + JD → evidenced skill profile
 
 **Status: all 7 steps done.** Steps 1–6 run offline; step 7 writes real rows and flips
 `X-Data-Source` to `database`. The write path needs a live Postgres, so it is verified by
@@ -6,7 +6,7 @@ curl against your project (see §Verify below) rather than in the test suite.
 
 ## The rule everything is built around
 
-> A skill may appear in the profile only if it carries a `quote` — a literal span from the
+> A skill may appear in the profile only if it carries a `quote`, a literal span from the
 > resume or the JD. No quote, no row.
 
 ## What exists now
@@ -40,12 +40,12 @@ counts: {'critical': 1, 'high': 1, 'medium': 2, 'low': 19, 'verified': 0, 'unver
 ```
 
 `verified: 0` is the honest number: no assessment has run yet, so nothing is verified. The
-resume sets `claimed_level` and never `verified_level` — that is a database constraint
+resume sets `claimed_level` and never `verified_level`, that is a database constraint
 (`verified_needs_level`) and a product rule.
 
 ## Decisions taken (they were open questions in the brief)
 
-1. **`pypdf` + `python-docx`** for extraction — pure Python, no system dependencies, no
+1. **`pypdf` + `python-docx`** for extraction, pure Python, no system dependencies, no
    OCR. A scanned PDF returns `no_text_layer` with a character count instead of pretending.
 2. **No LLM in this pass at all.** Taxonomy aliases + section structure cover most of what
    a resume says, and the rest is *measured* (`stats.method` says "deterministic"). The
@@ -66,7 +66,7 @@ resume sets `claimed_level` and never `verified_level` — that is a database co
 
 ## Verify (needs your database)
 
-One user must exist before rows can be written — `profiles.id` references `auth.users`.
+One user must exist before rows can be written, `profiles.id` references `auth.users`.
 Supabase → **Authentication → Users → Add user** (auto-confirm), copy the id into `.env`:
 
 ```ini
@@ -84,7 +84,7 @@ curl.exe -i http://localhost:8000/v1/skills/profile        # X-Data-Source: data
 What to expect in the first response: `persisted: true`, a `resume_id`, `user_source`,
 and a `merge` block saying how many skills were scored. If it says
 `"persist_error": {"code": "user_unresolved"}` it is telling you `DEMO_USER_ID` is unset
-or wrong — by design, it will not guess whose resume this is.
+or wrong, by design, it will not guess whose resume this is.
 
 Rows to look at in the Supabase table editor afterwards: `resumes` (one, with `raw_text`),
 `job_descriptions` (one, with `requirements`), `candidate_skills` (one per skill, every

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-InterviewOS — resource link check.
+InterviewOS, resource link check.
 
 The product claim is "every learning link is HTTP-verified before you see it".
 This is that check, as a script you can run instead of trusting a screenshot.

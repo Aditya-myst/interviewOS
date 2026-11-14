@@ -32,7 +32,7 @@ def health() -> HealthResponse:
 def ready(response: Response) -> ReadyResponse:
     """Readiness: can this process serve a request right now, and in what mode?
 
-    Degraded is a real, reportable state — not an error. The UI shows a banner
+    Degraded is a real, reportable state, not an error. The UI shows a banner
     rather than an empty screen, which is the whole point of having the mode.
     """
     get_settings()
@@ -50,7 +50,7 @@ def ready(response: Response) -> ReadyResponse:
         "llm": {
             "ok": bool(llm_providers),
             "state": "configured" if llm_providers else "unconfigured",
-            "detail": llm_providers or "no provider keys — LLM features return llm_unavailable",
+            "detail": llm_providers or "no provider keys: LLM features return llm_unavailable",
         },
     }
 
@@ -112,7 +112,7 @@ def data_expected() -> tuple[list[tuple[str, int]], str]:
             [("skills", len(vocab)), ("subtopics", subtopics), ("resources", resources)],
             "data/taxonomy.yaml + data/curated.yaml",
         )
-    except Exception:  # noqa: BLE001 — a missing data dir must not break the probe
+    except Exception:  # noqa: BLE001, a missing data dir must not break the probe
         return [("skills", 31), ("subtopics", 100), ("resources", 39)], "fallback constants"
 
 
@@ -120,7 +120,7 @@ def data_expected() -> tuple[list[tuple[str, int]], str]:
 def db_probe() -> dict:
     """Dev-only: prove the database matches the handover, without psql.
 
-    This is the JSON twin of docs/sql/004_verify.sql — same query, same
+    This is the JSON twin of docs/sql/004_verify.sql, same query, same
     expectations, but you can curl it and paste the answer. Every check reports
     expected *and* actual so a wrong project is obvious rather than "looks fine".
     """
@@ -133,7 +133,7 @@ def db_probe() -> dict:
             "ok": False,
             "error": {
                 "code": "db_unconfigured",
-                "message": "DATABASE_URL is unset or unreachable — serving fixtures",
+                "message": "DATABASE_URL is unset or unreachable: serving fixtures",
                 "detail": st.get("detail"),
             },
         }
@@ -180,7 +180,7 @@ class LLMProbe(BaseModel):
 
 
 def _key_hint(key: str | None) -> str | None:
-    """Last 4 characters only — enough to tell two keys apart in a support
+    """Last 4 characters only, enough to tell two keys apart in a support
     conversation, not enough to use one."""
     if not key:
         return None
@@ -191,7 +191,7 @@ def _key_hint(key: str | None) -> str | None:
 def llm_config() -> dict:
     """Dev-only: which providers are wired, in what order, with what model.
 
-    Spends no quota — this is the "why did the probe fail" route. It answers
+    Spends no quota: this is the "why did the probe fail" route. It answers
     questions like *is it reading the key I think it is* and *which model name*,
     without ever printing a secret.
     """
@@ -217,7 +217,7 @@ def llm_config() -> dict:
         try:
             row["model"] = provider.model
             row["model_source"] = "env" if (provider._model or "").lower() not in ("", "auto") else "auto"
-        except Exception as exc:  # noqa: BLE001 — a bad key is information, not a 500
+        except Exception as exc:  # noqa: BLE001, a bad key is information, not a 500
             row["model"] = None
             row["model_error"] = f"{type(exc).__name__}: {exc}"[:300]
         chain_rows.append(row)
@@ -267,7 +267,7 @@ def llm_models() -> dict:
 def llm_probe(body: LLMProbe) -> dict:
     """Dev-only: prove which provider answered, or why none could.
 
-    In `ENV=prod` this route answers 404 — it is a probe, not a feature."""
+    In `ENV=prod` this route answers 404: it is a probe, not a feature."""
     s = get_settings()
     if s.env == "prod":
         raise RuntimeError("disabled in prod")

@@ -1,12 +1,12 @@
 "use client";
 
 /**
- * The tutor's client. The answer shape mirrors `app/tutor/service.py` exactly — focus rows
+ * The tutor's client. The answer shape mirrors `app/tutor/service.py` exactly, focus rows
  * carry the curriculum objective they came from, resources carry catalogue URLs, and
  * citations name the row (or the person's own quote) behind each claim.
  *
  * There is no streaming and no history on the server: one question, one composed answer.
- * That is a design choice, not a shortcut — a chat log that persists would eventually be
+ * That is a design choice, not a shortcut, a chat log that persists would eventually be
  * fed back as "context", and a claim could then appear with no row behind it.
  */
 export interface TutorCitation {
@@ -82,6 +82,6 @@ export async function askTutor(
       source: response.headers.get("x-data-source") ?? "unknown",
     };
   } catch {
-    return { ok: false, message: "the API did not answer — is uvicorn running on :8000?" };
+    return { ok: false, message: "the API did not answer. Is uvicorn running on :8000?" };
   }
 }

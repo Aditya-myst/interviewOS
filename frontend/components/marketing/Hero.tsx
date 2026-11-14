@@ -45,7 +45,7 @@ export default function Hero() {
             style={{ animationDelay: "270ms" }}
           >
             InterviewOS tests what you actually know against the job you actually
-            want — then builds a roadmap from the gaps that will be asked about,
+            want, then builds a roadmap from the gaps that will be asked about,
             not the whole syllabus.
           </p>
 
@@ -54,7 +54,7 @@ export default function Hero() {
             style={{ animationDelay: "330ms" }}
           >
             <IosButton href="/onboarding" variant="primary" size="lg" arrow className="w-full sm:w-auto">
-              Start free — upload resume
+              Start free, upload resume
             </IosButton>
             <IosButton href="#sample-report" variant="secondary" size="lg" className="w-full sm:w-auto">
               See a sample report
@@ -101,7 +101,7 @@ export default function Hero() {
           <span className="cue-bob inline-block" aria-hidden>
             ↓
           </span>
-          Scroll — three steps, then the report
+          Scroll: three steps, then the report
         </a>
       </div>
     </section>

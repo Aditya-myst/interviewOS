@@ -80,7 +80,7 @@ def check_database() -> None:
         return
     dsn = url.replace("+psycopg", "")
     if "@" in dsn and dsn.count("@") > 1:
-        record("postgres connect", False, "password contains a raw '@' — percent-encode it as %40")
+        record("postgres connect", False, "password contains a raw '@', percent-encode it as %40")
         return
     try:
         with psycopg.connect(dsn, connect_timeout=12) as conn:
@@ -225,7 +225,7 @@ def check_contracts() -> None:
 
 
 def main() -> int:
-    print(f"\nInterviewOS environment doctor — {ROOT}\n")
+    print(f"\nInterviewOS environment doctor, {ROOT}\n")
     load_env()
     check_required_keys()
     check_contracts()

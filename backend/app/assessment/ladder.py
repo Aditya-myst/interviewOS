@@ -2,7 +2,7 @@
 
 Why this exists next to the mock interview: an interview is expensive for the candidate
 (20-30 minutes, six questions) and it is the only way a skill became `verified` before
-this module. The ladder is the cheap path — three focused questions on one skill, each
+this module. The ladder is the cheap path, three focused questions on one skill, each
 one drawn from a real subtopic of `data/taxonomy.yaml`, each scored by the same
 quote-gated rubric the interview uses.
 
@@ -35,7 +35,7 @@ LEVELS = tuple(LEVEL_SUBTOPIC)
 
 # Objectives are written in instruction voice ("Explain the flow", "Use verbs and status
 # codes correctly"). Words that describe the *question*, not the concept, are removed
-# before a rubric is built — otherwise a perfect answer stays "missing: correctly,
+# before a rubric is built, otherwise a perfect answer stays "missing: correctly,
 # without, explain" and can never clear the bar.
 # Words that instruct the *candidate*, not describe the *concept*. A rubric built from
 # these punishes a correct answer for not parroting the syllabus: "explain generation limits
@@ -103,7 +103,7 @@ def _concept_terms(subtopic: dict) -> tuple[str, ...]:
     Title first: it names the concept ("tokens, context, temperature"), while the objective
     is the instruction ("explain generation limits without mysticism"). If filtering leaves
     fewer than two terms the raw title words are kept, because a rubric with no reachable
-    term scores every answer zero — worse than an imperfect one.
+    term scores every answer zero, worse than an imperfect one.
     """
     words: list[str] = []
     for source in (str(subtopic.get("title") or ""), str(subtopic.get("objective") or "")):
@@ -124,7 +124,7 @@ def _objective_items(subtopic: dict) -> tuple[RubricItem, ...]:
 
     One item per term, not per clause: a two-clause objective gave two rubric points, so
     missing one halved coverage and capped a good answer near 0.25. Terms keep the same
-    quote requirement — a sentence has to contain the term — with finer resolution.
+    quote requirement, a sentence has to contain the term, with finer resolution.
     """
     sub_id = str(subtopic.get("id") or "objective")
     terms = _concept_terms(subtopic)
@@ -141,16 +141,16 @@ def _question_text(level: str, *, name: str, title: str, objective_low: str) -> 
     """Role-agnostic wording: 'work', never 'code' or 'sprint'."""
     if level == "conceptual":
         return (
-            f"{name} — {title}. Explain it in your own words: what it is for, and when "
+            f"{name}: {title}. Explain it in your own words: what it is for, and when "
             "would you reach for it?"
         )
     if level == "practical":
         return (
-            f"{name} — {title}. Walk me through how you would {objective_low}, step by "
+            f"{name}: {title}. Walk me through how you would {objective_low}, step by "
             "step, on a piece of real work."
         )
     return (
-        f"{name} — {title}. Tell me about a time you actually had to {objective_low}: "
+        f"{name}: {title}. Tell me about a time you actually had to {objective_low}: "
         "what you did, what you measured, and what broke."
     )
 

@@ -1,8 +1,8 @@
 """The roadmap may only plan for skills this posting involves.
 
 The bug: after switching from a marketing resume to a backend one, the plan still opened
-with newsletter and social-growth topics. The stale row was *supposed* to survive — it holds
-a graded status and real evidence — but it kept the previous posting's `jd_importance` and
+with newsletter and social-growth topics. The stale row was *supposed* to survive, it holds
+a graded status and real evidence, but it kept the previous posting's `jd_importance` and
 `priority`, so it outranked every skill the new documents actually mention.
 
 Two defences, tested here and in `test_store_upsert.py`:

@@ -1,7 +1,7 @@
 """The environment doctor must run and pass in a healthy environment.
 
 It is the first thing to run when an import fails, so it cannot be the thing that
-fails — stdlib only, no app imports.
+fails, stdlib only, no app imports.
 """
 from __future__ import annotations
 

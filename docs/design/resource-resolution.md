@@ -1,13 +1,13 @@
 # Picking the one best resource
 
 The requirement: for every subtopic, point the learner at **the best single
-resource for that role** — official docs, a maintained open-source repo, a
+resource for that role**, official docs, a maintained open-source repo, a
 high-quality blog, and only then video or a search. Never a link we made up.
 
 Two separate problems, often confused:
 
-- **Selection** — which resource is best for this subtopic at this level?
-- **Verification** — is that resource still alive, free, and actually about it?
+- **Selection**, which resource is best for this subtopic at this level?
+- **Verification**, is that resource still alive, free, and actually about it?
 
 Both have to be mechanical, because a wrong link is the fastest way to lose a
 recruiter's trust.
@@ -18,7 +18,7 @@ recruiter's trust.
 
 | tier | source | wins because | trust |
 |---|---|---|---|
-| T0 | `data/curated.yaml` — hand-picked per subtopic | a human already checked it | highest |
+| T0 | `data/curated.yaml`, hand-picked per subtopic | a human already checked it | highest |
 | T1 | official docs slug templates (`fastapi.tiangolo.com/tutorial/<slug>`, `docs.python.org/3/library/<mod>`) | canonical, stable, free | very high |
 | T2 | free curricula: freeCodeCamp, roadmap.sh, Kaggle Learn, MIT OCW | structured, free, long-lived | high |
 | T3 | GitHub search (topics + stars + recent commits) | often the best practical artefact | high if maintained |
@@ -34,7 +34,7 @@ is a state the UI can render, not a lie.
 
 A candidate is discarded if any of these fail:
 
-- HTTP GET (not HEAD — many docs sites 405 a HEAD) returns 200 after redirects.
+- HTTP GET (not HEAD, many docs sites 405 a HEAD) returns 200 after redirects.
 - Content type is `text/html`, `application/pdf` or `text/plain`.
 - No paywall, login wall, cookie wall or "sign in to continue".
 - Not already marked `is_dead`, and not a domain on the death list.
@@ -70,16 +70,16 @@ Authority values, so this is not vibes:
 | aggregator / listicle | 0.25 |
 | search results page | 0.05 |
 
-Worked example — subtopic *"Retrieval metrics (recall@k, MRR)"*:
+Worked example, subtopic *"Retrieval metrics (recall@k, MRR)"*:
 
 | candidate | rel | auth | level | maint | eng | fresh | score |
 |---|---|---|---|---|---|---|---|
-| Ragas docs — metrics | .82 | 1.00 | 1.0 | .9 | .3 | 1.0 | **0.81** |
+| Ragas docs, metrics | .82 | 1.00 | 1.0 | .9 | .3 | 1.0 | **0.81** |
 | Blog: "RAG eval from scratch" | .88 | .70 | 1.0 | .6 | .2 | .8 | 0.74 |
 | YouTube: "RAG evaluation" | .70 | .55 | .9 | .5 | .8 | .7 | 0.66 |
 | ArXiv RAG paper | .62 | .95 | .4 | 1.0 | .9 | .9 | 0.72 |
 
-The paper scores respectably but loses on level match — it is the right
+The paper scores respectably but loses on level match, it is the right
 *checkpoint* reading, not the right first read. So the triplet matters: the same
 candidate can win one role and lose another.
 
@@ -94,10 +94,10 @@ Every topic resolves three roles, which is exactly the teaching loop:
 | `checkpoint` | a way to prove it: quiz, test suite, project spec, eval harness | prefer machine-checkable |
 
 Rules:
-- **No repeated domain** across the three roles — three links to the same blog
+- **No repeated domain** across the three roles, three links to the same blog
   is one link.
 - If a role cannot be filled above threshold, it renders as a labelled search
-  ("Not resolved yet — search for X"), which is what the roadmap screenshot
+  ("Not resolved yet, search for X"), which is what the roadmap screenshot
   already does.
 - One LLM rerank over the top 12 candidates picks the triplet, and **any URL it
   returns that is not string-identical to a candidate is dropped**. The model
@@ -111,7 +111,7 @@ Rules:
   and the new pick is announced in the UI ("link replaced 2 days ago").
 - Redirects are followed and recorded; a redirect that changes domain is kept
   but flagged, because domain churn often means the resource moved on.
-- `verified_at` in the UI is the timestamp of the last successful check — never
+- `verified_at` in the UI is the timestamp of the last successful check, never
   the date it was written into a fixture.
 
 ## 6. Cache and cost

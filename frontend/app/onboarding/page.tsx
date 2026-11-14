@@ -106,7 +106,7 @@ export default function OnboardingPage() {
         <h1 className="type-display-3 mb-4">Two documents. That is the whole input.</h1>
         <p className="type-body text-[var(--text-dim)] mb-10 max-w-[54ch]">
           Your resume and the job you are actually targeting. Every skill, gap and
-          priority after this is derived from these two — nothing is invented.
+          priority after this is derived from these two. Nothing is invented.
         </p>
 
         {/* Resume dropzone */}
@@ -168,7 +168,7 @@ export default function OnboardingPage() {
                 </button>
               </p>
               <p className="m-0 type-small text-[var(--text-dim)]">
-                PDF, DOCX or TXT — up to 10 MB
+                PDF, DOCX or TXT, up to 10 MB
               </p>
             </>
           )}
@@ -189,11 +189,11 @@ export default function OnboardingPage() {
             value={jd}
             onChange={(e) => setJd(e.target.value)}
             rows={7}
-            placeholder="Paste the full posting — responsibilities, requirements, and the nice-to-haves. Short postings produce shallow gap reports."
+            placeholder="Paste the full posting: responsibilities, requirements, and the nice-to-haves. Short postings produce shallow gap reports."
             className="w-full rounded-[12px] border border-[var(--border-strong)] bg-[var(--surface)] p-4 type-body outline-none focus:border-[var(--brand-strong)] focus:ring-4 focus:ring-[var(--brand-soft)] resize-y"
           />
           <p className="type-small text-[var(--text-dim)] mt-2">
-            Needs at least 80 characters — usually one or two requirement bullets.
+            Needs at least 80 characters, usually one or two requirement bullets.
           </p>
         </div>
 
@@ -237,8 +237,8 @@ export default function OnboardingPage() {
         {phase === "idle" && (
           <p className="type-small text-[var(--text-dim)] mt-6 max-w-[52ch]">
             {ready
-              ? "Both documents are ready. The resume is parsed in this request — nothing is stored until you have seen what it found."
-              : "Your file is not uploaded yet — it is sent only when you press Analyse."}
+              ? "Both documents are ready. The resume is parsed in this request. Nothing is stored until you have seen what it found."
+              : "Your file is not uploaded yet. It is sent only when you press Analyse."}
           </p>
         )}
       </div>
@@ -324,7 +324,7 @@ function Result({ resume, analysis }: { resume: ResumeUpload; analysis: JdAnalys
       {saved ? (
         <div className="mt-5 rounded-[12px] border border-[var(--verified)]/35 bg-[var(--brand-soft)] p-4">
           <p className="type-small m-0 font-medium text-[var(--text)]">
-            Saved to your profile{typeof scored === "number" ? ` — ${scored} skills scored` : ""}.
+            Saved to your profile{typeof scored === "number" ? `, ${scored} skills scored` : ""}.
           </p>
           <p className="type-small mt-1 mb-0 text-[var(--text-dim)]">
             Your dashboard, gap map and roadmap now read these rows, not fixtures.
@@ -350,9 +350,7 @@ function Result({ resume, analysis }: { resume: ResumeUpload; analysis: JdAnalys
             Parsed, but the database refused the write.
           </p>
           <p className="type-small mt-1 mb-0 text-[var(--text-dim)]">
-            The parse above is real — {skills.length} skills and {requirements.length} requirements
-            were read from your documents — but nothing was stored, so your dashboard still shows
-            fixtures. What the database said:
+            The parse above is real: {skills.length} skills and {requirements.length} requirements were read from your documents. But nothing was stored, so your dashboard still shows fixtures. What the database said:
           </p>
           <p className="mt-2 mb-0 rounded-[8px] bg-[var(--surface)] px-2.5 py-2 font-mono text-[11.5px] leading-snug text-[var(--text-dim)]">
             {persistError.message}
@@ -362,7 +360,7 @@ function Result({ resume, analysis }: { resume: ResumeUpload; analysis: JdAnalys
       ) : (
         <div className="mt-5 rounded-[12px] border border-[var(--developing)]/35 bg-[var(--developing)]/[0.07] p-4">
           <p className="type-small m-0 font-medium text-[var(--text)]">
-            Parsed, but not saved — no database is configured.
+            Parsed, but not saved. No database is configured.
           </p>
           <p className="type-small mt-1 mb-0 text-[var(--text-dim)]">
             The parsing above is real: {skills.length} skills and {requirements.length} requirements were

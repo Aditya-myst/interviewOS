@@ -3,7 +3,7 @@ wins every argument.
 
 The bug: an interview scoring 0.2 on a skill that was only ever `claimed` asked for
 `needs_revision`. The trigger refused it (`illegal transition claimed -> needs_revision`)
-and the exception escaped as a 500 *after* the candidate had answered — the turn was lost.
+and the exception escaped as a 500 *after* the candidate had answered, the turn was lost.
 
 Two guarantees are tested here:
 1. `reconcile` never returns a value the trigger would refuse (checked against a real

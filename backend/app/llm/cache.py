@@ -41,7 +41,7 @@ class MemoryCache:
 
 
 class DbCache:
-    """Reads and writes public.llm_cache. Service-role only in production — the
+    """Reads and writes public.llm_cache. Service-role only in production, the
     table has RLS on and no policies, and prompts contain resume text."""
 
     def get(self, key: str) -> dict[str, Any] | None:
@@ -61,7 +61,7 @@ class DbCache:
                     {"k": key},
                 )
                 return row[0]
-        except Exception:  # noqa: BLE001 — a cache miss is never an outage
+        except Exception:  # noqa: BLE001, a cache miss is never an outage
             return None
 
     def put(self, key: str, payload: dict[str, Any], *, model: str, snippet: str) -> None:

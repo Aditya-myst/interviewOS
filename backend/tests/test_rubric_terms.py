@@ -36,7 +36,7 @@ def test_every_subtopic_has_at_least_two_reachable_rubric_points():
 
 
 def test_a_competent_answer_scores_like_a_competent_answer():
-    """Explain LLM basics properly — in words a person would use — and be scored for it."""
+    """Explain LLM basics properly, in words a person would use, and be scored for it."""
     sub = next(s for s in taxonomy.raw_subtopics()["llm-rag"] if s["id"] == "llm-basics")
     rubric = _objective_items(sub)
     answer = (

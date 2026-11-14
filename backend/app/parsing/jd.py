@@ -211,7 +211,7 @@ def _topics(text: str, section_list: list[sections_mod.Section], kinds: dict[int
 
 
 def normalise(text: str) -> str:
-    """CRLF in, LF out — before any offset exists.
+    """CRLF in, LF out, before any offset exists.
 
     A JD pasted from Windows carries \r\n, and quotes stored with a trailing \r look
     like corruption in the UI and fail an exact-string comparison later.
@@ -235,7 +235,7 @@ def parse(text: str) -> ParsedJD:
         in_required = any(kinds.get(_section_index(section_list, m.start)) == "required" for m in group)
         in_preferred = any(kinds.get(_section_index(section_list, m.start)) == "preferred" for m in group)
         # a skill named in the requirements section is required even if it also
-        # appears in "nice to have" — the stronger claim wins, and that is stated
+        # appears in "nice to have", the stronger claim wins, and that is stated
         # section decides first, then the sentence itself gets a veto:
         # "Experience with Docker; Kubernetes is a plus" sits in Requirements
         says_plus = any(_governed_by_preferred(text, m) for m in group)

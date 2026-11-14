@@ -36,7 +36,7 @@ def coverage_by_category(rows: list[ScoredSkill]) -> list[dict]:
 
 
 def build_profile(rows: list[ScoredSkill], *, provisional: bool = True) -> dict:
-    """`provisional` is true until an assessment exists — a resume score is a hypothesis,
+    """`provisional` is true until an assessment exists, a resume score is a hypothesis,
     and the UI says so."""
     return {
         "provisional": provisional,

@@ -2,7 +2,7 @@
 
 These reflect that file. They do not own it and they do not create anything:
 run the SQL, then let the models match. Enums are declared with the exact values
-from contracts/ENUMS.md — a typo here is a bug in two layers.
+from contracts/ENUMS.md, a typo here is a bug in two layers.
 """
 from __future__ import annotations
 

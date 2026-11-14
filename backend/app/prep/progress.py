@@ -1,7 +1,7 @@
 """Roadmap progress: the plan becomes rows you can move.
 
 The roadmap was computed on every read and thrown away. `learning_paths` and
-`learning_topics` — eighteen tables exist for this — stayed empty, so `topics_done` on the
+`learning_topics`, eighteen tables exist for this, stayed empty, so `topics_done` on the
 dashboard counted rows in a table nothing ever wrote, and it could not leave zero no matter
 how much the candidate studied. A progress bar that cannot move is decoration.
 
@@ -171,7 +171,7 @@ def sync_plan(
             ins = ins.on_conflict_do_update(
                 index_elements=[LearningTopic.id],
                 set_={
-                    # content only — never status, never progress
+                    # content only, never status, never progress
                     "path_id": ins.excluded.path_id,
                     "skill_id": ins.excluded.skill_id,
                     "title": ins.excluded.title,
@@ -250,7 +250,7 @@ def mark_checkpoint(
 
     The ladder and the roadmap were two features that never spoke: you could pass three
     checkpoints on "RAG architecture end to end" and the roadmap would still say "not
-    started", with `checkpoint_passed` — a status the schema defines — set by nothing.
+    started", with `checkpoint_passed`, a status the schema defines, set by nothing.
 
     Forward only, on purpose:
 
@@ -304,7 +304,7 @@ def completed_topics(session, *, user_id: str) -> list[dict[str, Any]]:
 
     Passing a checkpoint closes the gap, so the next re-plan drops that skill to low
     priority and parks its topic out of the visible range. That is the planner working
-    correctly — and it also meant a candidate could pass a ladder and find the roadmap
+    correctly, and it also meant a candidate could pass a ladder and find the roadmap
     looking exactly as it had before, with the topic they just cleared nowhere on it.
 
     These rows keep their status and their progress; this read brings them back as a

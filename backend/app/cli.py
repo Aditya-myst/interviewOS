@@ -1,4 +1,4 @@
-"""`python -m app.cli parse resume.pdf` — the pipeline, without the API.
+"""`python -m app.cli parse resume.pdf`, the pipeline, without the API.
 
 Useful for two things: trying the parser on a real document before any upload
 flow exists, and showing a sceptic exactly which line produced which claim.
@@ -27,12 +27,12 @@ def cmd_parse(path: str, as_json: bool, show_text: bool = False) -> int:
     except UnparseableDocument as exc:
         print(json.dumps({"parse_status": "unparseable", "reason": exc.reason,
                           "detail": exc.detail}, indent=2) if as_json
-              else f"unparseable — {exc.reason}: {exc.detail}")
+              else f"unparseable: {exc.reason}: {exc.detail}")
         return 1
 
     parsed = resume_mod.parse(document)
     if show_text:
-        # what the parser actually saw — the first thing to check when recall is low
+        # what the parser actually saw, the first thing to check when recall is low
         print(f"--- extracted text ({len(document.text)} chars, {len(document.pages)} page(s)) ---")
         print(document.text)
         print("--- end text ---")
@@ -52,7 +52,7 @@ def cmd_parse(path: str, as_json: bool, show_text: bool = False) -> int:
     gaps = parsed.stats.get("vocabulary_gaps") or []
     if gaps:
         print(f"vocabulary gaps ({len(gaps)}): your skills sections list these and the taxonomy "
-              f"does not know them —")
+              f"does not know them,")
         print("  " + " · ".join(gaps[:24]))
         print("  (a gap here is a taxonomy gap, not a parse failure: tell me the stack and "
               "I will add it)")

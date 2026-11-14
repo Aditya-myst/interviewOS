@@ -1,12 +1,12 @@
 """Database access.
 
-The schema is owned by docs/sql/001_init.sql — these models *reflect* it, they
+The schema is owned by docs/sql/001_init.sql, these models *reflect* it, they
 never create it. `create_all` is deliberately absent: two sources of truth for a
 schema is how a project ends up with drift nobody can explain.
 
 When DATABASE_URL is empty the app runs in fixture mode: reads come from
 contracts/fixtures, writes are refused with `degraded_mode`. That keeps the
-frontend unblocked before a database exists and keeps the honesty honest — the
+frontend unblocked before a database exists and keeps the honesty honest, the
 UI can tell the user which mode it is looking at.
 """
 from __future__ import annotations
@@ -41,7 +41,7 @@ _engine_error: dict[str, str] | None = None
 def engine():
     """Lazily built so importing the app never opens a socket.
 
-    Returns None when the database is absent *or unusable* — a missing driver is a
+    Returns None when the database is absent *or unusable*, a missing driver is a
     configuration fact, not a reason to refuse to start. The reason lands in
     `_engine_error` so /ready and the startup log can report it.
     """
@@ -67,16 +67,16 @@ def engine():
         _engine_error = {
             "state": "driver_missing",
             "detail": (
-                f"DATABASE_URL is set but the {missing} driver is not installed — "
+                f"DATABASE_URL is set but the {missing} driver is not installed; "
                 f'run `pip install "{hint}"` or `uv sync` in backend/. '
                 "Serving fixtures until then."
             ),
         }
         log.warning(_engine_error["detail"])
         return None
-    except Exception as exc:  # noqa: BLE001 — a bad URL is information, not a crash
+    except Exception as exc:  # noqa: BLE001, a bad URL is information, not a crash
         _engine_error = {"state": "error", "detail": f"{type(exc).__name__}: {exc}"}
-        log.warning("database engine could not be built — %s", _engine_error["detail"])
+        log.warning("database engine could not be built, %s", _engine_error["detail"])
         return None
     return _engine
 
@@ -92,7 +92,7 @@ def session_factory() -> sessionmaker[Session] | None:
 def get_session() -> Iterator[Session]:
     factory = session_factory()
     if factory is None:
-        raise RuntimeError("database not configured — fixture mode")
+        raise RuntimeError("database not configured, fixture mode")
     session = factory()
     try:
         yield session
@@ -111,7 +111,7 @@ def db_status() -> dict:
         return {
             "ok": False,
             "state": "unconfigured",
-            "detail": "DATABASE_URL is empty — serving fixtures",
+            "detail": "DATABASE_URL is empty, serving fixtures",
         }
 
     eng = engine()
@@ -133,5 +133,5 @@ def db_status() -> dict:
             "server_version": str(version),
             "migrations": "applied" if int(tables) >= 18 else "missing",
         }
-    except Exception as exc:  # noqa: BLE001 — the reason matters more than the type
+    except Exception as exc:  # noqa: BLE001, the reason matters more than the type
         return {"ok": False, "state": "error", "detail": f"{type(exc).__name__}: {exc}"}

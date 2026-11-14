@@ -1,4 +1,4 @@
-# InterviewOS — frontend
+# InterviewOS, frontend
 
 Next.js 16 (App Router, Cache Components). Every screen is a server component that
 reads FastAPI; nothing on screen is hardcoded.
@@ -8,11 +8,11 @@ reads FastAPI; nothing on screen is hardcoded.
 Two terminals, both from the repo root:
 
 ```powershell
-# 1. API — http://127.0.0.1:8000
+# 1. API, http://127.0.0.1:8000
 cd backend
 uv run uvicorn app.main:app --reload
 
-# 2. UI — http://localhost:3000
+# 2. UI, http://localhost:3000
 cd frontend
 pnpm dev
 ```
@@ -32,7 +32,7 @@ its provenance, read from the API's own headers:
 | badge | meaning |
 |---|---|
 | **Postgres** (green) | rows came out of `candidate_skills` for this user, just now |
-| **Fixture** (amber) | the API answered but had no rows, so it served its contract fixture — the badge prints the reason (`no_rows`, `no_profile`, `no_db`, `db_error`) |
+| **Fixture** (amber) | the API answered but had no rows, so it served its contract fixture, the badge prints the reason (`no_rows`, `no_profile`, `no_db`, `db_error`) |
 | **Offline** (red) | the API did not answer at all; the page is showing fixtures read from `contracts/fixtures` |
 
 Every data screen ends with a provenance strip listing the endpoints it actually

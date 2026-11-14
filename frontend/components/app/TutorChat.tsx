@@ -8,7 +8,7 @@ import { askTutor, type TutorAnswer, type TutorCitation } from "@/lib/tutor";
  * The tutor screen. Three promises are enforced in the markup, not just the prose:
  *
  * 1. Every claim shows its source. Citation chips sit under each answer and link to the
- *    catalogue entry or name the profile row — a reader can check the answer instead of
+ *    catalogue entry or name the profile row, a reader can check the answer instead of
  *    trusting it.
  * 2. "I do not know" is a rendered state. `matched: false` gets a card with the reason and
  *    the topics that *can* be answered, never a paragraph that looks like comprehension.
@@ -159,7 +159,7 @@ function AnswerCard({ answer }: { answer: TutorAnswer }) {
               </ul>
             ) : (
               <p className="mt-2 mb-0 type-micro text-[var(--text-dim)]">
-                No curated link for this subtopic — the objective is the curriculum&apos;s own.
+                No curated link for this subtopic. The objective is the curriculum&apos;s own.
               </p>
             )}
           </li>
@@ -283,8 +283,7 @@ export default function TutorChat({
           <div className="rounded-[16px] border border-dashed border-[var(--border-strong)] p-6 text-center">
             <p className="m-0 type-small text-[var(--text-dim)]">
               Answers are composed from your own profile rows, the curriculum subtopics and the
-              curated catalogue — not written freehand. Ask about a skill and you will see the
-              rows it used.
+              curated catalogue, not written freehand. Ask about a skill and you will see the rows it used.
             </p>
           </div>
         )

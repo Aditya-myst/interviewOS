@@ -2,7 +2,7 @@ import type { CandidateSkill } from "../../../contracts/types";
 
 /**
  * The money chart: importance against gap, bubble size by interview relevance.
- * Top-right is "the interview will ask this and you cannot prove it yet" — the
+ * Top-right is "the interview will ask this and you cannot prove it yet", the
  * order of the list is legible from the shape, which is the whole point.
  *
  * Static SVG on purpose: native <title> gives hover text without shipping JS,
@@ -33,7 +33,7 @@ export default function PriorityScatter({ skills }: { skills: CandidateSkill[] }
       <svg
         viewBox={`0 0 ${W} ${H}`}
         /* Capped: at full container width the viewBox scaled ~2.3x and the 9px
-           axis labels rendered at 21px — "FIX FIRST" read like an error message. */
+           axis labels rendered at 21px, "FIX FIRST" read like an error message. */
         className="w-full h-auto max-w-[520px]"
         role="img"
         aria-label="Skills plotted by job-description importance and evidence gap"
@@ -94,7 +94,7 @@ export default function PriorityScatter({ skills }: { skills: CandidateSkill[] }
                 fill={BAND_COLOR[s.priority_band] ?? BAND_COLOR.low}
                 opacity={0.85}
               >
-                <title>{`${s.name} — ${s.priority_band}, priority ${s.priority.toFixed(2)}`}</title>
+                <title>{`${s.name}, ${s.priority_band}, priority ${s.priority.toFixed(2)}`}</title>
               </circle>
               {n && (
                 <text
