@@ -68,9 +68,8 @@ export default function TopicProgressControl({
         {done ? "Reopen" : "Mark done"}
       </button>
 
-      {current === "in_progress" && (
-        <span className="type-micro text-[var(--developing)]">in progress</span>
-      )}
+      {/* No status label here: the topic row already shows one pill, and two
+          labels for the same fact read as two different facts. */}
 
       {error && (
         <span className="type-micro text-[var(--critical)] max-w-[42ch]">

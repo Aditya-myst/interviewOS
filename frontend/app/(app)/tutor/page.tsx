@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import PageHeader from "@/components/shell/PageHeader";
 import Link from "next/link";
 import DataSourceBadge from "@/components/app/DataSourceBadge";
 import Skeleton from "@/components/app/Skeleton";
@@ -39,24 +40,18 @@ async function TutorBody({ searchParams }: { searchParams: Promise<{ state?: str
 
   return (
     <div className="grid gap-6">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="type-micro m-0 text-[var(--text-dim)]">Tutor</p>
-          <h1 className="mt-1 mb-0 text-[30px] font-semibold leading-tight tracking-[-0.02em]">
-            Every answer cites the row it came from
-          </h1>
-          <p className="mt-1 max-w-[62ch] type-small m-0 text-[var(--text-dim)]">
-            Scoped to your own gaps. It explains the next three subtopics from the curriculum and
-            links the curated resources for them — and when there is no row, it says so instead of
-            improvising.
-          </p>
-        </div>
+      <PageHeader
+        eyebrow="Tutor"
+        title="Every answer cites the row it came from"
+        description="Scoped to your own gaps. It explains the next three subtopics from the curriculum and links the curated resources for them — and when there is no row, it says so instead of improvising."
+        actions={
         <DataSourceBadge
           source={profile.source}
-          reason={profile.reason}
-          endpoint={profile.endpoint}
-        />
-      </header>
+            reason={profile.reason}
+            endpoint={profile.endpoint}
+          />
+        }
+      />
 
       <TutorChat suggestions={suggestions} demoState={state} />
 

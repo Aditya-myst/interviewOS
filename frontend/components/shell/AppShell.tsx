@@ -123,7 +123,7 @@ function NavLink({
         "focus-visible:outline-2 focus-visible:outline-[var(--brand-strong)] focus-visible:outline-offset-2",
         "min-h-[44px]",
         active
-          ? "bg-[var(--surface-3)] text-[var(--text)]"
+          ? "bg-[color-mix(in_srgb,var(--brand)_14%,transparent)] text-[var(--text)] shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--brand)_22%,transparent)]"
           : "text-[var(--text-dim)] hover:bg-[var(--surface-2)] hover:text-[var(--text)]"
       )}
     >
@@ -131,7 +131,7 @@ function NavLink({
       {active && (
         <span
           aria-hidden
-          className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-r-full bg-[var(--green-500)]"
+          className="absolute left-0 top-1/2 -translate-y-1/2 h-6 w-[3px] rounded-r-full bg-[var(--brand)] shadow-[0_0_12px_color-mix(in_srgb,var(--brand)_70%,transparent)]"
         />
       )}
 
@@ -139,8 +139,10 @@ function NavLink({
         size={18}
         strokeWidth={active ? 2.5 : 1.8}
         className={cn(
-          "shrink-0 transition-colors",
-          active ? "text-[var(--brand-strong)]" : "text-current"
+          "shrink-0 transition-[color,transform] duration-150",
+          active
+            ? "text-[var(--brand-strong)]"
+            : "text-current group-hover:-translate-y-px"
         )}
       />
 
@@ -198,7 +200,7 @@ function SideRail({
       >
         <span
           aria-hidden
-          className="size-7 rounded-[8px] bg-[var(--green-500)] flex items-center justify-center shrink-0"
+          className="size-7 rounded-[8px] bg-[linear-gradient(160deg,var(--green-400),var(--green-600))] shadow-[0_2px_8px_-2px_rgba(21,128,61,0.55)] flex items-center justify-center shrink-0"
         >
           <span className="font-display text-[10px] font-black text-[var(--ink-950)] leading-none">
             iO
@@ -273,7 +275,7 @@ function BottomTabBar() {
   return (
     <nav
       aria-label="Main navigation"
-      className="lg:hidden fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around h-16 border-t border-[var(--border)] bg-[var(--surface)]"
+      className="lg:hidden fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around h-16 border-t border-[var(--border)] bg-[color-mix(in_srgb,var(--surface)_88%,transparent)] backdrop-blur-md"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       {NAV_ITEMS.slice(0, 5).map((item) => {
@@ -304,7 +306,9 @@ function BottomTabBar() {
               "flex flex-col items-center gap-1 px-3 py-2 rounded-[12px] min-h-[44px] min-w-[44px]",
               "text-[11px] font-medium transition-all duration-[150ms] ease-out",
               "focus-visible:outline-2 focus-visible:outline-[var(--brand-strong)] focus-visible:outline-offset-2",
-              active ? "text-[var(--brand-strong)]" : "text-[var(--text-dim)]"
+              active
+                ? "text-[var(--brand-strong)] bg-[color-mix(in_srgb,var(--brand)_12%,transparent)]"
+                : "text-[var(--text-dim)]"
             )}
           >
             <Icon size={20} strokeWidth={active ? 2.5 : 1.8} />
@@ -324,12 +328,12 @@ function TopBar() {
   );
 
   return (
-    <header className="flex items-center justify-between h-16 px-4 md:px-6 border-b border-[var(--border)] bg-[var(--surface)] shrink-0">
+    <header className="lg:hidden flex items-center justify-between h-16 px-4 md:px-6 border-b border-[var(--border)] bg-[color-mix(in_srgb,var(--surface)_82%,transparent)] backdrop-blur-md shrink-0">
       <div className="flex items-center gap-3">
         {/* Mobile logo */}
         <span
           aria-hidden
-          className="lg:hidden size-7 rounded-[8px] bg-[var(--green-500)] flex items-center justify-center shrink-0"
+          className="lg:hidden size-7 rounded-[8px] bg-[linear-gradient(160deg,var(--green-400),var(--green-600))] shadow-[0_2px_8px_-2px_rgba(21,128,61,0.55)] flex items-center justify-center shrink-0"
         >
           <span className="font-display text-[10px] font-black text-[var(--ink-950)] leading-none">
             iO

@@ -1,5 +1,7 @@
 import { Suspense } from "react";
+import PageHeader from "@/components/shell/PageHeader";
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import AssessmentLadder from "@/components/app/AssessmentLadder";
 import DataSourceBadge from "@/components/app/DataSourceBadge";
 import Skeleton from "@/components/app/Skeleton";
@@ -8,6 +10,14 @@ import { loadSkillProfile } from "@/lib/api";
 import { parseState } from "@/lib/fixtures";
 
 export const metadata = { title: "Assessment ladder — InterviewOS" };
+
+/* Same four colours the scatter uses, so the legend and the chart cannot drift. */
+const BAND_DOT: Record<string, string> = {
+  critical: "var(--weak)",
+  high: "var(--developing)",
+  medium: "var(--brand-strong)",
+  low: "var(--unverified)",
+};
 
 /**
  * The ladder screen, for one skill.
@@ -43,23 +53,18 @@ async function AssessmentBody({
 
   return (
     <div className="grid gap-6">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="type-micro m-0 text-[var(--text-dim)]">Assessment</p>
-          <h1 className="mt-1 mb-0 text-[30px] font-semibold leading-tight tracking-[-0.02em]">
-            Three questions instead of a guess
-          </h1>
-          <p className="mt-1 type-small m-0 text-[var(--text-dim)]">
-            A short ladder per skill: concept, mechanics, then the work itself. Scored on the
-            rubric for one curriculum subtopic, with the quote that earned it.
-          </p>
-        </div>
-        <DataSourceBadge
-          source={profile.source}
-          reason={profile.reason}
-          endpoint={profile.endpoint}
-        />
-      </header>
+      <PageHeader
+        eyebrow="Assessment"
+        title="Three questions instead of a guess"
+        description="A short ladder per skill: concept, mechanics, then the work itself. Scored on the rubric for one curriculum subtopic, with the quote that earned it."
+        actions={
+          <DataSourceBadge
+            source={profile.source}
+            reason={profile.reason}
+            endpoint={profile.endpoint}
+          />
+        }
+      />
 
       {skills.length === 0 ? (
         <section className="card-surface p-8 text-center">
@@ -119,7 +124,7 @@ async function AssessmentBody({
                 <li key={row.skill_id}>
                   <Link
                     href={`/assessment?state=${demo}&skill=${row.skill_id}`}
-                    className="flex items-center gap-3 rounded-[10px] px-2 py-2 no-underline hover:bg-[var(--surface-2)]"
+                    className="group flex items-center gap-3 rounded-[10px] px-2 py-2.5 no-underline transition-colors hover:bg-[color-mix(in_srgb,var(--brand)_6%,transparent)]"
                   >
                     <span className="type-small font-medium text-[var(--text)]">{row.name}</span>
                     <span className="type-micro text-[var(--text-dim)]">{row.priority_band}</span>
@@ -129,14 +134,46 @@ async function AssessmentBody({
                     <span className="type-micro capitalize text-[var(--text-dim)]">
                       {row.status.replace("_", " ")}
                     </span>
+                    <ArrowRight
+                      size={14}
+                      aria-hidden
+                      className="text-[var(--text-dim)] opacity-0 transition-all duration-150 group-hover:translate-x-0.5 group-hover:opacity-100"
+                    />
                   </Link>
                 </li>
               ))}
             </ul>
           </section>
           <section className="card-surface p-5">
-            <h2 className="m-0 text-[15px] font-semibold">Where the gaps sit</h2>
-            <PriorityScatter skills={profile.data.skills} />
+            <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
+              <h2 className="m-0 text-[15px] font-semibold">Where the gaps sit</h2>
+              <span className="type-micro text-[var(--text-dim)]">
+                gap → · importance ↑ · bubble size = interview relevance
+              </span>
+            </div>
+            <div className="grid gap-6 md:grid-cols-[minmax(0,520px)_1fr] md:items-center">
+              <PriorityScatter skills={profile.data.skills} />
+              <ul className="m-0 grid list-none gap-2 p-0">
+                {[
+                  ["critical", "the interview will ask it, you cannot prove it yet"],
+                  ["high", "likely asked, thin evidence"],
+                  ["medium", "asked sometimes, evidence is partial"],
+                  ["low", "rarely probed, and you already show it"],
+                ].map(([band, meaning]) => (
+                  <li key={band} className="flex items-start gap-2.5">
+                    <span
+                      aria-hidden
+                      className="mt-[6px] size-2 shrink-0 rounded-full"
+                      style={{ background: BAND_DOT[band] }}
+                    />
+                    <span className="type-small text-[var(--text-dim)]">
+                      <span className="font-medium capitalize text-[var(--text)]">{band}</span>{" "}
+                      — {meaning}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </section>
         </>
       )}

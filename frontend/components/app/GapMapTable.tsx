@@ -109,7 +109,7 @@ export default function GapMapTable({ skills }: { skills: CandidateSkill[] }) {
                   <Fragment key={s.skill_id}>
                     <tr
                       id={`skill-${s.skill_id}`}
-                      className="border-t border-[var(--border)] align-top scroll-mt-24 target:bg-[var(--brand-soft)]/50"
+                      className="row-wash border-t border-[var(--border)] align-top scroll-mt-24 target:bg-[var(--brand-soft)]/50"
                     >
                       <td className="px-4 py-3.5">
                         <span className="font-medium">{s.name}</span>

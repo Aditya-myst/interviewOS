@@ -387,7 +387,7 @@ function Result({ state, onRestart }: { state: AssessmentState; onRestart: () =>
       </h3>
       <p className="type-small mt-2 max-w-[64ch] m-0 text-[var(--text-dim)]">{result.why}</p>
 
-      <ul className="mt-4 grid list-none gap-2 p-0">
+      <ul className="mt-4 grid list-none gap-2 p-0 stagger">
         {(state.answers ?? []).map((row) => (
           <li key={row.index} className="flex items-center gap-3">
             <span className="font-mono text-[11px] text-[var(--text-dim)]">0{row.index}</span>

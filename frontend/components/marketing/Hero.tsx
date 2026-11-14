@@ -8,7 +8,11 @@ export default function Hero() {
       <div className="max-w-6xl mx-auto px-6 lg:px-10 grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-10 lg:gap-12 items-center">
         {/* ── Left: message ── */}
         <div className="flex flex-col">
-          <p className="animate-rise type-micro text-[var(--text-dim)] mb-5" style={{ animationDelay: "40ms" }}>
+          <p
+            className="animate-rise type-micro flex items-center gap-2.5 text-[var(--text-dim)] mb-5"
+            style={{ animationDelay: "40ms" }}
+          >
+            <span aria-hidden className="inline-block h-px w-8 bg-[var(--brand-strong)]" />
             AI career preparation
           </p>
 
@@ -45,8 +49,14 @@ export default function Hero() {
 
         {/* ── Right: card stack (both cards fully populated) ── */}
         <div className="animate-rise relative w-full max-w-[400px] mx-auto h-[480px]" style={{ animationDelay: "340ms" }}>
+          {/* A soft brand glow behind the stack: the one piece of colour on the
+              page that is not a control or a status. */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 size-[420px] rounded-full opacity-70 blur-3xl bg-[radial-gradient(circle,color-mix(in_srgb,var(--brand)_22%,transparent),transparent_68%)]"
+          />
           {/* Back card */}
-          <div className="absolute left-8 right-0 top-0 h-[250px] -rotate-2 origin-top-right card-inset px-6 pt-7 pb-16 flex flex-col items-center gap-3">
+          <div className="absolute left-8 right-0 top-0 h-[250px] -rotate-2 origin-top-right card-inset px-6 pt-7 pb-16 flex flex-col items-center gap-3 shadow-[0_18px_40px_-28px_rgba(13,26,19,0.45)]">
             <p className="type-micro text-[var(--text-dim)]">Readiness</p>
             <p className="font-mono text-[44px] leading-none text-[var(--text)] tabular-nums">
               <CountUp to={42} suffix="%" />
@@ -60,7 +70,7 @@ export default function Hero() {
           </div>
 
           {/* Front card */}
-          <div className="absolute left-0 right-4 bottom-0 card-surface p-6 hover:-translate-y-0.5 transition-transform duration-150 ease-out">
+          <div className="card-lift absolute left-0 right-4 bottom-0 card-surface p-6">
             <p className="type-micro text-[var(--text-dim)] mb-2">Your top gap</p>
             <h2 className="font-[family-name:var(--font-display)] text-[32px] leading-none text-[var(--text)] mb-3">
               FastAPI

@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import PageHeader from "@/components/shell/PageHeader";
 import Link from "next/link";
 import DataSourceBadge from "@/components/app/DataSourceBadge";
 import Skeleton from "@/components/app/Skeleton";
@@ -42,6 +43,14 @@ function compactReason(text: string): string {
  * Accent, pace and confidence are not measured here and the page says so, because a
  * product that claims to read confidence from text is lying to the candidate.
  */
+/** The score bar and the status pill must agree; four verdicts, four colours. */
+const SCORE_TONE: Record<string, string> = {
+  verified: "var(--verified)",
+  developing: "var(--developing)",
+  weak: "var(--weak)",
+  needs_revision: "var(--weak)",
+};
+
 /** What "scored by" means, in the candidate's words rather than a flag name. */
 const SCORED_BY_HINT: Record<string, string> = {
   rubric: "deterministic rubric — same answer, same score",
@@ -78,29 +87,30 @@ async function ReportBody({
 
   return (
     <div className="grid gap-6">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="type-micro text-[var(--text-dim)] m-0">Report</p>
-          <h1 className="mt-1 mb-0 text-[30px] font-semibold leading-tight tracking-[-0.02em]">
-            {live ? "How that session scored" : "A recorded session, start to finish"}
-          </h1>
-          <p className="mt-1 type-small text-[var(--text-dim)] m-0 max-w-[70ch]">
-            {live
-              ? "Built from the transcript you just produced. Every score below has a quote behind it."
-              : "No session in hand, so this is a recorded run kept as a fixture — useful to see the shape of the output, not a claim about you."}
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
+      <PageHeader
+        eyebrow="Report"
+        title={live ? "How that session scored" : "A recorded session, start to finish"}
+        description={
+          live
+            ? "Built from the transcript you just produced. Every score below has a quote behind it."
+            : "No session in hand, so this is a recorded run kept as a fixture — useful to see the shape of the output, not a claim about you."
+        }
+        actions={
           <IosButton href="/interview" variant="secondary" arrow>
             Take an interview
           </IosButton>
-          <DataSourceBadge
-            source={payload.source}
-            reason={payload.reason}
-            endpoint={payload.endpoint}
-          />
-        </div>
-      </header>
+        }
+      />
+
+      {/* Provenance sits under the header, not beside the title: at 600px wide it
+          was squeezing the h1 into three short lines. */}
+      <div className="-mt-3 mb-4 flex flex-wrap items-center gap-2">
+        <DataSourceBadge
+          source={payload.source}
+          reason={payload.reason}
+          endpoint={payload.endpoint}
+        />
+      </div>
 
       {report.persisted === false && (
         <p className="rounded-[12px] border border-[var(--border-strong)] bg-[var(--surface-2)] px-4 py-3 type-small text-[var(--text-dim)] m-0">
@@ -197,10 +207,15 @@ async function ReportBody({
                   {Math.round(row.score * 100)}/100
                 </span>
               </div>
-              <div className="h-1 w-full overflow-hidden rounded-full bg-[var(--surface-2)]">
+              {/* The bar carries the verdict's colour, not the brand's: a 45/100 in
+                  brand green reads as "fine" when the pill next to it says weak. */}
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--surface-2)]">
                 <div
-                  className="h-full rounded-full bg-[var(--brand)]"
-                  style={{ width: `${Math.round(row.score * 100)}%` }}
+                  className="h-full rounded-full transition-[width] duration-500 ease-out"
+                  style={{
+                    width: `${Math.round(row.score * 100)}%`,
+                    background: SCORE_TONE[row.status_after] ?? "var(--brand)",
+                  }}
                 />
               </div>
               <p className="type-small text-[var(--text-dim)] m-0">{row.comment}</p>

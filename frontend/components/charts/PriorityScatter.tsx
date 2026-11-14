@@ -32,7 +32,9 @@ export default function PriorityScatter({ skills }: { skills: CandidateSkill[] }
     <figure className="m-0">
       <svg
         viewBox={`0 0 ${W} ${H}`}
-        className="w-full h-auto"
+        /* Capped: at full container width the viewBox scaled ~2.3x and the 9px
+           axis labels rendered at 21px — "FIX FIRST" read like an error message. */
+        className="w-full h-auto max-w-[520px]"
         role="img"
         aria-label="Skills plotted by job-description importance and evidence gap"
       >

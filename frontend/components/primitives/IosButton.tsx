@@ -27,15 +27,18 @@ interface IosButtonProps
 const VARIANT_STYLES: Record<ButtonVariant, string> = {
   primary: [
     "bg-[var(--brand)] text-[var(--ink-950)]",
-    "hover:bg-[var(--brand-hover)]",
-    "active:bg-[var(--green-600)]",
+    "shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_6px_16px_-8px_rgba(21,128,61,0.65)]",
+    "hover:bg-[var(--brand-hover)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.4),0_10px_22px_-10px_rgba(21,128,61,0.7)]",
+    "active:bg-[var(--green-600)] active:translate-y-px",
     "focus-visible:outline-2 focus-visible:outline-[var(--brand-strong)] focus-visible:outline-offset-2",
     "font-semibold",
   ].join(" "),
 
   secondary: [
     "bg-[var(--surface)] text-[var(--text)] border border-[var(--border-strong)]",
-    "hover:bg-[var(--surface-2)]",
+    "shadow-[0_1px_2px_rgba(13,26,19,0.05)]",
+    "hover:bg-[var(--surface-2)] hover:border-[var(--border-strong)] hover:shadow-[0_6px_16px_-10px_rgba(13,26,19,0.35)]",
+    "active:translate-y-px",
     "active:bg-[var(--surface-3)]",
     "focus-visible:outline-2 focus-visible:outline-[var(--brand-strong)] focus-visible:outline-offset-2",
     "font-medium",
@@ -90,7 +93,7 @@ export default function IosButton({
     "inline-flex items-center justify-center shrink-0 whitespace-nowrap select-none",
     "font-[family-name:var(--font-sans)]",
     "min-h-[44px] min-w-[44px]",
-    "transition-all duration-[150ms] ease-out",
+    "group transition-all duration-[150ms] ease-out",
     "disabled:pointer-events-none disabled:bg-[var(--surface-3)] disabled:text-[var(--text-dim)] disabled:border disabled:border-[var(--border)]",
     VARIANT_STYLES[variant],
     SIZE_STYLES[size],
@@ -113,7 +116,7 @@ export default function IosButton({
         <span
           aria-hidden
           className={cn(
-            "flex items-center justify-center rounded-full",
+            "flex items-center justify-center rounded-full transition-transform duration-150 ease-out group-hover:translate-x-0.5",
             ARROW_CHIP[variant],
             size === "sm" ? "size-6" : size === "md" ? "size-7" : "size-8"
           )}

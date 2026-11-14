@@ -139,7 +139,7 @@ async function RoadmapBody({
           </p>
         </section>
       ) : (
-        <ol className="list-none m-0 p-0">
+        <ol className="list-none m-0 p-0 stagger">
           {r.topics.map((t) => (
             <li key={t.id}>
               <TopicCard topic={t} persisted={r.persisted !== false} />
@@ -160,7 +160,7 @@ async function RoadmapBody({
             {r.completed.map((c) => (
               <li
                 key={c.topic_id}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-[12px] border border-[var(--border)] px-4 py-3"
+                className="card-lift flex flex-wrap items-center justify-between gap-2 rounded-[12px] border border-[var(--border)] bg-[var(--surface)] px-4 py-3"
               >
                 <span className="type-small text-[var(--text)]">{c.title}</span>
                 <span className="flex items-center gap-3">
@@ -208,7 +208,7 @@ function TopicCard({ topic, persisted }: { topic: LearningTopic; persisted: bool
           <span className="font-mono text-[11px] text-[var(--text-dim)] tabular-nums">
             {String((topic.order_index ?? 0) + 1).padStart(2, "0")}
           </span>
-          <h2 className="type-h4 m-0">{topic.title}</h2>
+          <h2 className="type-h3 m-0">{topic.title}</h2>
         </div>
         <div className="flex items-center gap-2">
           <TopicProgressControl
@@ -235,12 +235,15 @@ function TopicCard({ topic, persisted }: { topic: LearningTopic; persisted: bool
       </p>
 
       <div className="flex items-center gap-3 mb-4">
-        <div className="flex-1 h-1.5 rounded-[999px] bg-[var(--surface-3)] overflow-hidden">
+        <div className="flex-1 h-2 rounded-[999px] bg-[var(--surface-2)] overflow-hidden shadow-[inset_0_1px_2px_rgba(13,26,19,0.08)]">
           <div
-            className="h-full bg-[var(--brand)]"
+            className="h-full rounded-[999px] bg-[linear-gradient(90deg,var(--green-500),var(--green-600))] transition-[width] duration-500 ease-out"
             style={{ width: `${progressPct}%` }}
           />
         </div>
+        <span className="type-small text-[var(--text-dim)] tabular-nums shrink-0">
+          {progressPct}%
+        </span>
         <span className="type-small text-[var(--text-dim)] tabular-nums shrink-0 inline-flex items-center gap-1">
           <Clock size={13} aria-hidden />
           {topic.estimated_minutes ? `${topic.estimated_minutes} min` : "—"}

@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import PageHeader from "@/components/shell/PageHeader";
 import InterviewRoom from "@/components/app/InterviewRoom";
 import Skeleton from "@/components/app/Skeleton";
 import DataSourceBadge from "@/components/app/DataSourceBadge";
@@ -47,22 +48,18 @@ async function InterviewBody({
 
   return (
     <div className="grid gap-6">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="type-micro text-[var(--text-dim)] m-0">Interview</p>
-          <h1 className="mt-1 mb-0 text-[30px] font-semibold leading-tight tracking-[-0.02em]">
-            Practise the questions this role will ask
-          </h1>
-          <p className="mt-1 type-small text-[var(--text-dim)] m-0">
-            Scored against a rubric, with a quote for every point you earn.
-          </p>
-        </div>
-        <DataSourceBadge
-          source={profile.source}
-          reason={profile.reason}
-          endpoint={profile.endpoint}
-        />
-      </header>
+      <PageHeader
+        eyebrow="Interview"
+        title="Practise the questions this role will ask"
+        description="Scored against a rubric, with a quote for every point you earn."
+        actions={
+          <DataSourceBadge
+            source={profile.source}
+            reason={profile.reason}
+            endpoint={profile.endpoint}
+          />
+        }
+      />
 
       {skills.length === 0 ? (
         <section className="card-surface p-8 text-center">

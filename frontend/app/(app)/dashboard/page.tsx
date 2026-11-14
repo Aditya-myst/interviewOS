@@ -118,7 +118,7 @@ async function DashboardBody({
         </div>
       )}
 
-      <div className="space-y-6">
+      <div className="space-y-6 stagger">
         <TopRow d={d} profile={profile.data} />
         <NextMoves d={d} roadmap={roadmap.data} />
         <section className="card-surface p-5">
@@ -274,7 +274,7 @@ function NextMoves({ d, roadmap }: { d: Dashboard; roadmap: Roadmap }) {
           <li key={m.action}>
             <Link
               href={m.href}
-              className="flex items-center gap-4 px-5 py-3.5 border-b border-[var(--border)] last:border-0 hover:bg-[var(--surface)] transition-colors"
+              className="row-hover flex items-center gap-4 px-5 py-3.5 border-b border-[var(--border)] last:border-0"
             >
               <span className="font-mono text-[11px] text-[var(--text-dim)] tabular-nums">
                 {String(i + 1).padStart(2, "0")}

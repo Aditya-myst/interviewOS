@@ -72,6 +72,19 @@
   --duration: 150ms;
   --ease: ease-out;
 
+  /* Elevation: three tiers, all warm-tinted so nothing reads as grey haze */
+  --shadow-1: 0 1px 2px rgba(13, 26, 19, 0.05);
+  --shadow-2: 0 1px 2px rgba(13, 26, 19, 0.05), 0 8px 24px -14px rgba(13, 26, 19, 0.28);
+  --shadow-3: 0 1px 2px rgba(13, 26, 19, 0.06), 0 18px 44px -22px rgba(13, 26, 19, 0.34);
+  --highlight: inset 0 1px 0 rgba(255, 255, 255, 0.62);
+
+  /* The soft curve everything eases on. `ease-out` is too abrupt past 200ms. */
+  --ease-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --stagger-step: 55ms;
+
+  /* A hairline that fades out — for header rules that should not cut the page in half */
+  --rule: color-mix(in srgb, var(--text) 10%, transparent);
+
   /* ── shadcn mapping: light theme ───────────────────────────── */
   --background: var(--canvas);
   --foreground: var(--text);
@@ -204,6 +217,60 @@
     @apply bg-background text-foreground min-h-screen;
     font-size: 16px;
     line-height: 1.6;
+    /* The cream canvas is not flat: two very soft washes (brand green top-left,
+       warm ochre top-right) over a 22px dot grid. At this opacity it reads as
+       paper, not decoration — and it costs one paint, no animation. */
+    background-image:
+      radial-gradient(60rem 40rem at 8% -12%, rgba(34, 197, 94, 0.09), transparent 60%),
+      radial-gradient(48rem 34rem at 96% -8%, rgba(180, 83, 9, 0.07), transparent 60%),
+      radial-gradient(rgba(13, 26, 19, 0.045) 1px, transparent 1.1px);
+    background-size: auto, auto, 22px 22px;
+    background-attachment: fixed, fixed, fixed;
+  }
+
+  /* Headlines should break where the eye wants them to, not where the box ends. */
+  h1,
+  h2,
+  h3,
+  .type-display-1,
+  .type-display-2,
+  .type-display-3,
+  .type-hero {
+    text-wrap: balance;
+  }
+  p,
+  li,
+  .type-body,
+  .type-small {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background: var(--brand-soft);
+    color: var(--ink-950);
+  }
+
+  /* Scrollbars are part of the design; the default Windows ones are not. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--text) 22%, transparent) transparent;
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--text) 18%, transparent);
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in srgb, var(--text) 32%, transparent);
+    background-clip: content-box;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -216,6 +283,9 @@
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
+      /* Stagger delays must go too: with `both` fill, a 440ms delay would leave
+         the content invisible for that long even though the animation is instant. */
+      animation-delay: 0ms !important;
     }
   }
 
@@ -246,14 +316,35 @@
   }
 }
 
-/* ─── Motion ─────────────────────────────────────────────────── */
+/* ─── Motion ───────────────────────────────────────────────────
+   Three verbs only: arrive (content enters), settle (a value changed),
+   breathe (something is alive). Nothing moves on scroll, and nothing
+   loops faster than 3s — motion is a signal, not a mood.
+   ─────────────────────────────────────────────────────────────── */
 @keyframes riseIn {
-  from { opacity: 0; transform: translateY(14px); }
+  from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: none; }
 }
 @keyframes fadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }
+}
+/* A value that just changed: numbers land from above, in three visible steps,
+   so a score reads as counted rather than eased. */
+@keyframes settleIn {
+  from { opacity: 0; transform: translateY(-0.4em); }
+  to   { opacity: 1; transform: none; }
+}
+/* One slow pass of light across an ink slab, on mount. */
+@keyframes sweep {
+  from { transform: translateX(-130%) skewX(-12deg); opacity: 0; }
+  40%  { opacity: 0.55; }
+  to   { transform: translateX(240%) skewX(-12deg); opacity: 0; }
+}
+/* A dot that is on: used for "live" markers. */
+@keyframes breathe {
+  0%, 100% { opacity: 0.30; transform: scale(0.9); }
+  50%      { opacity: 1;    transform: scale(1); }
 }
 
 /* ─── Typography + surface utilities ─────────────────────────────
@@ -307,6 +398,13 @@
     font-size: 14px;
     line-height: 1.5;
   }
+  /* The sentence under a page title: bigger than body, dimmer than a heading. */
+  .type-lede {
+    font-size: clamp(15px, 1.1vw, 17px);
+    line-height: 1.55;
+    color: var(--text-dim);
+    max-width: 66ch;
+  }
   .type-micro {
     font-family: var(--font-sans);
     font-size: 12px;
@@ -316,11 +414,151 @@
     line-height: 1.4;
   }
   .animate-rise {
-    animation: riseIn 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+    animation: riseIn 0.55s var(--ease-soft) both;
   }
   .animate-fade {
-    animation: fadeIn 0.8s ease-out both;
+    animation: fadeIn 0.6s var(--ease-soft) both;
   }
+  .animate-settle {
+    animation: settleIn 0.36s steps(3, end) both;
+  }
+
+  /* Stagger without JavaScript: children arrive one after another. Applied to
+     lists the server renders, which is why it is nth-child and not a hook. */
+  .stagger > * {
+    animation: riseIn 0.5s var(--ease-soft) both;
+  }
+  .stagger > *:nth-child(1) { animation-delay: calc(var(--stagger-step) * 0); }
+  .stagger > *:nth-child(2) { animation-delay: calc(var(--stagger-step) * 1); }
+  .stagger > *:nth-child(3) { animation-delay: calc(var(--stagger-step) * 2); }
+  .stagger > *:nth-child(4) { animation-delay: calc(var(--stagger-step) * 3); }
+  .stagger > *:nth-child(5) { animation-delay: calc(var(--stagger-step) * 4); }
+  .stagger > *:nth-child(6) { animation-delay: calc(var(--stagger-step) * 5); }
+  .stagger > *:nth-child(7) { animation-delay: calc(var(--stagger-step) * 6); }
+  .stagger > *:nth-child(8) { animation-delay: calc(var(--stagger-step) * 7); }
+  .stagger > *:nth-child(n + 9) { animation-delay: calc(var(--stagger-step) * 8); }
+
+  /* Something that can be clicked should say so before it is clicked. */
+  .card-lift {
+    transition:
+      transform 180ms var(--ease-soft),
+      box-shadow 180ms var(--ease-soft),
+      border-color 180ms var(--ease-soft),
+      background-color 180ms var(--ease-soft);
+  }
+  .card-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-3);
+    border-color: var(--border-strong);
+  }
+  .card-lift:active {
+    transform: translateY(0);
+  }
+
+  /* Table rows: a warm wash on hover. (The edge marker below is for div rows —
+     `position: relative` on a <tr> is not dependable across engines.) */
+  .row-wash {
+    transition: background-color 150ms var(--ease-soft);
+  }
+  .row-wash:hover {
+    background-color: color-mix(in srgb, var(--brand) 5%, transparent);
+  }
+
+  /* List rows: a warm wash and a brand edge that grows in. */
+  .row-hover {
+    position: relative;
+    transition: background-color 150ms var(--ease-soft);
+  }
+  .row-hover:hover {
+    background-color: color-mix(in srgb, var(--brand) 5%, transparent);
+  }
+  .row-hover::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    left: 0;
+    width: 2px;
+    background: var(--brand);
+    transform: scaleY(0);
+    transform-origin: center;
+    transition: transform 160ms var(--ease-soft);
+  }
+  .row-hover:hover::before {
+    transform: scaleY(1);
+  }
+
+  /* Links in body copy, underlined only when you are on them. */
+  .link-underline {
+    position: relative;
+  }
+  .link-underline::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -3px;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 200ms var(--ease-soft);
+  }
+  .link-underline:hover::after,
+  .link-underline:focus-visible::after {
+    transform: scaleX(1);
+  }
+
+  /* Loading: a light that travels, instead of a box that pulses. */
+  .skeleton {
+    background-image: linear-gradient(
+      90deg,
+      var(--surface-3) 0%,
+      color-mix(in srgb, var(--surface-3) 55%, white) 45%,
+      var(--surface-3) 90%
+    );
+    background-size: 220% 100%;
+    animation: skeleton-slide 1.6s ease-in-out infinite;
+  }
+  @keyframes skeleton-slide {
+    from { background-position: 130% 0; }
+    to   { background-position: -30% 0; }
+  }
+
+  /* A one-off sheen for ink slabs — the hero and the interview room. */
+  .sheen {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .sheen::after {
+    content: "";
+    position: absolute;
+    inset-block: -20%;
+    left: 0;
+    width: 45%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.09), transparent);
+    animation: sweep 2.4s var(--ease-soft) 0.35s 1 both;
+    pointer-events: none;
+  }
+
+  /* "live" dot for a value that is being measured right now. */
+  .dot-live {
+    animation: breathe 3s ease-in-out infinite;
+  }
+
+  /* Rules that fade instead of stopping mid-air. */
+  .rule-fade {
+    height: 1px;
+    background: linear-gradient(90deg, var(--border-strong), var(--border) 40%, transparent);
+  }
+  .rule-fade-ink {
+    height: 1px;
+    background: linear-gradient(90deg, var(--line-strong), var(--line) 40%, transparent);
+  }
+
+  /* Long-form measure — keeps a paragraph from running the width of a 1240px page. */
+  .measure { max-width: 68ch; }
+  .measure-tight { max-width: 54ch; }
   .type-mono-value {
     font-family: var(--font-mono);
     font-variant-numeric: tabular-nums;
@@ -329,12 +567,17 @@
   /* Surfaces */
   .card-surface {
     background-color: var(--surface);
+    /* A hint of light from the top edge: cards read as paper on paper, not as
+       rectangles of a different colour. */
+    background-image: linear-gradient(
+      180deg,
+      color-mix(in srgb, white 70%, transparent),
+      transparent 120px
+    );
     color: var(--text);
     border: 1px solid var(--border);
     border-radius: var(--radius-card);
-    box-shadow:
-      0 1px 2px rgba(0, 0, 0, 0.06),
-      0 10px 28px -14px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--highlight), var(--shadow-2);
   }
   /* legacy alias */
   .card-cream {
@@ -357,9 +600,17 @@
   }
   .panel-ink {
     background-color: var(--ink-900);
+    /* Green light bleeding from the top edge, so ink surfaces have depth
+       instead of being a flat dark block. */
+    background-image: radial-gradient(
+      120% 120% at 50% -30%,
+      rgba(34, 197, 94, 0.16),
+      transparent 62%
+    );
     color: var(--on-ink);
     border: 1px solid var(--line);
     border-radius: var(--radius-card);
+    box-shadow: 0 18px 44px -28px rgba(8, 17, 12, 0.55);
   }
   /* legacy alias */
   .card-ink {

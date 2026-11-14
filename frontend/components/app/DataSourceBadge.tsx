@@ -56,13 +56,13 @@ export default function DataSourceBadge({
 
   return (
     <span
-      className={`inline-flex items-center gap-2 rounded-[var(--radius-pill)] border px-3 py-1 type-micro ${style.wrap} ${className}`}
+      className={`inline-flex max-w-full flex-wrap items-center gap-x-2 gap-y-0.5 rounded-[var(--radius-pill)] border px-3 py-1 type-micro ${style.wrap} ${className}`}
       title={detail}
     >
       <span className={`size-1.5 rounded-full ${style.dot}`} aria-hidden />
       <Icon size={12} aria-hidden />
       <span className="font-medium">{style.label}</span>
-      <span className="opacity-80 font-mono">{detail}</span>
+      <span className="min-w-0 font-mono opacity-80 [overflow-wrap:anywhere]">{detail}</span>
     </span>
   );
 }

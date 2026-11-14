@@ -43,7 +43,10 @@ export default function InterviewTable({
         </thead>
         <tbody>
           {interviews.map((s) => (
-            <tr key={s.session_id} className="border-b border-[var(--border)] last:border-0">
+            <tr
+              key={s.session_id}
+              className="row-wash border-b border-[var(--border)] last:border-0"
+            >
               <td className="py-3 pr-4 type-small">{MODE_LABEL[s.mode] ?? s.mode}</td>
               <td className="py-3 pr-4 type-small text-[var(--text-dim)]">
                 {s.channel}
