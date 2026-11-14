@@ -1,6 +1,5 @@
 import IosButton from "@/components/primitives/IosButton";
-import SkillPill from "@/components/primitives/SkillPill";
-import CountUp from "./CountUp";
+import EvidenceLedger from "./EvidenceLedger";
 
 /* Every figure here is one the product can back up: the four-minute figure is
    the FAQ's, the nine skills are the fixture JD's, the zero is the pricing. */
@@ -84,83 +83,12 @@ export default function Hero() {
           </dl>
         </div>
 
-        {/* ── Right: a real product surface, framed as an artifact ────── */}
+        {/* ── Right: the artifact ─────────────────────────────────────── */}
         <div
           className="animate-rise relative w-full max-w-[420px] mx-auto"
           style={{ animationDelay: "300ms" }}
         >
-          {/* the one piece of free colour on the page */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 size-[440px] rounded-full opacity-70 blur-3xl bg-[radial-gradient(circle,color-mix(in_srgb,var(--brand)_22%,transparent),transparent_68%)]"
-          />
-
-          <figure className="relative m-0 overflow-hidden rounded-[16px] border border-[var(--border-strong)] bg-[var(--surface)] shadow-[0_30px_60px_-40px_rgba(13,26,19,0.55)]">
-            {/* window chrome — this is a report, and it says which one */}
-            <div className="flex items-center justify-between gap-3 border-b border-[var(--border)] bg-[var(--surface-2)] px-4 py-2.5">
-              <span className="type-micro font-mono text-[var(--text-dim)]">
-                report.preflight
-              </span>
-              <span className="type-micro text-[var(--text-dim)]">
-                Northwind Labs · AI Engineer
-              </span>
-            </div>
-
-            {/* the two cards */}
-            <div className="relative h-[452px] px-5 pt-5">
-              <div className="absolute inset-x-9 top-5 h-[206px] -rotate-2 rounded-[14px] border border-[var(--border)] bg-[var(--surface-2)] px-6 pt-6 flex flex-col items-center gap-3 shadow-[0_18px_40px_-28px_rgba(13,26,19,0.45)]">
-                <p className="type-micro text-[var(--text-dim)] m-0">Readiness</p>
-                <p className="font-mono text-[40px] leading-none text-[var(--text)] tabular-nums m-0">
-                  <CountUp to={42} suffix="%" />
-                </p>
-                <p className="type-micro m-0 mt-1 text-[var(--text-dim)]">2 of 9 verified</p>
-                <div className="mt-1 w-3/4 h-[6px] overflow-hidden rounded-full bg-[var(--canvas)]">
-                  <div className="h-full bg-[var(--brand)]" style={{ width: "42%" }} />
-                </div>
-              </div>
-
-              <div className="card-lift absolute inset-x-0 bottom-0 rounded-[14px] border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[0_22px_44px_-30px_rgba(13,26,19,0.5)]">
-                <p className="type-micro text-[var(--text-dim)] m-0 mb-2">Your top gap</p>
-                <h2 className="m-0 mb-3 font-[family-name:var(--font-display)] text-[30px] leading-none text-[var(--text)]">
-                  FastAPI
-                </h2>
-
-                <div className="mb-4 flex items-center gap-2">
-                  <SkillPill label="Weak" status="weak" />
-                </div>
-
-                <div className="mb-1.5 flex items-center justify-between">
-                  <span className="type-small text-[var(--text-dim)]">Evidence</span>
-                  <span className="type-small font-mono tabular-nums text-[var(--text-dim)]">
-                    1 / 3
-                  </span>
-                </div>
-                <div className="mb-4 h-1.5 w-full overflow-hidden rounded-full bg-[var(--surface-2)]">
-                  <div className="h-full bg-[var(--brand)]" style={{ width: "33%" }} />
-                </div>
-
-                <blockquote className="m-0 mb-4 type-small italic text-[var(--text-dim)]">
-                  “Listed on your resume. Never demonstrated in an assessment.”
-                </blockquote>
-
-                <div className="flex items-center justify-between type-small">
-                  <span className="font-mono tabular-nums text-[var(--text-dim)]">
-                    PRIORITY 0.52
-                  </span>
-                  <span className="rounded-[999px] bg-[var(--brand-soft)] px-2 py-1 text-xs font-semibold text-[var(--brand-strong)]">
-                    HIGH
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* the receipt line: what the frame above adds up to */}
-            <figcaption className="flex items-center justify-between gap-3 border-t border-[var(--border)] px-4 py-2.5 font-mono type-micro text-[var(--text-dim)] tabular-nums">
-              <span>9 claims</span>
-              <span className="text-[var(--brand-strong)]">2 verified</span>
-              <span>7 open</span>
-            </figcaption>
-          </figure>
+          <EvidenceLedger />
         </div>
       </div>
 
