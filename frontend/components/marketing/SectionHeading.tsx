@@ -1,7 +1,9 @@
 import React from "react";
 import { cn } from "@/lib/utils";
+import SectionMarker from "./SectionMarker";
 
 export default function SectionHeading({
+  index,
   eyebrow,
   title,
   lead,
@@ -9,6 +11,8 @@ export default function SectionHeading({
   align = "left",
   className,
 }: {
+  /** Section number for the page spine, e.g. "03". Renders the marker itself. */
+  index?: string;
   eyebrow?: string;
   title: React.ReactNode;
   lead?: React.ReactNode;
@@ -26,7 +30,16 @@ export default function SectionHeading({
         className
       )}
     >
-      {eyebrow && <p className={cn("type-micro mb-4", dim)}>{eyebrow}</p>}
+      {index ? (
+        <SectionMarker
+          index={index}
+          label={eyebrow ?? ""}
+          tone={tone === "ink" ? "ink" : "light"}
+          className="mb-5"
+        />
+      ) : (
+        eyebrow && <p className={cn("type-micro mb-4", dim)}>{eyebrow}</p>
+      )}
       <h2 className={cn("type-display-2", strong)}>{title}</h2>
       {lead && (
         <p

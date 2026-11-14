@@ -38,13 +38,16 @@ export default function FAQ() {
       <div className="grid grid-cols-1 lg:grid-cols-[0.85fr_1.15fr] gap-10 lg:gap-16">
         <div className="lg:sticky lg:top-24 self-start">
           <SectionHeading
+            index="05"
             eyebrow="FAQ"
             title="Common questions"
             lead="Short answers, and the honest limits behind them."
             className="mb-8"
           />
-          <IosButton variant="secondary" size="md" arrow>
-            Ask something else
+          {/* This used to be a button with no handler — it looked clickable and
+              did nothing. It points at the page that answers the next question. */}
+          <IosButton href="/privacy" variant="secondary" size="md" arrow>
+            How we handle your data
           </IosButton>
         </div>
 
@@ -61,9 +64,15 @@ export default function FAQ() {
                       aria-expanded={isOpen}
                       aria-controls={`faq-panel-${i}`}
                       id={`faq-trigger-${i}`}
-                      className="w-full flex items-center justify-between gap-4 py-5 text-left type-h4 text-[var(--text)] hover:text-[var(--brand-strong)] transition-colors"
+                      className="group flex w-full items-center gap-4 py-5 text-left type-h4 text-[var(--text)] transition-colors hover:text-[var(--brand-strong)]"
                     >
-                      {item.q}
+                      <span
+                        aria-hidden
+                        className="type-micro shrink-0 font-mono tabular-nums text-[var(--text-dim)] group-hover:text-[var(--brand-strong)]"
+                      >
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      <span className="flex-1">{item.q}</span>
                       <ChevronDown
                         size={18}
                         aria-hidden
@@ -82,7 +91,7 @@ export default function FAQ() {
                     }`}
                   >
                     <div className="overflow-hidden">
-                      <p className="type-small text-[var(--text-dim)] m-0 pb-5 max-w-[58ch]">
+                      <p className="type-small text-[var(--text-dim)] m-0 max-w-[58ch] pb-5 pl-9">
                         {item.a}
                       </p>
                     </div>

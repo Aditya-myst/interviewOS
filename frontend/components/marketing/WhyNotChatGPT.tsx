@@ -30,6 +30,7 @@ export default function WhyNotChatGPT() {
   return (
     <Section id="why-not-chatgpt">
       <SectionHeading
+        index="04"
         eyebrow="Fair question"
         title="Why not just paste it into a chatbot?"
         lead="A chatbot can tell you what a good answer looks like. It cannot tell you whether yours was one — it has no evidence, no memory of your progress, and no reason to keep its links alive."
@@ -46,14 +47,17 @@ export default function WhyNotChatGPT() {
                 <th scope="col" className="type-micro text-[var(--text-dim)] px-5 sm:px-6 py-3 hidden sm:table-cell">
                   A generic chatbot
                 </th>
-                <th scope="col" className="type-micro px-5 sm:px-6 py-3 text-[var(--brand-strong)]">
+                <th
+                  scope="col"
+                  className="type-micro border-l border-[var(--border)] bg-[color-mix(in_srgb,var(--brand)_8%,transparent)] px-5 py-3 text-[var(--brand-strong)] sm:px-6"
+                >
                   InterviewOS
                 </th>
               </tr>
             </thead>
             <tbody>
               {ROWS.map((r) => (
-                <tr key={r.claim} className="border-t border-[var(--border)] align-top">
+                <tr key={r.claim} className="align-top border-t border-[var(--border)] transition-colors hover:bg-[color-mix(in_srgb,var(--brand)_3%,transparent)]">
                   <th scope="row" className="px-5 sm:px-6 py-4 font-semibold text-left">
                     {r.claim}
                   </th>
@@ -67,7 +71,7 @@ export default function WhyNotChatGPT() {
                       {r.them}
                     </span>
                   </td>
-                  <td className="px-5 sm:px-6 py-4">
+                  <td className="border-l border-[var(--border)] bg-[color-mix(in_srgb,var(--brand)_4%,transparent)] px-5 py-4 sm:px-6">
                     <span className="flex items-start gap-2 type-small font-medium">
                       <Check
                         size={16}

@@ -1,5 +1,6 @@
 import Section from "./Section";
 import Reveal from "./Reveal";
+import SectionMarker from "./SectionMarker";
 
 const ITEMS = [
   {
@@ -21,18 +22,31 @@ const ITEMS = [
 
 export default function ProblemSlab() {
   return (
-    <Section tone="ink" className="bg-[var(--ink-900)] py-20 lg:py-24">
-      <p className="type-micro text-[var(--on-ink-dim)] mb-8">The actual problem</p>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10">
-        {ITEMS.map((item, i) => (
-          <Reveal key={item.n} delay={i * 90}>
-            <span className="block font-mono text-2xl text-[var(--green-300)] mb-3">
-              {item.n}
-            </span>
-            <h3 className="type-h3 text-[var(--on-ink)] mb-2">{item.title}</h3>
-            <p className="type-small text-[var(--on-ink-dim)] m-0">{item.body}</p>
-          </Reveal>
-        ))}
+    <Section tone="ink" className="relative overflow-hidden bg-[var(--ink-900)] py-20 lg:py-24">
+      {/* a whisper of the paper grid, so the ink band is not a flat rectangle */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-[0.14] [background-image:radial-gradient(rgba(231,223,202,0.5)_1px,transparent_1px)] [background-size:22px_22px]"
+      />
+      <div className="relative">
+        <SectionMarker index="01" label="The actual problem" tone="ink" />
+
+        <div className="grid grid-cols-1 gap-px overflow-hidden rounded-[14px] bg-white/12 md:grid-cols-3">
+          {ITEMS.map((item, i) => (
+            <Reveal key={item.n} delay={i * 90} className="h-full">
+              <div className="group h-full bg-[var(--ink-900)] p-6 lg:p-8 transition-colors duration-300 hover:bg-[var(--ink-950)]">
+                <span
+                  aria-hidden
+                  className="ghost-numeral mb-5 block text-[46px] leading-none text-[var(--on-ink)]"
+                >
+                  {item.n}
+                </span>
+                <h3 className="type-h3 mb-2 text-[var(--on-ink)]">{item.title}</h3>
+                <p className="type-small m-0 text-[var(--on-ink-dim)]">{item.body}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
       </div>
     </Section>
   );

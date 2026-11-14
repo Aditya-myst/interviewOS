@@ -41,6 +41,12 @@ const ROWS: Array<{
     why: "Listed on your resume; the assessment found no practical evidence.",
   },
   {
+    skill: "System design",
+    status: "unverified",
+    band: "HIGH",
+    why: "This role designs for scale; nothing in the assessment reached caching or rate limits.",
+  },
+  {
     skill: "React",
     status: "claimed",
     band: "LOW",
@@ -58,6 +64,7 @@ export default function SampleReport() {
   return (
     <Section id="sample-report" tone="surface">
       <SectionHeading
+        index="03"
         eyebrow="Sample report"
         title={
           <>
@@ -86,8 +93,8 @@ export default function SampleReport() {
                       scope="col"
                       className={`type-micro text-[var(--text-dim)] px-5 sm:px-6 py-2.5 ${
                         h === "Skill" ? "w-[20%]" : ""
-                      } ${h === "Status" ? "w-[22%]" : ""} ${
-                        h === "Priority" ? "w-[16%]" : ""
+                      } ${h === "Status" ? "w-[20%]" : ""} ${
+                        h === "Priority" ? "w-[14%]" : ""
                       } ${h === "Status" || h === "Priority" ? "hidden md:table-cell" : ""}`}
                     >
                       {h}
@@ -134,14 +141,14 @@ export default function SampleReport() {
         {/* Coverage radar */}
         <Reveal delay={120} className="h-full">
           <div className="card-surface p-5 sm:p-6 h-full flex flex-col">
-            <div className="flex items-start justify-between gap-3 mb-2">
+            <div className="mb-2 flex items-start justify-between gap-4 border-b border-[var(--border)] pb-4">
               <div>
-                <p className="type-micro text-[var(--text-dim)] mb-1">Skill coverage</p>
-                <p className="type-small text-[var(--text-dim)] m-0">
-                  Share of skills in each state, by category
+                <h3 className="type-h3 m-0">Coverage by block</h3>
+                <p className="type-micro m-0 mt-1.5 text-[var(--text-dim)]">
+                  share of skills in each state
                 </p>
               </div>
-              <span className="font-mono text-[13px] text-[var(--text-dim)] tabular-nums">
+              <span className="whitespace-nowrap font-mono type-small tabular-nums text-[var(--text-dim)]">
                 2 / 9 verified
               </span>
             </div>

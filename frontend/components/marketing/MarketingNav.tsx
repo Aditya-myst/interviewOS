@@ -14,9 +14,14 @@ const LINKS = [
 export default function MarketingNav() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
+    const onScroll = () => {
+      setScrolled(window.scrollY > 8);
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      setProgress(max > 0 ? Math.min(1, window.scrollY / max) : 0);
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -82,6 +87,14 @@ export default function MarketingNav() {
           </button>
         </div>
       </div>
+
+      {/* How far through the page you are. Not motion — the bar only changes
+          length when the reader does something. */}
+      <div
+        aria-hidden
+        className="absolute inset-x-0 bottom-0 h-px origin-left bg-[var(--brand)] opacity-70"
+        style={{ transform: `scaleX(${progress})` }}
+      />
 
       {/* Mobile menu */}
       <div

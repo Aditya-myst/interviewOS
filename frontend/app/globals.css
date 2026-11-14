@@ -336,6 +336,30 @@
   to   { opacity: 1; transform: none; }
 }
 /* One slow pass of light across an ink slab, on mount. */
+/* A slow right-to-left tape. 46s for one loop of a doubled track, so it reads
+   as texture rather than as something asking to be watched. */
+@keyframes tapeScroll {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+/* The hero's scroll cue: a 3px chevron that drifts down and returns. */
+@keyframes cueBob {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.55;
+  }
+  50% {
+    transform: translateY(4px);
+    opacity: 1;
+  }
+}
+
 @keyframes sweep {
   from { transform: translateX(-130%) skewX(-12deg); opacity: 0; }
   40%  { opacity: 0.55; }
@@ -509,6 +533,37 @@
   }
 
   /* Loading: a light that travels, instead of a box that pulses. */
+  /* The logo ticker. Two identical halves inside one track; the keyframe moves
+     the track by exactly -50%, so the seam is never visible. */
+  .tape {
+    display: flex;
+    width: max-content;
+    animation: tapeScroll 46s linear infinite;
+  }
+  .tape-mask {
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 8%,
+      #000 92%,
+      transparent
+    );
+  }
+
+  .cue-bob {
+    animation: cueBob 2.4s var(--ease-soft) infinite;
+  }
+
+  /* Big ghost numerals for the numbered landing sections. They are decoration,
+     so they are aria-hidden at the call site, and they never carry contrast
+     obligations — nothing is read from them. */
+  .ghost-numeral {
+    font-family: var(--font-display);
+    line-height: 0.8;
+    color: color-mix(in srgb, currentColor 12%, transparent);
+    -webkit-text-stroke: 1px color-mix(in srgb, currentColor 22%, transparent);
+  }
+
   .skeleton {
     background-image: linear-gradient(
       90deg,
